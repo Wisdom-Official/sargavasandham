@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Score Arena | Sargavasantham 2026-2027</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandRed: {
+              DEFAULT: '#E53E3E',
+              glow: '#FF2A2A',
+              dark: '#9B1C1C'
+            },
+            brandBlue: {
+              DEFAULT: '#2B6CB0',
+              glow: '#0080FF',
+              dark: '#1C3D6E'
+            },
+            madrasaGold: '#F59E0B'
+          },
+          fontFamily: {
+            outfit: ['Outfit', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    /* Score Elevation FX */
+    .team-card {
+      transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .team-elevated {
+      transform: translateY(-24px) scale(1.03);
+      z-index: 20;
+    }
+
+    .team-lowered {
+      transform: translateY(12px) scale(0.97);
+      opacity: 0.88;
+    }
+
+    /* Neon Glow Filters */
+    .glow-red {
+      box-shadow: 0 0 50px rgba(229, 62, 62, 0.4), inset 0 0 20px rgba(229, 62, 62, 0.2);
+    }
+
+    .glow-blue {
+      box-shadow: 0 0 50px rgba(43, 108, 176, 0.4), inset 0 0 20px rgba(43, 108, 176, 0.2);
+    }
+
+    /* Floating Crown Badge Animation */
+    @keyframes crownFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+      50% { transform: translateY(-8px) rotate(4deg) scale(1.1); }
+    }
+    .animate-crown {
+      animation: crownFloat 2.5s ease-in-out infinite;
+    }
+
+    /* Pulse Beam for Leading Team */
+    @keyframes pulseBeam {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.08); }
+    }
+    .animate-beam {
+      animation: pulseBeam 2s infinite ease-in-out;
+    }
+
+    /* Shimmer Progress Fill */
+    .progress-shimmer {
+      background-size: 200% 100%;
+      animation: shimmerMove 3s linear infinite;
+    }
+    @keyframes shimmerMove {
+      0% { background-position: 100% 0; }
+      100% { background-position: -100% 0; }
+    }
+  </style>
+
+  <!-- Firebase Web SDK Imports (v11) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getFirestore, doc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+    // Firebase Config (ഉപയോക്താവ് നൽകിയ അതേ എപിഐ കീ)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLyKNAbhjVj5yBKWjT4_t0DrPRxnuH86U",
+      authDomain: "event-1b1b1.firebaseapp.com",
+      projectId: "event-1b1b1",
+      storageBucket: "event-1b1b1.firebasestorage.app",
+      messagingSenderId: "825845170211",
+      appId: "1:825845170211:web:f9b3fcf5771b2bf0abf196"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.db = db;
+    window.firestoreModule = { doc, onSnapshot, getDoc };
+  </script>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-4 sm:p-6 md:p-8 selection:bg-amber-500 selection:text-slate-900">
+
+  <!-- TOP HEADER WITH LOGOS -->
+  <header class="w-full max-w-7xl mx-auto flex items-center justify-between py-2 border-b border-slate-800/80">
+    <!-- Left Logo -->
+    <div class="flex items-center space-x-3">
+      <img src="madrasa.png" alt="Al Hikma Logo" class="h-10 sm:h-14 object-contain" onerror="this.src='https://via.placeholder.com/80?text=Al+Hikma'">
+      <div class="hidden sm:block h-8 w-px bg-slate-800"></div>
+      <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="h-8 sm:h-12 object-contain hidden md:block" onerror="this.src='https://via.placeholder.com/120?text=Wisdom'">
+    </div>
+
+    <!-- Center Festival Title Banner -->
+    <div class="text-center flex-1 max-w-xs sm:max-w-md px-2">
+      <img src="SargHor.png" alt="Sargavasantham 2026-27" class="h-10 sm:h-16 mx-auto object-contain brightness-110" onerror="this.src='https://via.placeholder.com/200x50?text=Sargavasantham+2026-27'">
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-2">
+      <button onclick="toggleFullScreen()" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-2 border border-slate-700 transition-all">
+        <i class="fa-solid fa-expand text-amber-400"></i>
+        <span class="hidden sm:inline">TV Screen</span>
+      </button>
+      <a href="index.html" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-2 border border-slate-700 transition-all">
+        <i class="fa-solid fa-house text-emerald-400"></i>
+        <span class="hidden sm:inline">Main Site</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN HORIZONTAL SCORE ARENA -->
+  <main class="w-full max-w-7xl mx-auto my-auto py-6 sm:py-10 space-y-8">
+    
+    <!-- Sub Title Status -->
+    <div class="text-center space-y-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> 
+      </span>
+      <h1 class="text-2xl sm:text-4xl font-black font-outfit tracking-tight text-slate-100">
+        GRAND CHAMPIONSHIP BOARD
+      </h1>
+    </div>
+
+    <!-- SIDE BY SIDE HORIZONTAL SCORE CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 relative items-center pt-8">
+      
+      <!-- VS BADGE IN CENTER -->
+      <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-x-1/2 z-30 hidden md:flex flex-col items-center pointer-events-none">
+        <div class="w-14 h-14 rounded-full bg-slate-900 border-2 border-amber-400 text-amber-400 font-black text-xl flex items-center justify-center shadow-2xl tracking-widest">
+          VS
+        </div>
+        <div id="leadBadge" class="mt-2 px-3 py-1 bg-slate-900/90 border border-slate-700 text-[11px] font-extrabold text-amber-300 rounded-full shadow-lg whitespace-nowrap">
+          Tie Game
+        </div>
+      </div>
+
+      <!-- TEAM A (RED) CARD -->
+      <div id="cardTeamA" class="team-card relative overflow-hidden rounded-3xl bg-slate-900/90 border-2 border-rose-600/60 p-6 sm:p-10 shadow-2xl glow-red flex flex-col justify-between min-h-[320px] sm:min-h-[380px]">
+        
+        <!-- Glowing Beam for Leader -->
+        <div id="beamTeamA" class="absolute inset-0 bg-rose-500/10 pointer-events-none opacity-0 transition-opacity duration-500 animate-beam"></div>
+
+        <!-- Floating Leader Badge -->
+        <div id="crownTeamA" class="absolute top-4 right-4 hidden animate-crown bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 px-3.5 py-1 rounded-full text-xs font-black shadow-lg flex items-center gap-1.5 border border-amber-200">
+          <i class="fa-solid fa-crown text-slate-900"></i> LEADING
+        </div>
+
+        <div class="relative z-10 space-y-4">
+          <!-- Header -->
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-red-700 text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-lg border border-rose-400/30">
+              A
+            </div>
+            <div>
+              <h2 class="text-2xl sm:text-4xl font-black font-outfit text-rose-500 tracking-wide">TEAM A</h2>
+              <p class="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider">Red Warriors</p>
+            </div>
+          </div>
+
+          <!-- BIG SCORE DISPLAY -->
+          <div class="py-4 text-center md:text-left flex items-baseline justify-center md:justify-start gap-2">
+            <span id="scoreTextA" class="text-6xl sm:text-8xl font-black font-outfit text-white tracking-tight drop-shadow-md transition-all">0</span>
+            <span class="text-lg sm:text-2xl font-black text-rose-400">PTS</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar & Teachers Footer -->
+        <div class="relative z-10 space-y-3 pt-4 border-t border-slate-800">
+          <div class="w-full bg-slate-950 h-5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+            <div id="barTeamA" class="bg-gradient-to-r from-rose-600 via-rose-500 to-red-400 h-full rounded-full transition-all duration-1000 progress-shimmer" style="width: 0%"></div>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span><i class="fa-solid fa-chalkboard-user text-rose-400 mr-1"></i> Teachers:</span>
+            <span class="font-bold text-slate-200 truncate ml-2">Fahad Usthad, Nadeera Teacher, Sabira Teacher</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TEAM B (BLUE) CARD -->
+      <div id="cardTeamB" class="team-card relative overflow-hidden rounded-3xl bg-slate-900/90 border-2 border-blue-600/60 p-6 sm:p-10 shadow-2xl glow-blue flex flex-col justify-between min-h-[320px] sm:min-h-[380px]">
+        
+        <!-- Glowing Beam for Leader -->
+        <div id="beamTeamB" class="absolute inset-0 bg-blue-500/10 pointer-events-none opacity-0 transition-opacity duration-500 animate-beam"></div>
+
+        <!-- Floating Leader Badge -->
+        <div id="crownTeamB" class="absolute top-4 right-4 hidden animate-crown bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 px-3.5 py-1 rounded-full text-xs font-black shadow-lg flex items-center gap-1.5 border border-amber-200">
+          <i class="fa-solid fa-crown text-slate-900"></i> LEADING
+        </div>
+
+        <div class="relative z-10 space-y-4">
+          <!-- Header -->
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-700 text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-lg border border-blue-400/30">
+              B
+            </div>
+            <div>
+              <h2 class="text-2xl sm:text-4xl font-black font-outfit text-blue-400 tracking-wide">TEAM B</h2>
+              <p class="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider">Blue Titans</p>
+            </div>
+          </div>
+
+          <!-- BIG SCORE DISPLAY -->
+          <div class="py-4 text-center md:text-left flex items-baseline justify-center md:justify-start gap-2">
+            <span id="scoreTextB" class="text-6xl sm:text-8xl font-black font-outfit text-white tracking-tight drop-shadow-md transition-all">0</span>
+            <span class="text-lg sm:text-2xl font-black text-blue-400">PTS</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar & Teachers Footer -->
+        <div class="relative z-10 space-y-3 pt-4 border-t border-slate-800">
+          <div class="w-full bg-slate-950 h-5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+            <div id="barTeamB" class="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-400 h-full rounded-full transition-all duration-1000 progress-shimmer" style="width: 0%"></div>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span><i class="fa-solid fa-chalkboard-user text-blue-400 mr-1"></i> Teachers:</span>
+            <span class="font-bold text-slate-200 truncate ml-2">Fasil Usthad, Sancy Teacher, Saniya Teacher</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="w-full max-w-7xl mx-auto border-t border-slate-800/80 pt-4 pb-2 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <div class="flex items-center gap-4">
+      <img src="madrasa.png" class="h-6 object-contain" alt="Al Hikma" onerror="this.src='https://via.placeholder.com/40'">
+      <span class="text-slate-400 font-semibold">Al Hikma Holiday Madrasa, Nandi</span>
+    </div>
+    <p>© Sargavasantham Talent Fest 2026-2027</p>
+  </footer>
+
+  <!-- REALTIME SYNC & LEADER ELEVATION ANIMATION LOGIC -->
+  <script>
+    let currentScoreA = 0;
+    let currentScoreB = 0;
+
+    window.addEventListener('load', () => {
+      initRealtimeScoreboard();
+    });
+
+    function initRealtimeScoreboard() {
+      if (!window.db || !window.firestoreModule) {
+        setTimeout(initRealtimeScoreboard, 300);
+        return;
+      }
+
+      const { doc, onSnapshot } = window.firestoreModule;
+
+      // Realtime listener for scores
+      const scoreDocRef = doc(window.db, "sargavasantham", "scores");
+      onSnapshot(scoreDocRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          updateArenaScoreboard(data.teamA || 0, data.teamB || 0);
+        }
+      });
+
+      // Background Periodic Re-fetch every 30s to ensure network recovery
+      setInterval(async () => {
+        try {
+          const snap = await window.firestoreModule.getDoc(scoreDocRef);
+          if (snap.exists()) {
+            const data = snap.data();
+            updateArenaScoreboard(data.teamA || 0, data.teamB || 0);
+          }
+        } catch(e){}
+      }, 30000);
+    }
+
+    // Number Counter Animation
+    function animateValue(id, start, end, duration) {
+      if (start === end) return;
+      const obj = document.getElementById(id);
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        obj.innerHTML = Math.floor(progress * (end - start) + start);
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        }
+      };
+      window.requestAnimationFrame(step);
+    }
+
+    // Main UI Update Function
+    function updateArenaScoreboard(newA, newB) {
+      // 1. Animate Numbers
+      animateValue("scoreTextA", currentScoreA, newA, 1000);
+      animateValue("scoreTextB", currentScoreB, newB, 1000);
+
+      currentScoreA = newA;
+      currentScoreB = newB;
+
+      // 2. Calculate Percentages for Progress Bars
+      const total = (newA + newB) || 1;
+      const pctA = Math.round((newA / total) * 100);
+      const pctB = Math.round((newB / total) * 100);
+
+      document.getElementById('barTeamA').style.width = Math.max(pctA, 6) + '%';
+      document.getElementById('barTeamB').style.width = Math.max(pctB, 6) + '%';
+
+      // 3. Dynamic Leader Elevation & Crown Positioning Logic
+      const cardA = document.getElementById('cardTeamA');
+      const cardB = document.getElementById('cardTeamB');
+      const crownA = document.getElementById('crownTeamA');
+      const crownB = document.getElementById('crownTeamB');
+      const beamA = document.getElementById('beamTeamA');
+      const beamB = document.getElementById('beamTeamB');
+      const leadBadge = document.getElementById('leadBadge');
+
+      if (newA > newB) {
+        // Team A Leading: Elevate Team A, Lower Team B
+        cardA.classList.add('team-elevated');
+        cardA.classList.remove('team-lowered');
+        
+        cardB.classList.add('team-lowered');
+        cardB.classList.remove('team-elevated');
+
+        crownA.classList.remove('hidden');
+        crownB.classList.add('hidden');
+
+        beamA.classList.remove('opacity-0');
+        beamB.classList.add('opacity-0');
+
+        const diff = newA - newB;
+        leadBadge.innerHTML = `<i class="fa-solid fa-arrow-trend-up text-rose-400 mr-1"></i> Team A +${diff} PTS`;
+      } 
+      else if (newB > newA) {
+        // Team B Leading: Elevate Team B, Lower Team A
+        cardB.classList.add('team-elevated');
+        cardB.classList.remove('team-lowered');
+
+        cardA.classList.add('team-lowered');
+        cardA.classList.remove('team-elevated');
+
+        crownB.classList.remove('hidden');
+        crownA.classList.add('hidden');
+
+        beamB.classList.remove('opacity-0');
+        beamA.classList.add('opacity-0');
+
+        const diff = newB - newA;
+        leadBadge.innerHTML = `<i class="fa-solid fa-arrow-trend-up text-blue-400 mr-1"></i> Team B +${diff} PTS`;
+      } 
+      else {
+        // Tie
+        cardA.classList.remove('team-elevated', 'team-lowered');
+        cardB.classList.remove('team-elevated', 'team-lowered');
+
+        crownA.classList.add('hidden');
+        crownB.classList.add('hidden');
+
+        beamA.classList.add('opacity-0');
+        beamB.classList.add('opacity-0');
+
+        leadBadge.innerText = 'Scores Tied';
+      }
+    }
+
+    // Toggle Full Screen View
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          alert(`Fullscreen error: ${err.message}`);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>
