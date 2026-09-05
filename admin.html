@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Sargavasantham 2026-2027</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            outfit: ['Outfit', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLyKNAbhjVj5yBKWjT4_t0DrPRxnuH86U",
+      authDomain: "event-1b1b1.firebaseapp.com",
+      projectId: "event-1b1b1",
+      storageBucket: "event-1b1b1.firebasestorage.app",
+      messagingSenderId: "825845170211",
+      appId: "1:825845170211:web:f9b3fcf5771b2bf0abf196"
+    };
+
+    // Cloudinary Credentials
+    window.CLOUDINARY_CLOUD_NAME = "dvobmi96";
+    window.CLOUDINARY_PRESET = "l5wgxfze";
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.db = db;
+    window.firestoreModule = { doc, setDoc, onSnapshot, collection, addDoc, deleteDoc };
+  </script>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-slate-950">
+
+  <div id="authOverlay" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-lg flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-3xl max-w-md w-full text-center space-y-6 shadow-2xl">
+      <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-2xl mx-auto border border-amber-500/20">
+        <i class="fa-solid fa-user-shield"></i>
+      </div>
+      <div>
+        <h2 class="text-2xl font-black font-outfit text-white">Sargavasantham Admin</h2>
+        <p class="text-xs text-slate-400 mt-1">Enter Security Passcode to Access Dashboard</p>
+      </div>
+      <form onsubmit="verifyAdminPass(event)" class="space-y-4">
+        <input type="password" id="passcodeKey" placeholder="Enter Passcode (Default: 1234)" required class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-center text-lg tracking-widest text-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+        <p id="passError" class="text-xs text-rose-400 hidden font-bold">Incorrect Passcode! Try again.</p>
+        <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-xl shadow-lg transition-all active:scale-95">
+          Unlock Dashboard
+        </button>
+      </form>
+      <a href="index.html" class="inline-block text-xs text-slate-500 hover:text-slate-300 underline">
+        ← Back to Public Score Board
+      </a>
+    </div>
+  </div>
+
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="p-2 bg-amber-500 text-slate-950 rounded-xl font-bold text-sm">
+          <i class="fa-solid fa-sliders"></i>
+        </span>
+        <div>
+          <h1 class="text-lg font-bold font-outfit text-white leading-tight">Admin Dashboard</h1>
+          <p class="text-xs text-slate-400">Sargavasantham 2026-2027 Control Center</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-2">
+          <i class="fa-solid fa-eye text-emerald-400"></i> View Public Site
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="adminMainContent" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 opacity-20 pointer-events-none transition-all duration-300">
+
+    <!-- TOP SECTION: TEAM SCORES CONTROL -->
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-4 gap-2">
+        <div>
+          <h2 class="text-xl font-black font-outfit text-white flex items-center gap-2">
+            <i class="fa-solid fa-trophy text-amber-400"></i> Realtime Team Points Management
+          </h2>
+          <p class="text-xs text-slate-400">Updates propagate immediately to public live score screen</p>
+        </div>
+        <span class="text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 font-bold">
+          <i class="fa-solid fa-wifi mr-1"></i> Connected to Firestore
+        </span>
+      </div>
+
+      <form id="scoreForm" onsubmit="saveScores(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Team A Points Card -->
+        <div class="bg-slate-950/60 border border-rose-500/30 p-5 rounded-2xl space-y-4">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-black uppercase text-rose-400 tracking-wider">TEAM A (Red Warriors)</span>
+            <span id="currentA" class="text-2xl font-black text-rose-400">0 PTS</span>
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs text-slate-400 block font-bold">Set Points Counter</label>
+            <input type="number" id="inputScoreA" min="0" required class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-xl font-black text-white focus:outline-none focus:ring-2 focus:ring-rose-500">
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="adjustScore('A', 1)" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg text-xs font-bold border border-rose-500/30">+1</button>
+            <button type="button" onclick="adjustScore('A', 5)" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg text-xs font-bold border border-rose-500/30">+5</button>
+            <button type="button" onclick="adjustScore('A', 10)" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 rounded-lg text-xs font-bold border border-rose-500/30">+10</button>
+            <button type="button" onclick="adjustScore('A', -1)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold border border-slate-700">-1</button>
+            <button type="button" onclick="adjustScore('A', -5)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold border border-slate-700">-5</button>
+          </div>
+        </div>
+
+        <!-- Team B Points Card -->
+        <div class="bg-slate-950/60 border border-blue-500/30 p-5 rounded-2xl space-y-4">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-black uppercase text-blue-400 tracking-wider">TEAM B (Blue Titans)</span>
+            <span id="currentB" class="text-2xl font-black text-blue-400">0 PTS</span>
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs text-slate-400 block font-bold">Set Points Counter</label>
+            <input type="number" id="inputScoreB" min="0" required class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-xl font-black text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="adjustScore('B', 1)" class="px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 rounded-lg text-xs font-bold border border-blue-500/30">+1</button>
+            <button type="button" onclick="adjustScore('B', 5)" class="px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 rounded-lg text-xs font-bold border border-blue-500/30">+5</button>
+            <button type="button" onclick="adjustScore('B', 10)" class="px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 rounded-lg text-xs font-bold border border-blue-500/30">+10</button>
+            <button type="button" onclick="adjustScore('B', -1)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold border border-slate-700">-1</button>
+            <button type="button" onclick="adjustScore('B', -5)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold border border-slate-700">-5</button>
+          </div>
+        </div>
+
+        <div class="md:col-span-2 pt-2">
+          <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl text-sm shadow-lg transition-all active:scale-95">
+            <i class="fa-solid fa-floppy-disk mr-2"></i> Save & Broadcast Scores
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      
+      <!-- PUBLISH WINNER FORM -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
+        <div class="border-b border-slate-800 pb-3">
+          <h2 class="text-lg font-black font-outfit text-white flex items-center gap-2">
+            <i class="fa-solid fa-award text-amber-400"></i> Publish Winner (With Student Photo)
+          </h2>
+          <p class="text-xs text-slate-400">Uploaded photos store directly in Cloudinary</p>
+        </div>
+
+        <form id="winnerForm" onsubmit="publishWinner(event)" class="space-y-4">
+          
+          <div>
+            <label class="text-xs font-bold text-slate-300 block mb-1">Student Name</label>
+            <input type="text" id="winName" required placeholder="e.g. Aman Zad" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-300 block mb-1">Event Item Name</label>
+            <input type="text" id="winItem" required placeholder="e.g. Qirat, Story Telling" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-bold text-slate-300 block mb-1">Category</label>
+              <select id="winCategory" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                <option value="KIDS">Kids</option>
+                <option value="CHILDREN">Children</option>
+                <option value="SUB JUNIOR">Sub Junior</option>
+                <option value="JUNIOR">Junior</option>
+                <option value="SENIOR">Senior</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-xs font-bold text-slate-300 block mb-1">Team</label>
+              <select id="winTeam" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                <option value="TEAM A">Team A (Red)</option>
+                <option value="TEAM B">Team B (Blue)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-300 block mb-1">Position / Grade</label>
+            <select id="winRank" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
+              <option value="1st Place">1st Place</option>
+              <option value="2nd Place">2nd Place</option>
+              <option value="3rd Place">3rd Place</option>
+              <option value="A Grade">A Grade</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-300 block mb-1">Student Photo File</label>
+            <input type="file" id="winPhotoInput" accept="image/*" class="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-extrabold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-400">
+          </div>
+
+          <div id="uploadStatus" class="hidden text-xs text-amber-400 font-bold flex items-center gap-2">
+            <i class="fa-solid fa-spinner animate-spin"></i> Uploading Image to Cloudinary & Saving Winner...
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs shadow-md transition-all active:scale-95">
+            <i class="fa-solid fa-circle-plus mr-1"></i> Add Winner To Wall
+          </button>
+        </form>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
+        <div class="border-b border-slate-800 pb-3">
+          <h2 class="text-lg font-black font-outfit text-white flex items-center gap-2">
+            <i class="fa-solid fa-clock-pulse text-indigo-400"></i> Schedule Upcoming Event
+          </h2>
+          <p class="text-xs text-slate-400">Display upcoming items on the main portal</p>
+        </div>
+
+        <form id="scheduleForm" onsubmit="addUpcomingEvent(event)" class="space-y-4">
+          
+          <div>
+            <label class="text-xs font-bold text-slate-300 block mb-1">Event Item Name</label>
+            <input type="text" id="schedTitle" required placeholder="e.g. Speech Competition" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-300 block mb-1">Category & Stage</label>
+            <input type="text" id="schedStage" required placeholder="e.g. Senior - Stage 1" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-300 block mb-1">Time Status</label>
+            <input type="text" id="schedTime" required placeholder="e.g. 02:30 PM (Starting Next)" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl text-xs shadow-md transition-all active:scale-95">
+            <i class="fa-solid fa-calendar-plus mr-1"></i> Schedule Item
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      
+      <!-- Current Winners Management List -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+        <h3 class="text-base font-bold font-outfit text-white flex items-center justify-between border-b border-slate-800 pb-3">
+          <span><i class="fa-solid fa-list-check text-amber-400 mr-2"></i> Published Winners</span>
+          <span id="winnersCountBadge" class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full">0 Records</span>
+        </h3>
+        <div id="adminWinnersList" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Current Scheduled Items Management List -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+        <h3 class="text-base font-bold font-outfit text-white flex items-center justify-between border-b border-slate-800 pb-3">
+          <span><i class="fa-solid fa-calendar-days text-indigo-400 mr-2"></i> Scheduled Events</span>
+          <span id="schedCountBadge" class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full">0 Records</span>
+        </h3>
+        <div id="adminSchedList" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script>
+    let scores = { teamA: 0, teamB: 0 };
+    let winnersList = [];
+    let upcomingList = [];
+
+    function verifyAdminPass(e) {
+      e.preventDefault();
+      const input = document.getElementById('passcodeKey').value;
+      if (input === '1234' || input === 'admin') {
+        document.getElementById('authOverlay').classList.add('hidden');
+        const main = document.getElementById('adminMainContent');
+        main.classList.remove('opacity-20', 'pointer-events-none');
+        initAdminFirebaseSync();
+      } else {
+        document.getElementById('passError').classList.remove('hidden');
+      }
+    }
+
+    function initAdminFirebaseSync() {
+      if (!window.db || !window.firestoreModule) {
+        setTimeout(initAdminFirebaseSync, 300);
+        return;
+      }
+
+      const { doc, onSnapshot, collection } = window.firestoreModule;
+
+      // 1. Sync Score Doc
+      const scoreDocRef = doc(window.db, "sargavasantham", "scores");
+      onSnapshot(scoreDocRef, (snapshot) => {
+        if (snapshot.exists()) {
+          scores = snapshot.data();
+          document.getElementById('inputScoreA').value = scores.teamA || 0;
+          document.getElementById('inputScoreB').value = scores.teamB || 0;
+          document.getElementById('currentA').innerText = `${scores.teamA || 0} PTS`;
+          document.getElementById('currentB').innerText = `${scores.teamB || 0} PTS`;
+        } else {
+          window.firestoreModule.setDoc(scoreDocRef, { teamA: 0, teamB: 0 });
+        }
+      });
+
+      // 2. Sync Winners List
+      const winnersColRef = collection(window.db, "sargavasantham_winners");
+      onSnapshot(winnersColRef, (snapshot) => {
+        winnersList = [];
+        snapshot.forEach(d => winnersList.push({ id: d.id, ...d.data() }));
+        renderAdminWinners();
+      });
+
+      // 3. Sync Upcoming List
+      const upcomingColRef = collection(window.db, "sargavasantham_upcoming");
+      onSnapshot(upcomingColRef, (snapshot) => {
+        upcomingList = [];
+        snapshot.forEach(d => upcomingList.push({ id: d.id, ...d.data() }));
+        renderAdminSched();
+      });
+    }
+
+    function adjustScore(team, val) {
+      if (team === 'A') {
+        const inp = document.getElementById('inputScoreA');
+        inp.value = Math.max(0, parseInt(inp.value || 0) + val);
+      } else {
+        const inp = document.getElementById('inputScoreB');
+        inp.value = Math.max(0, parseInt(inp.value || 0) + val);
+      }
+    }
+
+    async function saveScores(e) {
+      e.preventDefault();
+      const valA = parseInt(document.getElementById('inputScoreA').value) || 0;
+      const valB = parseInt(document.getElementById('inputScoreB').value) || 0;
+
+      try {
+        const scoreDocRef = window.firestoreModule.doc(window.db, "sargavasantham", "scores");
+        await window.firestoreModule.setDoc(scoreDocRef, { teamA: valA, teamB: valB });
+        showNotification("Scores updated successfully!");
+      } catch (err) {
+        showNotification("Error updating scores: " + err.message, true);
+      }
+    }
+
+    async function uploadToCloudinary(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', window.CLOUDINARY_PRESET);
+
+      const url = `https://api.cloudinary.com/v1_1/${window.CLOUDINARY_CLOUD_NAME}/image/upload`;
+      const res = await fetch(url, { method: 'POST', body: formData });
+      if (!res.ok) throw new Error("Cloudinary Upload Failed");
+      const data = await res.json();
+      return data.secure_url;
+    }
+
+    async function publishWinner(e) {
+      e.preventDefault();
+      const name = document.getElementById('winName').value.trim();
+      const item = document.getElementById('winItem').value.trim();
+      const category = document.getElementById('winCategory').value;
+      const team = document.getElementById('winTeam').value;
+      const rank = document.getElementById('winRank').value;
+      const photoInput = document.getElementById('winPhotoInput');
+
+      if (!name || !item) return;
+
+      const statusEl = document.getElementById('uploadStatus');
+      statusEl.classList.remove('hidden');
+
+      try {
+        let photoUrl = 'https://via.placeholder.com/300?text=Winner';
+        if (photoInput.files && photoInput.files[0]) {
+          photoUrl = await uploadToCloudinary(photoInput.files[0]);
+        }
+
+        const winnersColRef = window.firestoreModule.collection(window.db, "sargavasantham_winners");
+        await window.firestoreModule.addDoc(winnersColRef, {
+          name, item, category, team, rank, photoUrl, timestamp: Date.now()
+        });
+
+        document.getElementById('winnerForm').reset();
+        showNotification("Winner Published!");
+      } catch (err) {
+        showNotification("Error: " + err.message, true);
+      } finally {
+        statusEl.classList.add('hidden');
+      }
+    }
+
+    async function addUpcomingEvent(e) {
+      e.preventDefault();
+      const title = document.getElementById('schedTitle').value.trim();
+      const stage = document.getElementById('schedStage').value.trim();
+      const time = document.getElementById('schedTime').value.trim();
+
+      if (!title) return;
+
+      try {
+        const colRef = window.firestoreModule.collection(window.db, "sargavasantham_upcoming");
+        await window.firestoreModule.addDoc(colRef, { title, stage, time, timestamp: Date.now() });
+        document.getElementById('scheduleForm').reset();
+        showNotification("Event Scheduled!");
+      } catch (err) {
+        showNotification("Error: " + err.message, true);
+      }
+    }
+
+    function renderAdminWinners() {
+      const container = document.getElementById('adminWinnersList');
+      document.getElementById('winnersCountBadge').textContent = `${winnersList.length} Records`;
+
+      if (winnersList.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 py-4 text-center">No winners published yet.</p>`;
+        return;
+      }
+
+      container.innerHTML = winnersList.map(w => `
+        <div class="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
+          <div class="flex items-center gap-3">
+            <img src="${w.photoUrl}" class="w-9 h-9 rounded-lg object-cover bg-slate-800" onerror="this.src='https://via.placeholder.com/50'">
+            <div>
+              <div class="font-bold text-white">${w.name} <span class="text-amber-400">(${w.rank})</span></div>
+              <div class="text-[11px] text-slate-400">${w.item} • ${w.team}</div>
+            </div>
+          </div>
+          <button onclick="deleteRecord('sargavasantham_winners', '${w.id}')" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 rounded-lg border border-rose-500/30 font-bold">
+            Delete
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function renderAdminSched() {
+      const container = document.getElementById('adminSchedList');
+      document.getElementById('schedCountBadge').textContent = `${upcomingList.length} Records`;
+
+      if (upcomingList.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 py-4 text-center">No events scheduled.</p>`;
+        return;
+      }
+
+      container.innerHTML = upcomingList.map(item => `
+        <div class="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
+          <div>
+            <div class="font-bold text-white">${item.title}</div>
+            <div class="text-[11px] text-slate-400">${item.stage} • ${item.time}</div>
+          </div>
+          <button onclick="deleteRecord('sargavasantham_upcoming', '${item.id}')" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 rounded-lg border border-rose-500/30 font-bold">
+            Delete
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function deleteRecord(collName, id) {
+      try {
+        const docRef = window.firestoreModule.doc(window.db, collName, id);
+        await window.firestoreModule.deleteDoc(docRef);
+        showNotification("Item deleted.");
+      } catch (err) {
+        showNotification("Delete Error: " + err.message, true);
+      }
+    }
+
+    function showNotification(msg, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = `fixed bottom-5 right-5 z-50 px-4 py-3 rounded-xl text-xs font-bold text-white shadow-xl border ${isError ? 'bg-rose-600 border-rose-500' : 'bg-emerald-600 border-emerald-500'}`;
+      toast.innerText = msg;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+  </script>
+
+</body>
+</html>
