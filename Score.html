@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,11 +40,22 @@
   </script>
 
   <style>
-    body {
+    html, body {
+      height: 100vh;
+      width: 100vw;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
       font-family: 'Plus Jakarta Sans', sans-serif;
       background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
       color: #f8fafc;
-      overflow-x: hidden;
+    }
+
+    /* TV/Desktop strict fit handling */
+    @media (min-height: 600px) and (min-width: 768px) {
+      body {
+        overflow: hidden;
+      }
     }
 
     /* Score Elevation FX */
@@ -53,28 +64,28 @@
     }
     
     .team-elevated {
-      transform: translateY(-24px) scale(1.03);
+      transform: translateY(-16px) scale(1.02);
       z-index: 20;
     }
 
     .team-lowered {
-      transform: translateY(12px) scale(0.97);
-      opacity: 0.88;
+      transform: translateY(8px) scale(0.98);
+      opacity: 0.90;
     }
 
     /* Neon Glow Filters */
     .glow-red {
-      box-shadow: 0 0 50px rgba(229, 62, 62, 0.4), inset 0 0 20px rgba(229, 62, 62, 0.2);
+      box-shadow: 0 0 40px rgba(229, 62, 62, 0.35), inset 0 0 20px rgba(229, 62, 62, 0.15);
     }
 
     .glow-blue {
-      box-shadow: 0 0 50px rgba(43, 108, 176, 0.4), inset 0 0 20px rgba(43, 108, 176, 0.2);
+      box-shadow: 0 0 40px rgba(43, 108, 176, 0.35), inset 0 0 20px rgba(43, 108, 176, 0.15);
     }
 
     /* Floating Crown Badge Animation */
     @keyframes crownFloat {
       0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
-      50% { transform: translateY(-8px) rotate(4deg) scale(1.1); }
+      50% { transform: translateY(-6px) rotate(3deg) scale(1.08); }
     }
     .animate-crown {
       animation: crownFloat 2.5s ease-in-out infinite;
@@ -82,8 +93,8 @@
 
     /* Pulse Beam for Leading Team */
     @keyframes pulseBeam {
-      0%, 100% { opacity: 0.3; transform: scale(1); }
-      50% { opacity: 0.8; transform: scale(1.08); }
+      0%, 100% { opacity: 0.25; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
     }
     .animate-beam {
       animation: pulseBeam 2s infinite ease-in-out;
@@ -98,6 +109,16 @@
       0% { background-position: 100% 0; }
       100% { background-position: -100% 0; }
     }
+
+    /* Auto refresh indicator animation */
+    @keyframes syncPulse {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+    .sync-active {
+      animation: syncPulse 1s ease-in-out infinite;
+    }
   </style>
 
   <!-- Firebase Web SDK Imports (v11) -->
@@ -105,7 +126,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
     import { getFirestore, doc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-    // Firebase Config (ഉപയോക്താവ് നൽകിയ അതേ എപിഐ കീ)
+    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBLyKNAbhjVj5yBKWjT4_t0DrPRxnuH86U",
       authDomain: "event-1b1b1.firebaseapp.com",
@@ -121,96 +142,104 @@
     window.firestoreModule = { doc, onSnapshot, getDoc };
   </script>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-4 sm:p-6 md:p-8 selection:bg-amber-500 selection:text-slate-900">
+<body class="h-screen w-screen flex flex-col justify-between p-3 sm:p-5 md:p-6 selection:bg-amber-500 selection:text-slate-900 overflow-y-auto md:overflow-hidden">
 
   <!-- TOP HEADER WITH LOGOS -->
-  <header class="w-full max-w-7xl mx-auto flex items-center justify-between py-2 border-b border-slate-800/80">
+  <header class="w-full max-w-7xl mx-auto flex items-center justify-between py-1.5 border-b border-slate-800/80 shrink-0">
     <!-- Left Logo -->
-    <div class="flex items-center space-x-3">
-      <img src="madrasa.png" alt="Al Hikma Logo" class="h-10 sm:h-14 object-contain" onerror="this.src='https://via.placeholder.com/80?text=Al+Hikma'">
-      <div class="hidden sm:block h-8 w-px bg-slate-800"></div>
-      <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="h-8 sm:h-12 object-contain hidden md:block" onerror="this.src='https://via.placeholder.com/120?text=Wisdom'">
+    <div class="flex items-center space-x-2 sm:space-x-3">
+      <img src="madrasa.png" alt="Al Hikma Logo" class="h-8 sm:h-11 object-contain" onerror="this.src='https://via.placeholder.com/80?text=Al+Hikma'">
+      <div class="hidden sm:block h-6 sm:h-8 w-px bg-slate-800"></div>
+      <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="h-7 sm:h-10 object-contain hidden md:block" onerror="this.src='https://via.placeholder.com/120?text=Wisdom'">
     </div>
 
     <!-- Center Festival Title Banner -->
     <div class="text-center flex-1 max-w-xs sm:max-w-md px-2">
-      <img src="SargHor.png" alt="Sargavasantham 2026-27" class="h-10 sm:h-16 mx-auto object-contain brightness-110" onerror="this.src='https://via.placeholder.com/200x50?text=Sargavasantham+2026-27'">
+      <img src="SargHor.png" alt="Sargavasantham 2026-27" class="h-8 sm:h-12 md:h-14 mx-auto object-contain brightness-110" onerror="this.src='https://via.placeholder.com/200x50?text=Sargavasantham+2026-27'">
     </div>
 
     <!-- Right Controls -->
     <div class="flex items-center gap-2">
-      <button onclick="toggleFullScreen()" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-2 border border-slate-700 transition-all">
+      <!-- 5-Sec Auto Refresh Indicator Badge -->
+      <div class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-slate-800/80 rounded-xl border border-slate-700/60 text-[11px] text-emerald-400 font-semibold">
+        <span id="syncDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span>Auto Sync: <span id="refreshTimer">5s</span></span>
+      </div>
+
+      <button onclick="toggleFullScreen()" class="p-2 sm:p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-2 border border-slate-700 transition-all">
         <i class="fa-solid fa-expand text-amber-400"></i>
         <span class="hidden sm:inline">TV Screen</span>
       </button>
-      <a href="index.html" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-2 border border-slate-700 transition-all">
+      <a href="index.html" class="p-2 sm:p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-2 border border-slate-700 transition-all">
         <i class="fa-solid fa-house text-emerald-400"></i>
         <span class="hidden sm:inline">Main Site</span>
       </a>
     </div>
   </header>
 
-  <!-- MAIN HORIZONTAL SCORE ARENA -->
-  <main class="w-full max-w-7xl mx-auto my-auto py-6 sm:py-10 space-y-8">
+  <!-- MAIN HORIZONTAL SCORE ARENA (OPTIMIZED FOR TV HEIGHT) -->
+  <main class="w-full max-w-7xl mx-auto my-auto py-2 sm:py-4 flex-1 flex flex-col justify-center space-y-3 sm:space-y-6 overflow-hidden">
     
     <!-- Sub Title Status -->
-    <div class="text-center space-y-1">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> 
-      </span>
-      <h1 class="text-2xl sm:text-4xl font-black font-outfit tracking-tight text-slate-100">
-        GRAND CHAMPIONSHIP BOARD
+    <div class="text-center space-y-1 shrink-0">
+      <div class="inline-flex items-center gap-2 px-3 py-1 bg-slate-900/80 rounded-full border border-slate-800 text-xs font-bold text-slate-300">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> 
+        LIVE REALTIME STANDINGS
+      </div>
+      <h1 class="text-xl sm:text-3xl md:text-4xl font-black font-outfit tracking-tight text-slate-100 uppercase">
+        Grand Championship Board
       </h1>
     </div>
 
     <!-- SIDE BY SIDE HORIZONTAL SCORE CARDS -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 relative items-center pt-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8 relative items-center pt-2 sm:pt-4">
       
       <!-- VS BADGE IN CENTER -->
-      <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-x-1/2 z-30 hidden md:flex flex-col items-center pointer-events-none">
-        <div class="w-14 h-14 rounded-full bg-slate-900 border-2 border-amber-400 text-amber-400 font-black text-xl flex items-center justify-center shadow-2xl tracking-widest">
+      <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 hidden md:flex flex-col items-center pointer-events-none">
+        <div class="w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-slate-950 border-2 border-amber-400 text-amber-400 font-black text-lg lg:text-xl flex items-center justify-center shadow-2xl tracking-widest">
           VS
         </div>
-        <div id="leadBadge" class="mt-2 px-3 py-1 bg-slate-900/90 border border-slate-700 text-[11px] font-extrabold text-amber-300 rounded-full shadow-lg whitespace-nowrap">
-          Tie Game
+        <div id="leadBadge" class="mt-2 px-3 py-1 bg-slate-950/95 border border-slate-700 text-[11px] font-extrabold text-amber-300 rounded-full shadow-lg whitespace-nowrap">
+          Scores Tied
         </div>
       </div>
 
       <!-- TEAM A (RED) CARD -->
-      <div id="cardTeamA" class="team-card relative overflow-hidden rounded-3xl bg-slate-900/90 border-2 border-rose-600/60 p-6 sm:p-10 shadow-2xl glow-red flex flex-col justify-between min-h-[320px] sm:min-h-[380px]">
+      <div id="cardTeamA" class="team-card relative overflow-hidden rounded-2xl lg:rounded-3xl bg-slate-900/90 border-2 border-rose-600/60 p-4 sm:p-6 lg:p-8 shadow-2xl glow-red flex flex-col justify-between min-h-[220px] sm:min-h-[280px] lg:min-h-[320px]">
         
         <!-- Glowing Beam for Leader -->
         <div id="beamTeamA" class="absolute inset-0 bg-rose-500/10 pointer-events-none opacity-0 transition-opacity duration-500 animate-beam"></div>
 
         <!-- Floating Leader Badge -->
-        <div id="crownTeamA" class="absolute top-4 right-4 hidden animate-crown bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 px-3.5 py-1 rounded-full text-xs font-black shadow-lg flex items-center gap-1.5 border border-amber-200">
+        <div id="crownTeamA" class="absolute top-3 right-3 sm:top-4 sm:right-4 hidden animate-crown bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 px-3 py-1 rounded-full text-[11px] sm:text-xs font-black shadow-lg flex items-center gap-1.5 border border-amber-200">
           <i class="fa-solid fa-crown text-slate-900"></i> LEADING
         </div>
 
-        <div class="relative z-10 space-y-4">
+        <div class="relative z-10 space-y-2 sm:space-y-4">
           <!-- Header -->
-          <div class="flex items-center gap-4">
-            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-red-700 text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-lg border border-rose-400/30">
+          <div class="flex items-center gap-3 sm:gap-4">
+            <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-rose-500 to-red-700 text-white flex items-center justify-center font-black text-xl sm:text-2xl shadow-lg border border-rose-400/30 shrink-0">
               A
             </div>
             <div>
-              <h2 class="text-2xl sm:text-4xl font-black font-outfit text-rose-500 tracking-wide">TEAM NAJAH</h2>
-              <p class="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider">Red Warriors</p>
+              <h2 class="text-xl sm:text-3xl lg:text-4xl font-black font-outfit text-rose-500 tracking-wide">TEAM NAJAH</h2>
+              <p class="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Red Warriors</p>
             </div>
           </div>
 
           <!-- BIG SCORE DISPLAY -->
-          <div class="py-4 text-center md:text-left flex items-baseline justify-center md:justify-start gap-2">
-            <span id="scoreTextA" class="text-6xl sm:text-8xl font-black font-outfit text-white tracking-tight drop-shadow-md transition-all">0</span>
-            <span class="text-lg sm:text-2xl font-black text-rose-400">PTS</span>
+          <div class="py-2 sm:py-4 text-center md:text-left flex items-baseline justify-center md:justify-start gap-2">
+            <span id="scoreTextA" class="text-5xl sm:text-7xl lg:text-8xl font-black font-outfit text-white tracking-tight drop-shadow-md transition-all">0</span>
+            <span class="text-base sm:text-xl lg:text-2xl font-black text-rose-400">PTS</span>
           </div>
         </div>
 
         <!-- Progress Bar & Teachers Footer -->
-        <div class="relative z-10 space-y-3 pt-4 border-t border-slate-800">
-          <div class="w-full bg-slate-950 h-5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+        <div class="relative z-10 space-y-2 sm:space-y-3 pt-2 sm:pt-4 border-t border-slate-800">
+          <div class="w-full bg-slate-950 h-3.5 sm:h-5 rounded-full overflow-hidden p-0.5 border border-slate-800">
             <div id="barTeamA" class="bg-gradient-to-r from-rose-600 via-rose-500 to-red-400 h-full rounded-full transition-all duration-1000 progress-shimmer" style="width: 0%"></div>
           </div>
-          <div class="flex items-center justify-between text-xs text-slate-400">
+          <div class="flex items-center justify-between text-[11px] sm:text-xs text-slate-400">
             <span><i class="fa-solid fa-chalkboard-user text-rose-400 mr-1"></i> Teachers:</span>
             <span class="font-bold text-slate-200 truncate ml-2">Fahad Usthad, Nadeera Teacher, Sabira Teacher</span>
           </div>
@@ -219,41 +248,41 @@
       </div>
 
       <!-- TEAM B (BLUE) CARD -->
-      <div id="cardTeamB" class="team-card relative overflow-hidden rounded-3xl bg-slate-900/90 border-2 border-blue-600/60 p-6 sm:p-10 shadow-2xl glow-blue flex flex-col justify-between min-h-[320px] sm:min-h-[380px]">
+      <div id="cardTeamB" class="team-card relative overflow-hidden rounded-2xl lg:rounded-3xl bg-slate-900/90 border-2 border-blue-600/60 p-4 sm:p-6 lg:p-8 shadow-2xl glow-blue flex flex-col justify-between min-h-[220px] sm:min-h-[280px] lg:min-h-[320px]">
         
         <!-- Glowing Beam for Leader -->
         <div id="beamTeamB" class="absolute inset-0 bg-blue-500/10 pointer-events-none opacity-0 transition-opacity duration-500 animate-beam"></div>
 
         <!-- Floating Leader Badge -->
-        <div id="crownTeamB" class="absolute top-4 right-4 hidden animate-crown bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 px-3.5 py-1 rounded-full text-xs font-black shadow-lg flex items-center gap-1.5 border border-amber-200">
+        <div id="crownTeamB" class="absolute top-3 right-3 sm:top-4 sm:right-4 hidden animate-crown bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 px-3 py-1 rounded-full text-[11px] sm:text-xs font-black shadow-lg flex items-center gap-1.5 border border-amber-200">
           <i class="fa-solid fa-crown text-slate-900"></i> LEADING
         </div>
 
-        <div class="relative z-10 space-y-4">
+        <div class="relative z-10 space-y-2 sm:space-y-4">
           <!-- Header -->
-          <div class="flex items-center gap-4">
-            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-700 text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-lg border border-blue-400/30">
+          <div class="flex items-center gap-3 sm:gap-4">
+            <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-700 text-white flex items-center justify-center font-black text-xl sm:text-2xl shadow-lg border border-blue-400/30 shrink-0">
               B
             </div>
             <div>
-              <h2 class="text-2xl sm:text-4xl font-black font-outfit text-blue-400 tracking-wide">TEAM FALAH</h2>
-              <p class="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider">Blue Titans</p>
+              <h2 class="text-xl sm:text-3xl lg:text-4xl font-black font-outfit text-blue-400 tracking-wide">TEAM FALAH</h2>
+              <p class="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-wider">Blue Titans</p>
             </div>
           </div>
 
           <!-- BIG SCORE DISPLAY -->
-          <div class="py-4 text-center md:text-left flex items-baseline justify-center md:justify-start gap-2">
-            <span id="scoreTextB" class="text-6xl sm:text-8xl font-black font-outfit text-white tracking-tight drop-shadow-md transition-all">0</span>
-            <span class="text-lg sm:text-2xl font-black text-blue-400">PTS</span>
+          <div class="py-2 sm:py-4 text-center md:text-left flex items-baseline justify-center md:justify-start gap-2">
+            <span id="scoreTextB" class="text-5xl sm:text-7xl lg:text-8xl font-black font-outfit text-white tracking-tight drop-shadow-md transition-all">0</span>
+            <span class="text-base sm:text-xl lg:text-2xl font-black text-blue-400">PTS</span>
           </div>
         </div>
 
         <!-- Progress Bar & Teachers Footer -->
-        <div class="relative z-10 space-y-3 pt-4 border-t border-slate-800">
-          <div class="w-full bg-slate-950 h-5 rounded-full overflow-hidden p-0.5 border border-slate-800">
+        <div class="relative z-10 space-y-2 sm:space-y-3 pt-2 sm:pt-4 border-t border-slate-800">
+          <div class="w-full bg-slate-950 h-3.5 sm:h-5 rounded-full overflow-hidden p-0.5 border border-slate-800">
             <div id="barTeamB" class="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-400 h-full rounded-full transition-all duration-1000 progress-shimmer" style="width: 0%"></div>
           </div>
-          <div class="flex items-center justify-between text-xs text-slate-400">
+          <div class="flex items-center justify-between text-[11px] sm:text-xs text-slate-400">
             <span><i class="fa-solid fa-chalkboard-user text-blue-400 mr-1"></i> Teachers:</span>
             <span class="font-bold text-slate-200 truncate ml-2">Fasil Usthad, Sancy Teacher, Saniya Teacher</span>
           </div>
@@ -266,21 +295,23 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="w-full max-w-7xl mx-auto border-t border-slate-800/80 pt-4 pb-2 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-3">
-    <div class="flex items-center gap-4">
-      <img src="madrasa.png" class="h-6 object-contain" alt="Al Hikma" onerror="this.src='https://via.placeholder.com/40'">
-      <span class="text-slate-400 font-semibold">Al Hikma Holiday Madrasa, Nandi</span>
+  <footer class="w-full max-w-7xl mx-auto border-t border-slate-800/80 pt-2 pb-1 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0">
+    <div class="flex items-center gap-3">
+      <img src="madrasa.png" class="h-5 object-contain" alt="Al Hikma" onerror="this.src='https://via.placeholder.com/40'">
+      <span class="text-slate-400 font-semibold text-[11px] sm:text-xs">Al Hikma Holiday Madrasa, Nandi</span>
     </div>
-    <p>© Sargavasantham Talent Fest 2026-2027</p>
+    <p class="text-[11px] sm:text-xs">© Sargavasantham Talent Fest 2026-2027</p>
   </footer>
 
-  <!-- REALTIME SYNC & LEADER ELEVATION ANIMATION LOGIC -->
+  <!-- REALTIME SYNC, 5s AUTO REFRESH & LEADER ELEVATION ANIMATION LOGIC -->
   <script>
     let currentScoreA = 0;
     let currentScoreB = 0;
+    let refreshCountdown = 5;
 
     window.addEventListener('load', () => {
       initRealtimeScoreboard();
+      start5SecondAutoRefresh();
     });
 
     function initRealtimeScoreboard() {
@@ -299,23 +330,51 @@
           updateArenaScoreboard(data.teamA || 0, data.teamB || 0);
         }
       });
+    }
 
-      // Background Periodic Re-fetch every 30s to ensure network recovery
-      setInterval(async () => {
-        try {
-          const snap = await window.firestoreModule.getDoc(scoreDocRef);
-          if (snap.exists()) {
-            const data = snap.data();
-            updateArenaScoreboard(data.teamA || 0, data.teamB || 0);
+    // Force Re-fetch Score Data every 5 seconds
+    async function fetchLatestScores() {
+      if (!window.db || !window.firestoreModule) return;
+      try {
+        const { doc, getDoc } = window.firestoreModule;
+        const scoreDocRef = doc(window.db, "sargavasantham", "scores");
+        const snap = await getDoc(scoreDocRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          updateArenaScoreboard(data.teamA || 0, data.teamB || 0);
+        }
+      } catch (e) {
+        console.log("Auto refresh sync check:", e);
+      }
+    }
+
+    // 5-Second Interval Timer & Visual Sync Pulse
+    function start5SecondAutoRefresh() {
+      setInterval(() => {
+        refreshCountdown--;
+        const timerEl = document.getElementById('refreshTimer');
+        if (timerEl) timerEl.innerText = refreshCountdown + 's';
+
+        if (refreshCountdown <= 0) {
+          refreshCountdown = 5;
+          // Trigger data re-fetch every 5 seconds
+          fetchLatestScores();
+
+          // Flash sync dot effect
+          const dot = document.getElementById('syncDot');
+          if (dot) {
+            dot.classList.add('sync-active');
+            setTimeout(() => dot.classList.remove('sync-active'), 1000);
           }
-        } catch(e){}
-      }, 30000);
+        }
+      }, 1000);
     }
 
     // Number Counter Animation
     function animateValue(id, start, end, duration) {
       if (start === end) return;
       const obj = document.getElementById(id);
+      if (!obj) return;
       let startTimestamp = null;
       const step = (timestamp) => {
         if (!startTimestamp) startTimestamp = timestamp;
@@ -331,8 +390,8 @@
     // Main UI Update Function
     function updateArenaScoreboard(newA, newB) {
       // 1. Animate Numbers
-      animateValue("scoreTextA", currentScoreA, newA, 1000);
-      animateValue("scoreTextB", currentScoreB, newB, 1000);
+      animateValue("scoreTextA", currentScoreA, newA, 800);
+      animateValue("scoreTextB", currentScoreB, newB, 800);
 
       currentScoreA = newA;
       currentScoreB = newB;
@@ -342,8 +401,10 @@
       const pctA = Math.round((newA / total) * 100);
       const pctB = Math.round((newB / total) * 100);
 
-      document.getElementById('barTeamA').style.width = Math.max(pctA, 6) + '%';
-      document.getElementById('barTeamB').style.width = Math.max(pctB, 6) + '%';
+      const barA = document.getElementById('barTeamA');
+      const barB = document.getElementById('barTeamB');
+      if (barA) barA.style.width = Math.max(pctA, 6) + '%';
+      if (barB) barB.style.width = Math.max(pctB, 6) + '%';
 
       // 3. Dynamic Leader Elevation & Crown Positioning Logic
       const cardA = document.getElementById('cardTeamA');
@@ -354,6 +415,8 @@
       const beamB = document.getElementById('beamTeamB');
       const leadBadge = document.getElementById('leadBadge');
 
+      if (!cardA || !cardB) return;
+
       if (newA > newB) {
         // Team A Leading: Elevate Team A, Lower Team B
         cardA.classList.add('team-elevated');
@@ -362,14 +425,14 @@
         cardB.classList.add('team-lowered');
         cardB.classList.remove('team-elevated');
 
-        crownA.classList.remove('hidden');
-        crownB.classList.add('hidden');
+        if (crownA) crownA.classList.remove('hidden');
+        if (crownB) crownB.classList.add('hidden');
 
-        beamA.classList.remove('opacity-0');
-        beamB.classList.add('opacity-0');
+        if (beamA) beamA.classList.remove('opacity-0');
+        if (beamB) beamB.classList.add('opacity-0');
 
         const diff = newA - newB;
-        leadBadge.innerHTML = `<i class="fa-solid fa-arrow-trend-up text-rose-400 mr-1"></i> Team A +${diff} PTS`;
+        if (leadBadge) leadBadge.innerHTML = `<i class="fa-solid fa-arrow-trend-up text-rose-400 mr-1"></i> Team A +${diff} PTS`;
       } 
       else if (newB > newA) {
         // Team B Leading: Elevate Team B, Lower Team A
@@ -379,35 +442,35 @@
         cardA.classList.add('team-lowered');
         cardA.classList.remove('team-elevated');
 
-        crownB.classList.remove('hidden');
-        crownA.classList.add('hidden');
+        if (crownB) crownB.classList.remove('hidden');
+        if (crownA) crownA.classList.add('hidden');
 
-        beamB.classList.remove('opacity-0');
-        beamA.classList.add('opacity-0');
+        if (beamB) beamB.classList.remove('opacity-0');
+        if (beamA) beamA.classList.add('opacity-0');
 
         const diff = newB - newA;
-        leadBadge.innerHTML = `<i class="fa-solid fa-arrow-trend-up text-blue-400 mr-1"></i> Team B +${diff} PTS`;
+        if (leadBadge) leadBadge.innerHTML = `<i class="fa-solid fa-arrow-trend-up text-blue-400 mr-1"></i> Team B +${diff} PTS`;
       } 
       else {
-        // Tie
+        // Tie Game
         cardA.classList.remove('team-elevated', 'team-lowered');
         cardB.classList.remove('team-elevated', 'team-lowered');
 
-        crownA.classList.add('hidden');
-        crownB.classList.add('hidden');
+        if (crownA) crownA.classList.add('hidden');
+        if (crownB) crownB.classList.add('hidden');
 
-        beamA.classList.add('opacity-0');
-        beamB.classList.add('opacity-0');
+        if (beamA) beamA.classList.add('opacity-0');
+        if (beamB) beamB.classList.add('opacity-0');
 
-        leadBadge.innerText = 'Scores Tied';
+        if (leadBadge) leadBadge.innerText = 'Scores Tied';
       }
     }
 
-    // Toggle Full Screen View
+    // Toggle Full Screen View for Smart TV Displays
     function toggleFullScreen() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(err => {
-          alert(`Fullscreen error: ${err.message}`);
+          console.log("Fullscreen request error: ", err);
         });
       } else {
         if (document.exitFullscreen) {
