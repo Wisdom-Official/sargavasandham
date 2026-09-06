@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,6 +41,7 @@
   <style>
     html, body {
       height: 100vh;
+      height: 100dvh;
       width: 100vw;
       margin: 0;
       padding: 0;
@@ -51,6 +51,18 @@
       color: #f8fafc;
     }
 
+    /* Dedicated Fullscreen & TV Display Layout Alignment */
+    :fullscreen, :-webkit-full-screen {
+      width: 100vw !important;
+      height: 100vh !important;
+      overflow: hidden !important;
+      padding: 1.25rem !important;
+      background: radial-gradient(circle at center, #0f172a 0%, #020617 100%) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+    }
+
     /* TV/Desktop strict fit handling */
     @media (min-height: 600px) and (min-width: 768px) {
       body {
@@ -58,28 +70,30 @@
       }
     }
 
-    /* Score Elevation FX */
+    /* Score Elevation FX - Standardized level positioning */
     .team-card {
-      transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      height: 100%;
     }
     
     .team-elevated {
-      transform: translateY(-16px) scale(1.02);
+      transform: scale(1.02);
       z-index: 20;
+      border-width: 3px !important;
     }
 
     .team-lowered {
-      transform: translateY(8px) scale(0.98);
+      transform: scale(0.98);
       opacity: 0.90;
     }
 
     /* Neon Glow Filters */
     .glow-red {
-      box-shadow: 0 0 40px rgba(229, 62, 62, 0.35), inset 0 0 20px rgba(229, 62, 62, 0.15);
+      box-shadow: 0 0 45px rgba(229, 62, 62, 0.35), inset 0 0 20px rgba(229, 62, 62, 0.15);
     }
 
     .glow-blue {
-      box-shadow: 0 0 40px rgba(43, 108, 176, 0.35), inset 0 0 20px rgba(43, 108, 176, 0.15);
+      box-shadow: 0 0 45px rgba(43, 108, 176, 0.35), inset 0 0 20px rgba(43, 108, 176, 0.15);
     }
 
     /* Floating Crown Badge Animation */
@@ -192,7 +206,7 @@
     </div>
 
     <!-- SIDE BY SIDE HORIZONTAL SCORE CARDS -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8 relative items-center pt-2 sm:pt-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8 relative items-stretch pt-2 sm:pt-4">
       
       <!-- VS BADGE IN CENTER -->
       <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 hidden md:flex flex-col items-center pointer-events-none">
@@ -205,7 +219,7 @@
       </div>
 
       <!-- TEAM A (RED) CARD -->
-      <div id="cardTeamA" class="team-card relative overflow-hidden rounded-2xl lg:rounded-3xl bg-slate-900/90 border-2 border-rose-600/60 p-4 sm:p-6 lg:p-8 shadow-2xl glow-red flex flex-col justify-between min-h-[220px] sm:min-h-[280px] lg:min-h-[320px]">
+      <div id="cardTeamA" class="team-card relative overflow-hidden rounded-2xl lg:rounded-3xl bg-slate-900/90 border-2 border-rose-600/60 p-4 sm:p-6 lg:p-8 shadow-2xl glow-red flex flex-col justify-between min-h-[220px] sm:min-h-[280px] lg:min-h-[320px] h-full">
         
         <!-- Glowing Beam for Leader -->
         <div id="beamTeamA" class="absolute inset-0 bg-rose-500/10 pointer-events-none opacity-0 transition-opacity duration-500 animate-beam"></div>
@@ -248,7 +262,7 @@
       </div>
 
       <!-- TEAM B (BLUE) CARD -->
-      <div id="cardTeamB" class="team-card relative overflow-hidden rounded-2xl lg:rounded-3xl bg-slate-900/90 border-2 border-blue-600/60 p-4 sm:p-6 lg:p-8 shadow-2xl glow-blue flex flex-col justify-between min-h-[220px] sm:min-h-[280px] lg:min-h-[320px]">
+      <div id="cardTeamB" class="team-card relative overflow-hidden rounded-2xl lg:rounded-3xl bg-slate-900/90 border-2 border-blue-600/60 p-4 sm:p-6 lg:p-8 shadow-2xl glow-blue flex flex-col justify-between min-h-[220px] sm:min-h-[280px] lg:min-h-[320px] h-full">
         
         <!-- Glowing Beam for Leader -->
         <div id="beamTeamB" class="absolute inset-0 bg-blue-500/10 pointer-events-none opacity-0 transition-opacity duration-500 animate-beam"></div>
@@ -482,4 +496,3 @@
 
 </body>
 </html>
-
