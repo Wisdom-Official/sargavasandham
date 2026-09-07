@@ -1,21 +1,29 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Sargavasantham 2026-2027 | Al Hikma Holiday Madrasa, Nandi</title>
   
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter & Outfit -->
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- FontAwesome Icons -->
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons v6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <script>
     tailwind.config = {
       theme: {
+        screens: {
+          'xs': '380px',
+          'sm': '640px',
+          'md': '768px',
+          'lg': '1024px',
+          'xl': '1280px',
+        },
         extend: {
           colors: {
             brandRed: {
@@ -34,6 +42,11 @@
           fontFamily: {
             outfit: ['Outfit', 'sans-serif'],
             sans: ['Plus Jakarta Sans', 'sans-serif']
+          },
+          boxShadow: {
+            'glow-red': '0 0 25px -5px rgba(225, 29, 72, 0.25)',
+            'glow-blue': '0 0 25px -5px rgba(37, 99, 235, 0.25)',
+            'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)'
           }
         }
       }
@@ -43,35 +56,31 @@
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #f8fafc 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
     }
+    
     .score-animate {
-      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .pulse-glow-red {
-      box-shadow: 0 0 25px rgba(229, 62, 62, 0.25);
-    }
-    .pulse-glow-blue {
-      box-shadow: 0 0 25px rgba(43, 108, 176, 0.25);
-    }
-    
-    /* Winner Card Entrance & Sparkle Animation */
-    @keyframes winnerFadeIn {
-      0% {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-    
-    .winner-card-anim {
-      animation: winnerFadeIn 0.6s ease-out forwards;
+      transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    /* Floating Gold Badge Glow */
+    @keyframes winnerFadeIn {
+      0% { opacity: 0; transform: translateY(16px) scale(0.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .winner-card-anim {
+      animation: winnerFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes modalPop {
+      0% { opacity: 0; transform: scale(0.92) translateY(12px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-anim {
+      animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
     @keyframes floatCrown {
       0%, 100% { transform: translateY(0px) rotate(0deg); }
       50% { transform: translateY(-4px) rotate(3deg); }
@@ -80,7 +89,6 @@
       animation: floatCrown 3s ease-in-out infinite;
     }
 
-    /* Animated Shimmer Line for Top Winners */
     @keyframes shimmer {
       0% { transform: translateX(-100%); }
       100% { transform: translateX(200%); }
@@ -93,18 +101,38 @@
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
       transform: translateX(-100%);
-      animation: shimmer 2.5s infinite;
+      animation: shimmer 2.8s infinite;
+    }
+
+    /* Clean custom scrollbar for rosters & modal content */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Touch optimization */
+    button, a, input {
+      -webkit-tap-highlight-color: transparent;
     }
   </style>
 
-  <!-- Firebase Web SDK Imports (v11) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
     import { getFirestore, doc, onSnapshot, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBLyKNAbhjVj5yBKWjT4_t0DrPRxnuH86U",
       authDomain: "event-1b1b1.firebaseapp.com",
@@ -122,141 +150,137 @@
 </head>
 <body class="text-slate-800 min-h-screen flex flex-col antialiased selection:bg-rose-500 selection:text-white">
 
-  <!-- Header & Logos Navbar -->
-  <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+  <header class="bg-white/95 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40 shadow-xs transition-all">
+    <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 flex items-center justify-between gap-2 sm:gap-4">
       
       <!-- Logos Left -->
-      <div class="flex items-center space-x-3 sm:space-x-5">
-        <img src="madrasa.png" alt="Al Hikma Logo" class="h-10 sm:h-14 object-contain hover:scale-105 transition-transform" onerror="this.src='https://via.placeholder.com/80?text=Al+Hikma'">
-        <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
-        <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="h-8 sm:h-12 object-contain hidden md:block" onerror="this.src='https://via.placeholder.com/120?text=Wisdom+Board'">
+      <div class="flex items-center space-x-2 sm:space-x-4 shrink-0">
+        <img src="madrasa.png" alt="Al Hikma Logo" class="h-8 xs:h-9 sm:h-12 object-contain hover:scale-105 transition-transform" onerror="this.src='https://placehold.co/80x80/0f172a/ffffff?text=Al+Hikma'">
+        <div class="h-6 sm:h-7 w-px bg-slate-200 hidden xs:block"></div>
+        <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="h-6 sm:h-10 object-contain hidden sm:block" onerror="this.src='https://placehold.co/120x60/0f172a/ffffff?text=Wisdom+Board'">
       </div>
 
       <!-- Center Festival Title Banner -->
-      <div class="text-center flex-1 max-w-xs sm:max-w-md">
-        <img src="SargHor.png" alt="Sargavasantham 2026-27" class="h-10 sm:h-16 mx-auto object-contain" onerror="this.src='https://via.placeholder.com/200x50?text=Sargavasantham+2026-27'">
+      <div class="text-center flex-1 max-w-[160px] xs:max-w-xs sm:max-w-md px-1">
+        <img src="SargHor.png" alt="Sargavasantham 2026-27" class="h-7 xs:h-10 sm:h-14 mx-auto object-contain drop-shadow-xs" onerror="this.src='https://placehold.co/220x50/f8fafc/0f172a?text=Sargavasantham+2026-27'">
+      </div>
+      
+      <!-- Center Festival Title Banner -->
+      <div class="text-center flex-1 max-w-[160px] xs:max-w-xs sm:max-w-md px-1">
+        <img src="SargHor.png" alt="Sargavasantham 2026-27" class="h-7 xs:h-10 sm:h-14 mx-auto object-contain drop-shadow-xs" onerror="this.src='https://placehold.co/220x50/f8fafc/0f172a?text=Sargavasantham+2026-27'">
       </div>
 
-      <!-- Admin Portal Navigation Link -->
-      <div class="flex items-center gap-2">
-        <a href="admin.html" class="px-3.5 py-2 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-95">
-          <i class="fa-solid fa-user-gear text-amber-400"></i>
-          <span class="hidden sm:inline">Admin Portal</span>
-        </a>
-      </div>
+      
 
     </div>
   </header>
 
-  <!-- Main Container -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-3.5 sm:py-8 space-y-5 sm:space-y-10">
 
-    <!-- Hero Banner & Event Info -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white p-6 sm:p-8 shadow-xl">
-      <div class="absolute -right-10 -bottom-10 opacity-15 pointer-events-none">
-        <i class="fa-solid fa-trophy text-9xl"></i>
-      </div>
-      <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div class="space-y-2 text-center md:text-left">
-          <span class="px-3 py-1 bg-amber-400/20 text-amber-300 border border-amber-400/30 rounded-full text-xs font-semibold uppercase tracking-wider inline-flex items-center gap-1.5">
-            <i class="fa-solid fa-calendar-days text-amber-400"></i> September 21, 27 | 2026
+    <div class="relative overflow-hidden rounded-2xl xs:rounded-[2rem] bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white p-4 xs:p-6 sm:p-8 md:p-10 shadow-xl border border-slate-800">
+      <!-- Background Ambient Glow -->
+      <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-12 -top-12 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6">
+        <div class="space-y-2.5 text-center md:text-left">
+          <span class="px-3 py-1 bg-amber-400/20 text-amber-300 border border-amber-400/30 rounded-full text-[10px] xs:text-[11px] sm:text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 shadow-xs">
+            <i class="fa-solid fa-calendar-days text-amber-400"></i> September 21 & 27, 2026
           </span>
-          <h1 class="text-2xl sm:text-4xl font-extrabold font-outfit text-white tracking-tight">
+          <h1 class="text-xl xs:text-2xl sm:text-4xl md:text-5xl font-black font-outfit text-white tracking-tight leading-tight">
             AL HIKMA HOLIDAY MADRASA, NANDI
           </h1>
-          <p class="text-slate-300 text-xs sm:text-sm max-w-xl">
-            Sargavasantham Talent Fest 2026-2027 • Live Scoreboard & Winner Announcements
+          <p class="text-slate-300 text-xs sm:text-sm max-w-xl font-medium leading-relaxed">
+            Sargavasantham Talent Fest 2026-2027 • Live Scoreboard, Interactive Rosters & Winner Wall
           </p>
         </div>
-        <div class="flex flex-wrap gap-3 justify-center">
-          <a href="#teamsSection" class="px-4 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl text-xs font-bold transition-all border border-white/20 flex items-center gap-2">
-            <i class="fa-solid fa-users text-amber-400"></i> View Rosters
+        <div class="flex flex-col xs:flex-row flex-wrap gap-2.5 justify-center w-full md:w-auto">
+          <a href="#teamsSection" class="w-full xs:w-auto px-4 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl text-xs font-bold transition-all border border-white/20 flex items-center justify-center gap-2 text-white">
+            <i class="fa-solid fa-users text-amber-400"></i> Student Roster & Items
           </a>
-          <a href="#winnersSection" class="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-xs shadow-lg transition-all flex items-center gap-2">
+          <a href="#winnersSection" class="w-full xs:w-auto px-4 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-xl text-xs shadow-md transition-all flex items-center justify-center gap-2">
             <i class="fa-solid fa-medal"></i> Recent Winners
           </a>
         </div>
       </div>
     </div>
 
-    <!-- LIVE SCOREBOARD HERO -->
-    <section class="space-y-4">
+    <section class="space-y-3.5">
       <div class="flex items-center justify-between">
-        <h2 class="text-xl sm:text-2xl font-black font-outfit text-slate-800 flex items-center gap-2">
+        <h2 class="text-base xs:text-lg sm:text-2xl font-black font-outfit text-slate-900 flex items-center gap-2">
           <i class="fa-solid fa-fire text-rose-500 animate-bounce"></i> Live Score Board
         </h2>
-        <span class="flex items-center gap-2 text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Live Updates
+        <span class="flex items-center gap-1.5 xs:gap-2 text-[10px] xs:text-[11px] sm:text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2.5 xs:px-3 py-1 rounded-full border border-emerald-200 shadow-2xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0"></span> Live Updates
         </span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         
-        <!-- TEAM A CARD (RED) -->
-        <div class="relative overflow-hidden rounded-3xl bg-white border-2 border-rose-200 p-6 sm:p-8 shadow-lg pulse-glow-red transition-all">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-bl-full -z-0"></div>
-          <div class="relative z-10 space-y-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-2xl bg-rose-500 text-white flex items-center justify-center font-black text-xl shadow-md">
+        <!-- TEAM A CARD (NAJAH - RED) -->
+        <div class="relative overflow-hidden rounded-2xl xs:rounded-[2rem] bg-white border-2 border-rose-200/90 p-4 xs:p-5 sm:p-7 shadow-sm hover:shadow-glow-red transition-all duration-300">
+          <div class="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-rose-500/10 to-transparent rounded-bl-full pointer-events-none"></div>
+          <div class="relative z-10 space-y-3.5 sm:space-y-4">
+            <div class="flex items-center justify-between gap-2 xs:gap-3">
+              <div class="flex items-center gap-2.5 xs:gap-3 min-w-0">
+                <div class="w-10 h-10 xs:w-11 xs:h-11 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 text-white flex items-center justify-center font-black text-lg xs:text-xl shadow-md shrink-0">
                   A
                 </div>
-                <div>
-                  <h3 class="text-2xl font-black font-outfit text-rose-600">TEAM NAJAH</h3>
-                  <p class="text-xs text-slate-500 font-medium">Red Warriors</p>
+                <div class="min-w-0">
+                  <h3 class="text-lg xs:text-xl sm:text-2xl font-black font-outfit text-rose-600 leading-tight truncate">TEAM NAJAH</h3>
+                  <p class="text-[11px] xs:text-xs text-slate-500 font-semibold truncate">Red Warriors</p>
                 </div>
               </div>
-              <div class="text-right">
-                <span id="scoreTeamA" class="text-4xl sm:text-5xl font-black font-outfit text-slate-900 tracking-tight">0</span>
-                <span class="text-xs text-slate-400 block font-bold">PTS</span>
+              <div class="text-right shrink-0">
+                <span id="scoreTeamA" class="text-3xl xs:text-4xl sm:text-5xl font-black font-outfit text-slate-900 tracking-tight">0</span>
+                <span class="text-[9px] xs:text-[10px] text-slate-400 block font-bold tracking-wider">PTS</span>
               </div>
             </div>
 
             <!-- Progress Bar -->
             <div class="space-y-1">
-              <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden p-0.5 border border-slate-200">
-                <div id="barTeamA" class="bg-gradient-to-r from-rose-500 to-red-600 h-full rounded-full score-animate" style="width: 0%"></div>
+              <div class="w-full bg-slate-100 h-3.5 sm:h-4 rounded-full overflow-hidden p-0.5 border border-slate-200/80">
+                <div id="barTeamA" class="bg-gradient-to-r from-rose-500 to-red-600 h-full rounded-full score-animate shadow-xs" style="width: 0%"></div>
               </div>
             </div>
 
-            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
-              <span class="font-semibold"><i class="fa-solid fa-chalkboard-user text-rose-500 mr-1"></i> Teachers:</span>
-              <span class="font-bold text-slate-800">Fahad Usthad, Nadeera Teacher, Sabira Teacher</span>
+            <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-600 gap-1">
+              <span class="font-bold text-slate-500 text-[11px] sm:text-xs"><i class="fa-solid fa-chalkboard-user text-rose-500 mr-1"></i> Teachers:</span>
+              <span class="font-bold text-slate-800 text-[11px] sm:text-xs">Fahad Usthad, Nadeera Teacher, Sabira Teacher</span>
             </div>
           </div>
         </div>
 
-        <!-- TEAM B CARD (BLUE) -->
-        <div class="relative overflow-hidden rounded-3xl bg-white border-2 border-blue-200 p-6 sm:p-8 shadow-lg pulse-glow-blue transition-all">
-          <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-bl-full -z-0"></div>
-          <div class="relative z-10 space-y-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-xl shadow-md">
+        <!-- TEAM B CARD (FALAH - BLUE) -->
+        <div class="relative overflow-hidden rounded-2xl xs:rounded-[2rem] bg-white border-2 border-blue-200/90 p-4 xs:p-5 sm:p-7 shadow-sm hover:shadow-glow-blue transition-all duration-300">
+          <div class="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-blue-500/10 to-transparent rounded-bl-full pointer-events-none"></div>
+          <div class="relative z-10 space-y-3.5 sm:space-y-4">
+            <div class="flex items-center justify-between gap-2 xs:gap-3">
+              <div class="flex items-center gap-2.5 xs:gap-3 min-w-0">
+                <div class="w-10 h-10 xs:w-11 xs:h-11 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-black text-lg xs:text-xl shadow-md shrink-0">
                   B
                 </div>
-                <div>
-                  <h3 class="text-2xl font-black font-outfit text-blue-600">TEAM FALAH</h3>
-                  <p class="text-xs text-slate-500 font-medium">Blue Titans</p>
+                <div class="min-w-0">
+                  <h3 class="text-lg xs:text-xl sm:text-2xl font-black font-outfit text-blue-600 leading-tight truncate">TEAM FALAH</h3>
+                  <p class="text-[11px] xs:text-xs text-slate-500 font-semibold truncate">Blue Titans</p>
                 </div>
               </div>
-              <div class="text-right">
-                <span id="scoreTeamB" class="text-4xl sm:text-5xl font-black font-outfit text-slate-900 tracking-tight">0</span>
-                <span class="text-xs text-slate-400 block font-bold">PTS</span>
+              <div class="text-right shrink-0">
+                <span id="scoreTeamB" class="text-3xl xs:text-4xl sm:text-5xl font-black font-outfit text-slate-900 tracking-tight">0</span>
+                <span class="text-[9px] xs:text-[10px] text-slate-400 block font-bold tracking-wider">PTS</span>
               </div>
             </div>
 
             <!-- Progress Bar -->
             <div class="space-y-1">
-              <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden p-0.5 border border-slate-200">
-                <div id="barTeamB" class="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded-full score-animate" style="width: 0%"></div>
+              <div class="w-full bg-slate-100 h-3.5 sm:h-4 rounded-full overflow-hidden p-0.5 border border-slate-200/80">
+                <div id="barTeamB" class="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded-full score-animate shadow-xs" style="width: 0%"></div>
               </div>
             </div>
 
-            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
-              <span class="font-semibold"><i class="fa-solid fa-chalkboard-user text-blue-500 mr-1"></i> Teachers:</span>
-              <span class="font-bold text-slate-800">Fasil Usthad, Sancy Teacher, Saniya Teacher</span>
+            <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-600 gap-1">
+              <span class="font-bold text-slate-500 text-[11px] sm:text-xs"><i class="fa-solid fa-chalkboard-user text-blue-500 mr-1"></i> Teachers:</span>
+              <span class="font-bold text-slate-800 text-[11px] sm:text-xs">Fasil Usthad, Sancy Teacher, Saniya Teacher</span>
             </div>
           </div>
         </div>
@@ -264,291 +288,255 @@
       </div>
     </section>
 
-    <!-- UPCOMING EVENTS & STAGE SCHEDULE -->
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
       
-      <!-- Upcoming Schedule List -->
-      <div class="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-200 shadow-md space-y-4">
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-bold font-outfit text-slate-900 flex items-center gap-2">
-            <i class="fa-solid fa-clock text-amber-500"></i> Next / Upcoming Stage Events
+      <!-- Upcoming Schedule List (Optimized & Fully Responsive Header & Cards) -->
+      <div class="lg:col-span-2 bg-white rounded-2xl xs:rounded-[2rem] p-4 xs:p-5 sm:p-7 border border-slate-200/80 shadow-sm space-y-4">
+        
+        <!-- Responsive Flex Header with whitespace protection -->
+        <div class="flex flex-col xs:flex-row xs:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <h3 class="text-base sm:text-lg font-extrabold font-outfit text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-clock text-amber-500 shrink-0"></i>
+            <span>Next / Upcoming Stage Events</span>
           </h3>
-          <span id="upcomingCount" class="text-xs bg-slate-100 text-slate-600 font-bold px-2.5 py-1 rounded-full">0 Scheduled</span>
+          <span id="upcomingCount" class="self-start xs:self-auto text-[11px] sm:text-xs bg-slate-100 text-slate-700 font-extrabold px-3 py-1 rounded-full whitespace-nowrap shrink-0 shadow-2xs border border-slate-200/60 inline-flex items-center gap-1">
+            0 Scheduled
+          </span>
         </div>
 
-        <div id="upcomingEventsList" class="space-y-3">
-          <div class="p-8 text-center text-slate-400 border-2 border-dashed border-slate-100 rounded-2xl">
+        <div id="upcomingEventsList" class="space-y-2.5">
+          <div class="p-8 text-center text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl">
             <i class="fa-solid fa-calendar-check text-3xl mb-2 text-slate-300"></i>
-            <p class="text-sm font-medium">No upcoming events scheduled currently.</p>
+            <p class="text-xs font-semibold">No upcoming events scheduled currently.</p>
           </div>
         </div>
       </div>
 
       <!-- Quick Criteria Card -->
-      <div class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-3xl p-6 shadow-md flex flex-col justify-between space-y-6">
+      <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 text-white rounded-2xl xs:rounded-[2rem] p-4 xs:p-5 sm:p-7 shadow-sm flex flex-col justify-between space-y-5 border border-slate-800">
         <div class="space-y-3">
-          <div class="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold">
-            <i class="fa-solid fa-bullhorn"></i>
+          <div class="w-10 h-10 rounded-2xl bg-amber-400/20 text-amber-400 flex items-center justify-center font-extrabold border border-amber-400/30">
+            <i class="fa-solid fa-bullhorn text-sm"></i>
           </div>
-          <h4 class="text-xl font-bold font-outfit">Fest Guidelines & Criteria</h4>
-          <p class="text-xs text-slate-300 leading-relaxed">
-            All category items (Kids, Children, Sub Junior, Junior, Senior) accumulate live points towards the overall champion trophy.
+          <h4 class="text-base xs:text-lg font-extrabold font-outfit text-white">Fest Guidelines & Criteria</h4>
+          <p class="text-xs text-slate-300 leading-relaxed font-normal">
+            All category items (Kids, Children, Sub Junior, Junior, Senior) accumulate live points towards the overall champion trophy. Click any student in the roster below to view their participating items!
           </p>
         </div>
 
-        <div class="space-y-2 pt-4 border-t border-slate-800 text-xs">
+        <div class="space-y-2 pt-3 border-t border-slate-800/80 text-xs font-medium">
           <div class="flex justify-between text-slate-400">
             <span>Date:</span>
-            <span class="text-white font-semibold">Sept 21 & 27, 2026</span>
+            <span class="text-white font-bold">Sept 21 & 27, 2026</span>
           </div>
           <div class="flex justify-between text-slate-400">
             <span>Location:</span>
-            <span class="text-white font-semibold">Al Hikma Madrasa, Nandi</span>
+            <span class="text-white font-bold">Al Hikma Madrasa, Nandi</span>
           </div>
         </div>
       </div>
 
     </section>
 
-    <!-- RECENT WINNERS WALL (ANIMATED & CIRCULAR AVATARS) -->
-    <section id="winnersSection" class="space-y-6">
-      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+    <section id="teamsSection" class="space-y-5 pt-2">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
         <div>
-          <h2 class="text-xl sm:text-2xl font-black font-outfit text-slate-900 flex items-center gap-2">
+          <h2 class="text-lg xs:text-xl sm:text-3xl font-black font-outfit text-slate-900">Official Team Members Roster</h2>
+          <p class="text-slate-500 text-xs sm:text-sm font-medium mt-0.5">
+              <strong>● Click on any student</strong> to view Category, Items & Victories!
+          </p>
+        </div>
+
+        <!-- Live Search Bar -->
+        <div class="w-full md:w-72 relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text" id="studentSearchInput" oninput="filterStudents()" placeholder="Search student name..." class="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200/90 rounded-2xl text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-2xs transition-all">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-8">
+        
+        <!-- TEAM A LIST (NAJAH) -->
+        <div class="bg-white rounded-2xl xs:rounded-[2rem] border-2 border-rose-200/80 p-3.5 xs:p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-5">
+          <div class="flex items-center justify-between border-b border-rose-100 pb-3.5 gap-2">
+            <div class="flex items-center gap-2.5 xs:gap-3 min-w-0">
+              <span class="w-9 h-9 xs:w-10 xs:h-10 rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 text-white font-black flex items-center justify-center text-base xs:text-lg shadow-xs shrink-0">A</span>
+              <div class="min-w-0">
+                <h3 class="text-base xs:text-lg sm:text-xl font-black font-outfit text-rose-600 leading-tight truncate">TEAM NAJAH</h3>
+                <p class="text-[10px] xs:text-[11px] text-slate-500 font-medium truncate">Fahad Usthad, Nadeera Teacher, Sabira Teacher</p>
+              </div>
+            </div>
+            <span id="countTeamA" class="text-xs bg-rose-100 text-rose-800 font-black px-2.5 xs:px-3 py-1 rounded-full shrink-0 shadow-2xs whitespace-nowrap">
+            </span>
+          </div>
+
+          <div id="rosterContainerTeamA" class="space-y-3.5">
+            <!-- Dynamic Category Groups Rendered Here -->
+          </div>
+        </div>
+
+        <!-- TEAM B LIST (FALAH) -->
+        <div class="bg-white rounded-2xl xs:rounded-[2rem] border-2 border-blue-200/80 p-3.5 xs:p-4 sm:p-6 shadow-sm space-y-4 sm:space-y-5">
+          <div class="flex items-center justify-between border-b border-blue-100 pb-3.5 gap-2">
+            <div class="flex items-center gap-2.5 xs:gap-3 min-w-0">
+              <span class="w-9 h-9 xs:w-10 xs:h-10 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-black flex items-center justify-center text-base xs:text-lg shadow-xs shrink-0">B</span>
+              <div class="min-w-0">
+                <h3 class="text-base xs:text-lg sm:text-xl font-black font-outfit text-blue-600 leading-tight truncate">TEAM FALAH</h3>
+                <p class="text-[10px] xs:text-[11px] text-slate-500 font-medium truncate">Fasil Usthad, Sancy Teacher, Saniya Teacher</p>
+              </div>
+            </div>
+            <span id="countTeamB" class="text-xs bg-blue-100 text-blue-800 font-black px-2.5 xs:px-3 py-1 rounded-full shrink-0 shadow-2xs whitespace-nowrap"></span>
+          </div>
+
+          <div id="rosterContainerTeamB" class="space-y-3.5">
+            <!-- Dynamic Category Groups Rendered Here -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="winnersSection" class="space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-200/80 pb-3">
+        <div>
+          <h2 class="text-lg xs:text-xl sm:text-2xl font-black font-outfit text-slate-900 flex items-center gap-2">
             <i class="fa-solid fa-trophy text-amber-500 animate-pulse"></i> Event Champions & Winners
           </h2>
-          <p class="text-xs text-slate-500">Live results & honor roll updated after each stage event</p>
+          <p class="text-xs text-slate-500 font-medium mt-0.5">Live results updated after each stage event</p>
         </div>
       </div>
 
       <!-- Animated Winner Cards Grid -->
-      <div id="winnersGallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <div class="sm:col-span-2 lg:col-span-4 p-12 text-center bg-white rounded-3xl border border-slate-200">
-          <i class="fa-solid fa-award text-4xl text-slate-300 mb-3 block"></i>
-          <p class="text-slate-500 text-sm font-medium">No results uploaded yet.</p>
+      <div id="winnersGallery" class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div class="xs:col-span-2 md:col-span-3 lg:col-span-4 p-8 sm:p-10 text-center bg-white rounded-2xl xs:rounded-[2rem] border border-slate-200/80">
+          <i class="fa-solid fa-award text-4xl text-slate-300 mb-2 block"></i>
+          <p class="text-slate-500 text-xs font-semibold">No results uploaded yet.</p>
         </div>
-      </div>
-    </section>
-
-    <!-- COMPLETE TEAMS & STUDENTS ROSTER -->
-    <section id="teamsSection" class="space-y-6 pt-4">
-      <div class="text-center max-w-xl mx-auto space-y-1">
-        <h2 class="text-2xl sm:text-3xl font-black font-outfit text-slate-900">Official Team Rosters</h2>
-        <p class="text-slate-500 text-xs sm:text-sm">Complete student list grouped by category for TEAM NAJAH & TEAM FALAH</p>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        <!-- TEAM A LIST -->
-        <div class="bg-white rounded-3xl border-2 border-rose-200 p-6 shadow-md space-y-6">
-          <div class="flex items-center justify-between border-b border-rose-100 pb-4">
-            <div class="flex items-center gap-3">
-              <span class="w-10 h-10 rounded-xl bg-rose-500 text-white font-black flex items-center justify-center text-lg">A</span>
-              <div>
-                <h3 class="text-xl font-bold font-outfit text-rose-600">TEAM NAJAH MEMBERS</h3>
-                <p class="text-xs text-slate-500">Teachers: Fahad Usthad, Nadeera Teacher, Sabira Teacher</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="space-y-4">
-            <!-- Kids -->
-            <div class="bg-rose-50/50 rounded-2xl p-4 border border-rose-100">
-              <h4 class="text-xs font-extrabold uppercase tracking-wider text-rose-700 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-child text-rose-500"></i> KIDS
-              </h4>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 font-medium">
-                <div>1. Aman Zad</div><div>8. Laiba Zainab</div>
-                <div>2. Izan Halim</div><div>9. Henza Ayzal Haneef</div>
-                <div>3. Hamid Azmie</div><div>10. Ayrah Fathima</div>
-                <div>4. Neyra Yasir</div><div>11. Aibek Noufal</div>
-                <div>5. Abdul Muhaimin</div><div>12. Emin Noriz</div>
-                <div>6. Azwa Zehar</div><div>13. Hamda Shafeer</div>
-                <div>7. Azka Zaina</div>
-              </div>
-            </div>
-
-            <!-- Children -->
-            <div class="bg-emerald-50/50 rounded-2xl p-4 border border-emerald-100">
-              <h4 class="text-xs font-extrabold uppercase tracking-wider text-emerald-700 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-children text-emerald-500"></i> CHILDREN
-              </h4>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 font-medium">
-                <div>1. Easa Ajmal</div><div>8. Sidrah Jabbar</div>
-                <div>2. Aysha Haya</div><div>9. Aman Zayan</div>
-                <div>3. Ibrahim Ansir</div><div>10. Maiz Marwan</div>
-                <div>4. Shenza Mehnoor</div><div>11. Aman Jasim</div>
-                <div>5. Ahab Noaman</div><div>12. Muhammed Emin</div>
-                <div>6. Aizin Abdullah</div><div>13. Hani Zaban</div>
-                <div>7. Miyash Ahmed</div><div>14. Muhammed Muad</div>
-              </div>
-            </div>
-
-            <!-- Sub Junior -->
-            <div class="bg-amber-50/50 rounded-2xl p-4 border border-amber-100">
-              <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-700 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-graduation-cap text-amber-500"></i> SUB JUNIOR
-              </h4>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 font-medium">
-                <div>1. Abdul Muizz V</div><div>9. Muhammed Hadhi</div>
-                <div>2. Raikha Mariyam</div><div>10. Aamir Muhammed</div>
-                <div>3. Amina Izra</div><div>11. Hamdhan Abdullah</div>
-                <div>4. Hossain Ali</div><div>12. Zahra Niyas</div>
-                <div>5. Hadiya Ashiq</div><div>13. Amaani Shahada</div>
-                <div>6. Zohaan Avas Abdullah</div><div>14. Aymen Abdul Khader</div>
-                <div>7. Hamdan Bin Muneer</div><div>15. Fiza Faisel</div>
-                <div>8. Fathima Sheza</div><div>16. Muhammed Fazza</div>
-              </div>
-            </div>
-
-            <!-- Junior -->
-            <div class="bg-rose-50/50 rounded-2xl p-4 border border-rose-100">
-              <h4 class="text-xs font-extrabold uppercase tracking-wider text-rose-700 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-user-graduate text-rose-500"></i> JUNIOR
-              </h4>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 font-medium">
-                <div>1. Asiya Bilal</div><div>8. Muhammed P.K</div>
-                <div>2. Fathima Abdul Gafoor</div><div>9. Sheza Maryam</div>
-                <div>3. Fathima Aima</div><div>10. Haroon Riyas</div>
-                <div>4. Iza Nehrin V</div><div>11. Hawwa Jaseer</div>
-                <div>5. Elham Mariyam</div><div>12. Thahniya Jafer</div>
-                <div>6. Muhammed Abiyan</div><div>13. Imad</div>
-                <div>7. Ayshah Zia Nazneen</div><div>14. Rumaisa Abdul Azeez</div>
-              </div>
-            </div>
-
-            <!-- Senior -->
-            <div class="bg-purple-50/50 rounded-2xl p-4 border border-purple-100">
-              <h4 class="text-xs font-extrabold uppercase tracking-wider text-purple-700 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-award text-purple-500"></i> SENIOR
-              </h4>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 font-medium">
-                <div>1. Misna Khadeeja</div><div>6. Alisha Jamal</div>
-                <div>2. Rafa Fathima</div><div>7. Hadhi Siraj</div>
-                <div>3. Abuder Bilal</div><div>8. Afnas</div>
-                <div>4. Abdullah Wameeq</div><div>9. Muhad</div>
-                <div>5. Hamda Maryam</div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- TEAM B LIST -->
-        <div class="bg-white rounded-3xl border-2 border-blue-200 p-6 shadow-md space-y-6">
-          <div class="flex items-center justify-between border-b border-blue-100 pb-4">
-            <div class="flex items-center gap-3">
-              <span class="w-10 h-10 rounded-xl bg-blue-600 text-white font-black flex items-center justify-center text-lg">B</span>
-              <div>
-                <h3 class="text-xl font-bold font-outfit text-blue-600">TEAM FALAH MEMBERS</h3>
-                <p class="text-xs text-slate-500">Teachers: Fasil Usthad, Sancy Teacher, Saniya Teacher</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="space-y-4">
-            <!-- Kids -->
-            <div class="bg-blue-50/50 rounded-2xl p-4 border border-blue-100">
-              <h4 class="text-xs font-extrabold uppercase tracking-wider text-blue-700 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-child text-blue-500"></i> KIDS
-              </h4>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 font-medium">
-                <div>1. Aban Bilal</div><div>7. Fazal Zayan</div>
-                <div>2. Amin Ifaz</div><div>8. Hemin Muhammed</div>
-                <div>3. Aysha Nashwa</div><div>9. Aymen Niyas</div>
-                <div>4. Abdullah Sajeer</div><div>10. Fathima Liya</div>
-                <div>5. Aysha Amrin</div><div>11. Muhammed Izan</div>
-                <div>6. Inaya Muneer</div><div>12. Aysha Zama</div>
-              </div>
-            </div>
-
-            <!-- Children -->
-            <div class="bg-emerald-50/50 rounded-2xl p-4 border border-emerald-100">
-              <h4 class="text-xs font-extrabold uppercase tracking-wider text-emerald-700 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-children text-emerald-500"></i> CHILDREN
-              </h4>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 font-medium">
-                <div>1. Jeza Ajmel</div><div>8. Rua Fella</div>
-                <div>2. Fathima Meher</div><div>9. Hadhi Hazzam</div>
-                <div>3. Izan Aqib Ameen</div><div>10. Fadhi Zahan</div>
-                <div>4. Sheza Mariyam</div><div>11. Jazib Aymen</div>
-                <div>5. Fathima Khathoon</div><div>12. Mehwa Lailu</div>
-                <div>6. Anaam Aysha</div><div>13. Ameen Hassan</div>
-                <div>7. Muhammed Aban</div>
-              </div>
-            </div>
-
-            <!-- Sub Junior -->
-            <div class="bg-amber-50/50 rounded-2xl p-4 border border-amber-100">
-              <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-700 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-graduation-cap text-amber-500"></i> SUB JUNIOR
-              </h4>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 font-medium">
-                <div>1. Athika Bilal</div><div>10. Muhammed Hassan</div>
-                <div>2. Athif Muhammed</div><div>11. Nashith</div>
-                <div>3. Aijaz Sajil</div><div>12. Ghuson Aysha</div>
-                <div>4. Finza Riyas</div><div>13. Hazan Ibad</div>
-                <div>5. Abdullah Muhammed Ashraf</div><div>14. Haifa Maryam</div>
-                <div>6. Izza Fathima</div><div>15. Abdul Basith</div>
-                <div>7. Mehak Nourin</div><div>16. Muhammed Ziyan</div>
-                <div>8. Fathima P.K</div><div>17. Ahmed Sulthan</div>
-                <div>9. Muhammed Jazel</div>
-              </div>
-            </div>
-
-            <!-- Junior -->
-            <div class="bg-blue-50/50 rounded-2xl p-4 border border-blue-100">
-              <h4 class="text-xs font-extrabold uppercase tracking-wider text-blue-700 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-user-graduate text-blue-500"></i> JUNIOR
-              </h4>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 font-medium">
-                <div>1. Mariyam Ansir</div><div>8. Muhammed Aymen</div>
-                <div>2. Aysha Jamal</div><div>9. Aqish Nabhan</div>
-                <div>3. Zaid Al Ameen</div><div>10. Muhammed Hamdan</div>
-                <div>4. Muhammed Rayyan</div><div>11. Asiya Emna</div>
-                <div>5. Muhammed Aydin P.K</div><div>12. Shayaan Muhammed</div>
-                <div>6. Ahmed Hamdan</div><div>13. Wildan Sadik</div>
-                <div>7. Jeza Khadeeja</div><div>14. Naiza Nourin</div>
-              </div>
-            </div>
-
-            <!-- Senior -->
-            <div class="bg-purple-50/50 rounded-2xl p-4 border border-purple-100">
-              <h4 class="text-xs font-extrabold uppercase tracking-wider text-purple-700 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-award text-purple-500"></i> SENIOR
-              </h4>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700 font-medium">
-                <div>1. Manha Fathima .N</div><div>6. Hiba.N</div>
-                <div>2. Aysha Haadiya</div><div>7. Hana Fathima</div>
-                <div>3. Abdulla Ammar</div><div>8. Reyan</div>
-                <div>4. Muhammed Zaeem</div><div>9. Aisha Azwa</div>
-                <div>5. Ahmed Ibin Abdul Gafoor</div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
       </div>
     </section>
 
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-white border-t border-slate-200 mt-12 py-8 text-center text-xs text-slate-500 space-y-4">
-    <div class="max-w-7xl mx-auto px-4 flex flex-wrap items-center justify-center gap-6">
-      <img src="madrasa.png" class="h-8 object-contain" alt="Al Hikma Logo" onerror="this.src='https://via.placeholder.com/60'">
-      <img src="Wisdom Education Board Logo.png" class="h-8 object-contain" alt="Wisdom Board Logo" onerror="this.src='https://via.placeholder.com/100'">
-      <img src="SargHor.png" class="h-8 object-contain" alt="Sargavasantham Logo" onerror="this.src='https://via.placeholder.com/100'">
+  <div id="studentModal" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 hidden transition-all duration-300 overflow-y-auto">
+    <div class="modal-anim bg-white rounded-2xl xs:rounded-[2rem] max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 relative my-auto">
+      
+      <!-- Close Button -->
+      <button onclick="closeStudentModal()" class="absolute top-3.5 right-3.5 z-20 w-8 h-8 xs:w-9 xs:h-9 rounded-full bg-slate-900/20 hover:bg-slate-900/40 text-white flex items-center justify-center text-xs sm:text-sm font-bold transition-all backdrop-blur-md">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Modal Header Banner -->
+      <div id="modalHeaderBg" class="p-5 xs:p-6 bg-gradient-to-r from-rose-500 to-rose-600 text-white relative">
+        <div class="flex items-center gap-3.5 xs:gap-4 relative z-10">
+          <div class="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-xl xs:text-2xl sm:text-3xl font-black shadow-inner shrink-0">
+            <i id="modalAvatarIcon" class="fa-solid fa-user"></i>
+          </div>
+          <div class="min-w-0 flex-1">
+            <span id="modalTeamBadge" class="px-2.5 py-0.5 rounded-full text-[9px] xs:text-[10px] font-black uppercase bg-white/20 text-white border border-white/30 tracking-wider inline-block">
+              TEAM NAJAH
+            </span>
+            <h3 id="modalStudentName" class="text-lg xs:text-xl sm:text-2xl font-black font-outfit text-white leading-tight mt-1 truncate">
+              Student Name
+            </h3>
+            <p id="modalCategoryTag" class="text-xs text-white/90 font-semibold flex items-center gap-1.5 mt-0.5">
+              <i class="fa-solid fa-layer-group text-amber-300"></i> Category: Junior
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Content Body -->
+      <div class="p-4 xs:p-5 sm:p-6 space-y-4 sm:space-y-5">
+        
+        <!-- Participating Items Section -->
+        <div class="space-y-2">
+          <h4 class="text-[11px] xs:text-xs font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-list-check text-amber-500"></i> Participating Items
+          </h4>
+          <div id="modalItemsList" class="flex flex-wrap gap-2">
+            <!-- Dynamic Item Chips -->
+          </div>
+        </div>
+
+        <!-- Victories & Achievements Section -->
+        <div class="space-y-2 pt-2 border-t border-slate-100">
+          <h4 class="text-[11px] xs:text-xs font-black uppercase text-slate-400 tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-trophy text-amber-500"></i> Achievements & Victories
+          </h4>
+          <div id="modalAchievementsList" class="space-y-2">
+            <!-- Dynamic Wins Cards -->
+          </div>
+        </div>
+
+        <!-- Action Footer -->
+        <div class="pt-2 border-t border-slate-100">
+          <button onclick="closeStudentModal()" class="w-full py-2.5 sm:py-3 bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white text-xs font-black rounded-xl transition-all shadow-sm">
+            Close Details
+          </button>
+        </div>
+
+      </div>
     </div>
-    <p>© 2026-2027 Al Hikma Holiday Madrasa, Nandi. Managed under Wisdom Education Board.</p>
+  </div>
+
+  <footer class="bg-white border-t border-slate-200/80 mt-10 sm:mt-12 py-6 sm:py-8 text-center text-xs text-slate-500 space-y-4">
+    <div class="max-w-7xl mx-auto px-4 flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+      <img src="madrasa.png" class="h-7 sm:h-8 object-contain" alt="Al Hikma Logo" onerror="this.src='https://placehold.co/80x40?text=Logo'">
+      <img src="Wisdom Education Board Logo.png" class="h-7 sm:h-8 object-contain" alt="Wisdom Board Logo" onerror="this.src='https://placehold.co/100x40?text=Wisdom'">
+      <img src="SargHor.png" class="h-7 sm:h-8 object-contain" alt="Sargavasantham Logo" onerror="this.src='https://placehold.co/100x40?text=Sargavasantham'">
+    </div>
+    <p class="font-medium text-[10px] xs:text-[11px] text-slate-400">© 2026-2027 Al Hikma Holiday Madrasa, Nandi.</p>
   </footer>
 
-  <!-- SCRIPT & REALTIME SYNC LOGIC -->
   <script>
     let scores = { teamA: 0, teamB: 0 };
     let winnersList = [];
     let upcomingList = [];
+    let studentsList = [];
+
+    // Default Seed Dataset
+    const DEFAULT_STUDENTS = [
+      // TEAM A - KIDS
+      { id: "a_k1", name: "Aman Zad", team: "TEAM A", category: "KIDS", items: "Qirat, Story Telling", achievements: "Qirat - 1st Place" },
+      { id: "a_k2", name: "Izan Halim", team: "TEAM A", category: "KIDS", items: "Coloring, Action Song", achievements: "" },
+      { id: "a_k3", name: "Hamid Azmie", team: "TEAM A", category: "KIDS", items: "Memory Test", achievements: "" },
+      { id: "a_k4", name: "Neyra Yasir", team: "TEAM A", category: "KIDS", items: "Action Song", achievements: "" },
+      { id: "a_k5", name: "Abdul Muhaimin", team: "TEAM A", category: "KIDS", items: "Coloring", achievements: "" },
+      { id: "a_k6", name: "Azwa Zehar", team: "TEAM A", category: "KIDS", items: "Pencil Drawing", achievements: "" },
+      { id: "a_k7", name: "Azka Zaina", team: "TEAM A", category: "KIDS", items: "Action Song", achievements: "" },
+      { id: "a_k8", name: "Laiba Zainab", team: "TEAM A", category: "KIDS", items: "Story Telling", achievements: "" },
+      { id: "a_k9", name: "Henza Ayzal Haneef", team: "TEAM A", category: "KIDS", items: "Coloring", achievements: "" },
+      { id: "a_k10", name: "Ayrah Fathima", team: "TEAM A", category: "KIDS", items: "Memory Test", achievements: "" },
+      { id: "a_k11", name: "Aibek Noufal", team: "TEAM A", category: "KIDS", items: "Pencil Drawing", achievements: "" },
+      { id: "a_k12", name: "Emin Noriz", team: "TEAM A", category: "KIDS", items: "Action Song", achievements: "" },
+      { id: "a_k13", name: "Hamda Shafeer", team: "TEAM A", category: "KIDS", items: "Coloring", achievements: "" },
+
+      // TEAM A - CHILDREN
+      { id: "a_c1", name: "Easa Ajmal", team: "TEAM A", category: "CHILDREN", items: "Qirat, Speech", achievements: "" },
+      { id: "a_c2", name: "Aysha Haya", team: "TEAM A", category: "CHILDREN", items: "Islamic Song", achievements: "" },
+      { id: "a_c3", name: "Ibrahim Ansir", team: "TEAM A", category: "CHILDREN", items: "Pencil Drawing", achievements: "" },
+      { id: "a_c4", name: "Shenza Mehnoor", team: "TEAM A", category: "CHILDREN", items: "Elocution", achievements: "" },
+      { id: "a_c5", name: "Ahab Noaman", team: "TEAM A", category: "CHILDREN", items: "Qirat", achievements: "" },
+      { id: "a_c6", name: "Aizin Abdullah", team: "TEAM A", category: "CHILDREN", items: "Memory Test", achievements: "" },
+      { id: "a_c7", name: "Miyash Ahmed", team: "TEAM A", category: "CHILDREN", items: "Story Telling", achievements: "" },
+      { id: "a_c8", name: "Sidrah Jabbar", team: "TEAM A", category: "CHILDREN", items: "Islamic Song", achievements: "" },
+      { id: "a_c9", name: "Aman Zayan", team: "TEAM A", category: "CHILDREN", items: "Coloring", achievements: "" },
+      { id: "a_c10", name: "Maiz Marwan", team: "TEAM A", category: "CHILDREN", items: "Speech", achievements: "" },
+
+      // TEAM B - KIDS
+      { id: "b_k1", name: "Aban Bilal", team: "TEAM B", category: "KIDS", items: "Qirat, Action Song", achievements: "" },
+      { id: "b_k2", name: "Amin Ifaz", team: "TEAM B", category: "KIDS", items: "Coloring", achievements: "" },
+      { id: "b_k3", name: "Aysha Nashwa", team: "TEAM B", category: "KIDS", items: "Story Telling", achievements: "" },
+      { id: "b_k4", name: "Abdullah Sajeer", team: "TEAM B", category: "KIDS", items: "Memory Test", achievements: "" },
+      { id: "b_k5", name: "Aysha Amrin", team: "TEAM B", category: "KIDS", items: "Coloring", achievements: "" },
+      { id: "b_k6", name: "Inaya Muneer", team: "TEAM B", category: "KIDS", items: "Action Song", achievements: "" },
+
+      // TEAM B - CHILDREN
+      { id: "b_c1", name: "Jeza Ajmel", team: "TEAM B", category: "CHILDREN", items: "Islamic Song, Speech", achievements: "" },
+      { id: "b_c2", name: "Fathima Meher", team: "TEAM B", category: "CHILDREN", items: "Qirat", achievements: "" },
+      { id: "b_c3", name: "Izan Aqib Ameen", team: "TEAM B", category: "CHILDREN", items: "Pencil Drawing", achievements: "" },
+      { id: "b_c4", name: "Sheza Mariyam", team: "TEAM B", category: "CHILDREN", items: "Story Telling", achievements: "" }
+    ];
 
     window.addEventListener('load', () => {
       setupRealtimeAndBackgroundPolling();
@@ -579,6 +567,7 @@
           winnersList.push({ id: docSnap.id, ...docSnap.data() });
         });
         renderWinners();
+        renderRosters();
       });
 
       // 3. Firebase Upcoming Events Listener
@@ -591,13 +580,23 @@
         renderUpcoming();
       });
 
-      // Periodic Silent Background Re-fetch every 30 Seconds (No visible countdowns or UI flickers)
-      setInterval(() => {
-        fetchDataSilently();
-      }, 30000);
+      // 4. Firebase Students Listener
+      const studentsColRef = collection(window.db, "sargavasantham_students");
+      onSnapshot(studentsColRef, (snapshot) => {
+        studentsList = [];
+        snapshot.forEach((docSnap) => {
+          studentsList.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        
+        if (studentsList.length === 0) {
+          studentsList = DEFAULT_STUDENTS;
+        }
+        renderRosters();
+      });
+
+      setInterval(fetchDataSilently, 30000);
     }
 
-    // Silent background fetch to ensure no missed updates
     async function fetchDataSilently() {
       try {
         const { collection, getDocs } = window.firestoreModule;
@@ -617,12 +616,19 @@
           upcomingList = newUpcoming;
           renderUpcoming();
         }
+
+        const studSnap = await getDocs(collection(window.db, "sargavasantham_students"));
+        const newStuds = [];
+        studSnap.forEach(d => newStuds.push({ id: d.id, ...d.data() }));
+        if (newStuds.length > 0 && newStuds.length !== studentsList.length) {
+          studentsList = newStuds;
+          renderRosters();
+        }
       } catch (e) {
-        // Silent error catch
+        // Silent catch
       }
     }
 
-    // Score Board Display
     function updateScoreDisplay() {
       const scoreA = scores.teamA || 0;
       const scoreB = scores.teamB || 0;
@@ -638,66 +644,268 @@
       document.getElementById('barTeamB').style.width = Math.max(pctB, 5) + '%';
     }
 
-    // Render Winners Gallery with Professional Animations & Circular Avatars
+    function getCategoryStyle(category, teamCode) {
+      const isTeamA = teamCode === 'A';
+      switch ((category || '').toUpperCase()) {
+        case 'KIDS':
+          return {
+            bg: isTeamA ? 'bg-rose-50/70 border-rose-100/90' : 'bg-blue-50/70 border-blue-100/90',
+            text: isTeamA ? 'text-rose-700' : 'text-blue-700',
+            icon: 'fa-child',
+            badge: isTeamA ? 'bg-rose-100 text-rose-700' : 'bg-blue-100 text-blue-700'
+          };
+        case 'CHILDREN':
+          return {
+            bg: 'bg-emerald-50/70 border-emerald-100/90',
+            text: 'text-emerald-700',
+            icon: 'fa-children',
+            badge: 'bg-emerald-100 text-emerald-700'
+          };
+        case 'SUB JUNIOR':
+          return {
+            bg: 'bg-amber-50/70 border-amber-100/90',
+            text: 'text-amber-700',
+            icon: 'fa-graduation-cap',
+            badge: 'bg-amber-100 text-amber-700'
+          };
+        case 'JUNIOR':
+          return {
+            bg: 'bg-indigo-50/70 border-indigo-100/90',
+            text: 'text-indigo-700',
+            icon: 'fa-user-graduate',
+            badge: 'bg-indigo-100 text-indigo-700'
+          };
+        case 'SENIOR':
+          return {
+            bg: 'bg-purple-50/70 border-purple-100/90',
+            text: 'text-purple-700',
+            icon: 'fa-award',
+            badge: 'bg-purple-100 text-purple-700'
+          };
+        default:
+          return {
+            bg: 'bg-slate-50 border-slate-200',
+            text: 'text-slate-700',
+            icon: 'fa-user',
+            badge: 'bg-slate-100 text-slate-700'
+          };
+      }
+    }
+
+    function renderRosters() {
+      const searchTerm = (document.getElementById('studentSearchInput')?.value || '').toLowerCase().trim();
+
+      const teamAStuds = studentsList.filter(s => (s.team || '').toUpperCase().includes('A') && (s.name || '').toLowerCase().includes(searchTerm));
+      const teamBStuds = studentsList.filter(s => (s.team || '').toUpperCase().includes('B') && (s.name || '').toLowerCase().includes(searchTerm));
+
+      document.getElementById('countTeamA').textContent = `${teamAStuds.length} Students`;
+      document.getElementById('countTeamB').textContent = `${teamBStuds.length} Students`;
+
+      renderTeamRosterGroup('rosterContainerTeamA', teamAStuds, 'A');
+      renderTeamRosterGroup('rosterContainerTeamB', teamBStuds, 'B');
+    }
+
+    function renderTeamRosterGroup(containerId, list, teamCode) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      if (list.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center font-medium italic">No students found.</p>`;
+        return;
+      }
+
+      const categories = ["KIDS", "CHILDREN", "SUB JUNIOR", "JUNIOR", "SENIOR"];
+      let html = '';
+
+      categories.forEach(cat => {
+        const catStuds = list.filter(s => (s.category || '').toUpperCase() === cat);
+        if (catStuds.length === 0) return;
+
+        const style = getCategoryStyle(cat, teamCode);
+
+        html += `
+          <div class="${style.bg} rounded-2xl p-3 sm:p-4 border shadow-2xs transition-all">
+            <h4 class="text-[11px] xs:text-xs font-extrabold uppercase tracking-wider ${style.text} mb-2.5 flex items-center justify-between">
+              <span class="flex items-center gap-1.5 xs:gap-2">
+                <i class="fa-solid ${style.icon}"></i> ${cat}
+              </span>
+              <span class="text-[10px] w-5 h-5 flex items-center justify-center rounded-full ${style.badge} font-black">${catStuds.length}</span>
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              ${catStuds.map((stud, idx) => {
+                const wonItems = winnersList.filter(w => w.name && w.name.toLowerCase().trim() === stud.name.toLowerCase().trim());
+                const hasWin = wonItems.length > 0 || (stud.achievements && stud.achievements.trim() !== '');
+
+                return `
+                  <button onclick='openStudentModal(${JSON.stringify(stud).replace(/'/g, "&apos;")})' 
+                    class="group flex items-center justify-between p-2 xs:p-2.5 bg-white hover:bg-slate-900 hover:text-white rounded-xl border border-slate-200/90 shadow-2xs transition-all text-left duration-200 active:scale-[0.98]">
+                    <div class="flex items-center gap-1.5 xs:gap-2 overflow-hidden min-w-0">
+                      <span class="text-[10px] xs:text-[11px] font-bold text-slate-400 group-hover:text-slate-400 w-4 xs:w-5 shrink-0">${idx + 1}.</span>
+                      <span class="text-xs font-bold text-slate-800 group-hover:text-white truncate">${stud.name}</span>
+                    </div>
+                    
+                    ${hasWin ? `
+                      <span class="text-[9px] xs:text-[10px] bg-amber-400 text-slate-950 font-black px-1.5 xs:px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-2xs shrink-0 ml-1">
+                        <i class="fa-solid fa-trophy text-[9px]"></i> Win
+                      </span>
+                    ` : `
+                      <i class="fa-solid fa-chevron-right text-[10px] text-slate-300 group-hover:text-white/70 transition-colors shrink-0 ml-1"></i>
+                    `}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function filterStudents() {
+      renderRosters();
+    }
+
+    function openStudentModal(student) {
+      const modal = document.getElementById('studentModal');
+      const headerBg = document.getElementById('modalHeaderBg');
+      const teamBadge = document.getElementById('modalTeamBadge');
+      const nameEl = document.getElementById('modalStudentName');
+      const categoryEl = document.getElementById('modalCategoryTag');
+      const itemsContainer = document.getElementById('modalItemsList');
+      const achContainer = document.getElementById('modalAchievementsList');
+
+      const isTeamA = (student.team || '').toUpperCase().includes('A');
+
+      if (isTeamA) {
+        headerBg.className = "p-5 xs:p-6 bg-gradient-to-r from-rose-500 to-rose-600 text-white relative";
+        teamBadge.textContent = "TEAM NAJAH";
+        teamBadge.className = "px-2.5 py-0.5 rounded-full text-[9px] xs:text-[10px] font-black uppercase bg-white/20 text-white border border-white/30 tracking-wider";
+      } else {
+        headerBg.className = "p-5 xs:p-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white relative";
+        teamBadge.textContent = "TEAM FALAH";
+        teamBadge.className = "px-2.5 py-0.5 rounded-full text-[9px] xs:text-[10px] font-black uppercase bg-white/20 text-white border border-white/30 tracking-wider";
+      }
+
+      nameEl.textContent = student.name || "Student Name";
+      categoryEl.innerHTML = `<i class="fa-solid fa-layer-group text-amber-300"></i> Category: <span class="font-bold uppercase">${student.category || 'N/A'}</span>`;
+
+      // Participating Items
+      const itemsArray = (student.items || '').split(',').map(i => i.trim()).filter(Boolean);
+      if (itemsArray.length > 0) {
+        itemsContainer.innerHTML = itemsArray.map(item => `
+          <span class="px-2.5 xs:px-3 py-1 xs:py-1.5 bg-slate-100 border border-slate-200/80 text-slate-800 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs">
+            <i class="fa-solid fa-star text-amber-500 text-[10px]"></i> ${item}
+          </span>
+        `).join('');
+      } else {
+        itemsContainer.innerHTML = `<p class="text-xs text-slate-400 italic font-medium">No specific items registered yet.</p>`;
+      }
+
+      // Achievements
+      const matchedWins = winnersList.filter(w => w.name && w.name.toLowerCase().trim() === (student.name || '').toLowerCase().trim());
+      let achievementsText = student.achievements || '';
+
+      if (matchedWins.length > 0 || achievementsText) {
+        let achHtml = '';
+
+        matchedWins.forEach(win => {
+          achHtml += `
+            <div class="p-2.5 xs:p-3 bg-amber-50 border border-amber-200/90 rounded-2xl flex items-center justify-between">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-7 h-7 xs:w-8 xs:h-8 rounded-xl bg-amber-400 text-slate-950 font-black flex items-center justify-center text-xs shadow-2xs shrink-0">
+                  <i class="fa-solid fa-crown"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-black text-slate-900 truncate">${win.item}</p>
+                  <p class="text-[10px] text-amber-800 font-bold truncate">${win.rank} (${win.category})</p>
+                </div>
+              </div>
+              <span class="text-[9px] xs:text-[10px] font-black uppercase px-2 py-0.5 bg-amber-200/80 text-slate-900 rounded-md shrink-0 ml-2">Verified Win</span>
+            </div>
+          `;
+        });
+
+        if (achievementsText && matchedWins.length === 0) {
+          achHtml += `
+            <div class="p-3 bg-amber-50 border border-amber-200/90 rounded-2xl flex items-center gap-2.5">
+              <i class="fa-solid fa-medal text-amber-500 text-lg shrink-0"></i>
+              <p class="text-xs font-bold text-slate-800">${achievementsText}</p>
+            </div>
+          `;
+        }
+
+        achContainer.innerHTML = achHtml;
+      } else {
+        achContainer.innerHTML = `
+          <div class="p-4 text-center bg-slate-50 border border-slate-200/60 rounded-2xl">
+            <i class="fa-solid fa-hourglass-half text-slate-300 text-xl mb-1 block"></i>
+            <p class="text-xs text-slate-400 font-semibold">Awaiting competition results.</p>
+          </div>
+        `;
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeStudentModal() {
+      document.getElementById('studentModal').classList.add('hidden');
+    }
+
     function renderWinners() {
       const gallery = document.getElementById('winnersGallery');
       if (winnersList.length === 0) {
         gallery.innerHTML = `
-          <div class="sm:col-span-2 lg:col-span-4 p-12 text-center bg-white rounded-3xl border border-slate-200">
+          <div class="xs:col-span-2 md:col-span-3 lg:col-span-4 p-8 sm:p-10 text-center bg-white rounded-2xl xs:rounded-[2rem] border border-slate-200/80">
             <i class="fa-solid fa-award text-4xl text-slate-300 mb-2 block"></i>
-            <p class="text-slate-500 text-sm font-medium">No event results uploaded yet.</p>
+            <p class="text-slate-500 text-xs font-semibold">No event results uploaded yet.</p>
           </div>
         `;
         return;
       }
 
-      // Sort recent winners first
       const sorted = [...winnersList].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
       gallery.innerHTML = sorted.map((w, index) => {
         const isTeamA = w.team === 'TEAM A';
         const teamBadgeColor = isTeamA 
-          ? 'bg-rose-500 text-white shadow-rose-200' 
-          : 'bg-blue-600 text-white shadow-blue-200';
+          ? 'bg-rose-500 text-white' 
+          : 'bg-blue-600 text-white';
         
         const ringBorderColor = isTeamA
           ? 'border-rose-400 group-hover:border-rose-500'
           : 'border-blue-400 group-hover:border-blue-500';
 
-        const delay = (index % 8) * 0.1;
+        const delay = (index % 8) * 0.08;
 
         return `
-          <div class="winner-card-anim bg-white rounded-3xl border border-slate-200 p-5 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center relative group hover:-translate-y-1.5 shimmer-bg" style="animation-delay: ${delay}s">
+          <div class="winner-card-anim bg-white rounded-2xl xs:rounded-[2rem] border border-slate-200/90 p-4 sm:p-5 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center relative group hover:-translate-y-1 shimmer-bg" style="animation-delay: ${delay}s">
             
-            <!-- Category & Team Badges -->
-            <div class="w-full flex items-center justify-between mb-4">
-              <span class="px-2.5 py-1 text-[10px] font-black rounded-full uppercase shadow-xs ${teamBadgeColor}">
+            <div class="w-full flex items-center justify-between mb-3 sm:mb-4">
+              <span class="px-2.5 py-0.5 text-[9px] xs:text-[10px] font-black rounded-full uppercase shadow-2xs ${teamBadgeColor}">
                 ${w.team}
               </span>
-              <span class="text-[11px] font-extrabold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              <span class="text-[9px] xs:text-[10px] font-extrabold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
                 ${w.category}
               </span>
             </div>
 
-            <!-- Circular Avatar Image Container -->
-            <div class="relative mb-4">
-              <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1 border-4 ${ringBorderColor} transition-colors shadow-md overflow-hidden bg-slate-50">
-                <img src="${w.photoUrl}" alt="${w.name}" class="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://via.placeholder.com/150?text=Winner'">
+            <div class="relative mb-3 sm:mb-4">
+              <div class="w-20 h-20 xs:w-24 xs:h-24 sm:w-28 sm:h-28 rounded-full p-1 border-4 ${ringBorderColor} transition-colors shadow-md overflow-hidden bg-slate-50">
+                <img src="${w.photoUrl}" alt="${w.name}" class="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-500" onerror="this.src='https://placehold.co/150x150/f1f5f9/475569?text=Winner'">
               </div>
               
-              <!-- Floating Crown Rank Badge -->
-              <div class="crown-float absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-[11px] px-3 py-1 rounded-full shadow-lg border border-amber-200 flex items-center gap-1 whitespace-nowrap">
+              <div class="crown-float absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black text-[9px] xs:text-[10px] px-2.5 py-0.5 rounded-full shadow-md border border-amber-200 flex items-center gap-1 whitespace-nowrap">
                 <i class="fa-solid fa-crown text-slate-900 text-xs"></i>
                 <span>${w.rank}</span>
               </div>
             </div>
 
-            <!-- Student Name & Item Info -->
-            <div class="mt-2 space-y-1 w-full">
-              <h4 class="font-extrabold text-slate-900 text-base sm:text-lg leading-tight group-hover:text-amber-600 transition-colors">
+            <div class="mt-1 space-y-1.5 w-full">
+              <h4 class="font-extrabold text-slate-900 text-sm xs:text-base leading-tight group-hover:text-amber-600 transition-colors truncate">
                 ${w.name}
               </h4>
-              <p class="text-xs text-slate-500 font-semibold bg-slate-50 py-1.5 px-3 rounded-xl border border-slate-100 inline-block w-full">
+              <p class="text-[11px] sm:text-xs text-slate-600 font-bold bg-slate-50 py-1 sm:py-1.5 px-2.5 sm:px-3 rounded-xl border border-slate-100 inline-block w-full truncate">
                 <i class="fa-solid fa-star text-amber-400 mr-1"></i>${w.item}
               </p>
             </div>
@@ -707,7 +915,6 @@
       }).join('');
     }
 
-    // Render Upcoming Schedule
     function renderUpcoming() {
       const container = document.getElementById('upcomingEventsList');
       document.getElementById('upcomingCount').textContent = `${upcomingList.length} Scheduled`;
@@ -715,26 +922,28 @@
       if (upcomingList.length === 0) {
         container.innerHTML = `
           <div class="p-6 text-center text-slate-400 border-2 border-dashed border-slate-100 rounded-2xl">
-            <p class="text-xs font-medium">No upcoming events scheduled currently.</p>
+            <p class="text-xs font-semibold">No upcoming events scheduled currently.</p>
           </div>
         `;
         return;
       }
 
       container.innerHTML = upcomingList.map(item => `
-        <div class="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-slate-100/80 rounded-2xl border border-slate-200/80 transition-all">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-xl bg-amber-400/20 text-amber-600 flex items-center justify-center font-bold text-xs">
+        <div class="flex flex-col xs:flex-row xs:items-center justify-between p-3 sm:p-4 bg-slate-50 hover:bg-slate-100/90 rounded-2xl border border-slate-200/80 transition-all gap-2.5 sm:gap-3 shadow-2xs">
+          <div class="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-400/20 text-amber-600 flex items-center justify-center font-bold text-xs sm:text-sm shrink-0 border border-amber-400/30">
               <i class="fa-solid fa-bullseye"></i>
             </div>
-            <div>
-              <h5 class="text-xs sm:text-sm font-bold text-slate-800">${item.title}</h5>
-              <p class="text-[11px] text-slate-500 font-medium">${item.stage}</p>
+            <div class="min-w-0 flex-1">
+              <h5 class="text-xs sm:text-sm font-extrabold text-slate-900 truncate leading-snug">${item.title}</h5>
+              <p class="text-[10px] xs:text-[11px] text-slate-500 font-semibold truncate mt-0.5">${item.stage}</p>
             </div>
           </div>
-          <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60">
-            <i class="fa-regular fa-clock mr-1"></i>${item.time}
-          </span>
+          <div class="self-start xs:self-auto shrink-0">
+            <span class="text-[11px] sm:text-xs font-extrabold text-amber-800 bg-amber-50/90 px-2.5 xs:px-3 py-1 xs:py-1.5 rounded-xl border border-amber-200/80 inline-flex items-center gap-1.5 whitespace-nowrap shadow-2xs">
+              <i class="fa-regular fa-clock text-amber-600"></i> ${item.time}
+            </span>
+          </div>
         </div>
       `).join('');
     }
