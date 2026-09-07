@@ -1,0 +1,572 @@
+
+<!doctype html>
+<html lang="en" class="h-full scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#020617">
+<title>SARAGA 2026–27 | Dedicated Judge Terminal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={
+  darkMode:'class',
+  theme:{
+    extend:{
+      colors:{
+        brand:{
+          50:'#f0fdf4',
+          900:'#0f172a',
+          950:'#020617',
+          gold:'#d97706',
+          amber:'#f59e0b'
+        }
+      },
+      fontFamily:{
+        sans:['Inter','system-ui','-apple-system','sans-serif']
+      }
+    }
+  }
+};
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<!-- QR Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',system-ui,sans-serif;background-color:#020617;color:#f8fafc;min-height:100vh;display:flex;flex-direction:column}
+.glass-panel{background:rgba(15,23,42,0.85);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:1.5rem;box-shadow:0 12px 40px -10px rgba(0,0,0,0.5)}
+.touch-btn{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;border-radius:1rem;padding:0.875rem 1.5rem;font-weight:800;font-size:0.95rem;transition:all 0.15s ease;user-select:none}
+.touch-btn:active{transform:scale(0.96)}
+.btn-gold{background:linear-gradient(135deg, #d97706 0%, #f59e0b 100%);color:#020617;box-shadow:0 6px 20px rgba(217,119,6,0.35)}
+.btn-gold:hover{filter:brightness(1.1)}
+.btn-dark{background:rgba(255,255,255,0.06);color:#f1f5f9;border:1px solid rgba(255,255,255,0.12)}
+.btn-dark:hover{background:rgba(255,255,255,0.12)}
+.input-box{width:100%;border:1px solid rgba(255,255,255,0.15);border-radius:1rem;padding:0.875rem 1.25rem;outline:0;background:rgba(15,23,42,0.8);color:#fff;font-size:1rem;transition:all 0.2s ease}
+.input-box:focus{border-color:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,0.25)}
+.toast-anim{animation:slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.stepper-btn{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.25rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;transition:all 0.1s ease}
+.stepper-btn:active{background:#f59e0b;color:#000;transform:scale(0.92)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+</style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950 pb-8">
+
+<!-- Header Bar -->
+<header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800 shadow-xl">
+  <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <div class="h-10 w-10 rounded-xl bg-white p-1 flex items-center justify-center border border-amber-400/40 shrink-0">
+        <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="max-h-full max-w-full object-contain">
+      </div>
+      <div>
+        <h1 class="text-sm sm:text-base font-black text-white flex items-center gap-1.5 mt-0.5">
+          Digital Judge Terminal
+        </h1>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <img src="madrasa.png" alt="Madrasa Logo" class="h-6 w-6 object-contain hidden sm:block">
+      <button id="auth-status-btn" class="touch-btn btn-dark text-xs py-2 px-3">
+        <i class="fa-solid fa-user-check text-amber-400"></i> <span id="judge-status-label">Authenticate</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div id="toast" class="fixed bottom-6 right-4 left-4 sm:left-auto z-50 w-auto sm:w-96 space-y-2 pointer-events-none"></div>
+
+<div id="loading" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+  <div class="glass-panel p-8 text-center max-w-xs w-full">
+    <div class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center text-xl mb-3 border border-amber-500/30 animate-spin">
+      <i class="fa-solid fa-circle-notch"></i>
+    </div>
+    <p id="loading-text" class="text-sm font-extrabold text-white">Connecting cloud sync…</p>
+  </div>
+</div>
+
+<!-- QR Scanner Modal -->
+<div id="qr-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden items-center justify-center p-4">
+  <div class="glass-panel p-6 max-w-md w-full relative">
+    <button id="close-qr" class="absolute top-4 right-4 text-slate-400 hover:text-white p-2 text-lg"><i class="fa-solid fa-xmark"></i></button>
+    <h3 class="text-lg font-black text-white text-center mb-1"><i class="fa-solid fa-qrcode text-amber-400 mr-2"></i> Scan Event QR Pass</h3>
+    <p class="text-xs text-slate-400 text-center mb-4">Point your camera at the event QR code card</p>
+    <div id="reader" class="rounded-2xl overflow-hidden border border-slate-700 bg-black min-h-[250px]"></div>
+  </div>
+</div>
+
+<main class="max-w-4xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
+
+  <!-- AUTH / JUDGE LOGIN CARD -->
+  <div id="judge-auth-card" class="glass-panel p-6 sm:p-8 space-y-6">
+    <div class="text-center max-w-md mx-auto">
+      <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-400/30 text-amber-400 mx-auto flex items-center justify-center text-2xl mb-3">
+        <i class="fa-solid fa-gavel"></i>
+      </div>
+      <h2 class="text-2xl font-black text-white">Evaluator Login</h2>
+      <p class="text-xs text-slate-400 mt-1">Sign in once. Credentials persist safely in LocalStorage.</p>
+    </div>
+
+    <form id="judge-login-form" class="max-w-md mx-auto space-y-4">
+      <div>
+        <label class="text-xs font-extrabold text-slate-300 uppercase tracking-wider block mb-1">Judge Email</label>
+        <input id="j-email" type="email" required class="input-box" placeholder="judge@saraga.org" autocomplete="username">
+      </div>
+      <div>
+        <label class="text-xs font-extrabold text-slate-300 uppercase tracking-wider block mb-1">Password</label>
+        <input id="j-password" type="password" required class="input-box" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="touch-btn btn-gold w-full py-3.5 text-base font-black">
+        <i class="fa-solid fa-shield-halved mr-2"></i> Authenticate & Save Session
+      </button>
+    </form>
+  </div>
+
+  <!-- AUTHENTICATED WORKSPACE -->
+  <div id="judge-workspace" class="hidden space-y-6">
+    
+    <!-- Evaluator Info Bar -->
+    <div class="glass-panel p-4 sm:p-5 flex items-center justify-between gap-4 border-l-4 border-l-amber-500">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-lg border border-amber-500/30">
+          <i class="fa-solid fa-user-pen"></i>
+        </div>
+        <div>
+          <div id="active-judge-name" class="font-extrabold text-white text-base">—</div>
+          <div id="active-judge-id" class="text-xs font-mono text-amber-400 mt-0.5">Judge ID: —</div>
+        </div>
+      </div>
+      <button id="logout-btn" class="touch-btn btn-dark text-xs py-2 px-3 text-rose-300 border-rose-500/30 hover:bg-rose-500/10">
+        <i class="fa-solid fa-right-from-bracket"></i> 
+      </button>
+    </div>
+
+    <!-- REDESIGNED ITEM SELECTOR CARD (Professional, Sleek, No Messy Chips) -->
+    <div class="glass-panel p-6 space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+        <div>
+          <h2 class="text-lg font-black text-white flex items-center gap-2">
+            <i class="fa-solid fa-compass text-amber-400"></i> Event Selection Console
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Select competition item or scan QR code pass</p>
+        </div>
+        <button id="open-scan-btn" class="touch-btn btn-dark text-xs py-2.5 px-4 self-start sm:self-auto border-amber-500/30 text-amber-300">
+          <i class="fa-solid fa-camera text-amber-400"></i> Scan QR Code Pass
+        </button>
+      </div>
+
+      <div class="grid md:grid-cols-12 gap-4 items-end">
+        <!-- Interactive Search Dropdown -->
+        <div class="md:col-span-8 space-y-1.5">
+          <label class="text-xs font-extrabold text-slate-300 uppercase tracking-wider block">Choose Competition Item</label>
+          <div class="relative">
+            <select id="item-dropdown" class="input-box font-bold py-3.5 pr-10 text-white appearance-none cursor-pointer">
+              <option value="">-- Search or Select Competition Event --</option>
+            </select>
+            <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+          </div>
+        </div>
+
+        <!-- Direct Pin Code Input -->
+        <div class="md:col-span-4 space-y-1.5">
+          <label class="text-xs font-extrabold text-slate-300 uppercase tracking-wider block">Direct Event Code</label>
+          <div class="flex gap-2">
+            <input id="direct-code-input" class="input-box text-center font-black text-amber-400 tracking-wider py-3.5" placeholder="e.g. 101" maxlength="6">
+            <button id="load-item-btn" class="touch-btn btn-gold shrink-0 py-3.5 px-5">
+              <i class="fa-solid fa-circle-play"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected Item Quick Card Preview -->
+      <div id="item-preview-badge" class="hidden rounded-2xl bg-slate-900/90 border border-amber-500/30 p-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span id="prev-code" class="text-xs font-black bg-amber-500 text-slate-950 px-3 py-1 rounded-lg">CODE</span>
+          <div>
+            <h4 id="prev-title" class="font-extrabold text-white text-base">Item Name</h4>
+            <span id="prev-cat" class="text-xs font-semibold text-slate-400">Category</span>
+          </div>
+        </div>
+        <div class="text-right">
+          <div id="prev-marks" class="text-xs font-black text-amber-400">100 Points</div>
+          <div id="prev-duration" class="text-[11px] text-slate-400">15 Minutes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIGITAL EVALUATION SHEET -->
+    <div id="eval-sheet" class="hidden space-y-6">
+      <div class="glass-panel p-6 border-2 border-amber-500/40 bg-gradient-to-r from-slate-900 via-brand-900 to-slate-900">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <span id="sheet-code" class="text-xs font-black bg-amber-500 text-slate-950 px-3 py-1 rounded-lg uppercase tracking-wider"></span>
+            <h2 id="sheet-title" class="text-2xl sm:text-3xl font-black text-white mt-2"></h2>
+          </div>
+          <div class="text-right">
+            <span id="sheet-category" class="text-xs font-extrabold bg-slate-800 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-full"></span>
+            <div id="sheet-duration" class="text-xs font-bold text-slate-400 mt-2"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contestant Selection -->
+      <div class="glass-panel p-6 space-y-2">
+        <label class="text-xs font-extrabold text-slate-300 uppercase tracking-wider block">Select Contestant / Participant</label>
+        <div class="relative">
+          <select id="participant-select" class="input-box font-bold py-3.5 text-base text-amber-300 appearance-none cursor-pointer">
+            <option value="">-- Choose Contestant from Roster --</option>
+          </select>
+          <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+        </div>
+      </div>
+
+      <!-- Scoring Sheet Criteria -->
+      <form id="score-form" class="glass-panel p-6 sm:p-8 space-y-6">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div>
+            <h3 class="text-lg font-black text-white">Criterion Scoring Sheet</h3>
+            <p class="text-xs text-slate-400 mt-0.5">Enter points using touch buttons or numeric input</p>
+          </div>
+          <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+            <i class="fa-solid fa-calculator mr-1"></i> Auto Calculate
+          </span>
+        </div>
+
+        <div id="criteria-container" class="space-y-4"></div>
+
+        <!-- Live Score Counter Bar -->
+        <div class="rounded-2xl bg-slate-900 border border-slate-800 p-6 flex items-center justify-between shadow-2xl">
+          <div>
+            <div class="text-[10px] font-extrabold text-amber-400 uppercase tracking-widest">Calculated Total Score</div>
+            <div id="live-total-score" class="text-4xl sm:text-5xl font-black tracking-tight text-white mt-1">0</div>
+          </div>
+          <div class="text-right">
+            <div class="text-xs font-bold text-slate-400 uppercase">Maximum Point Cap</div>
+            <div id="max-total-score" class="text-2xl font-black text-amber-400">100</div>
+          </div>
+        </div>
+
+        <div id="overwrite-alert" class="hidden p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-3">
+          <i class="fa-solid fa-triangle-exclamation text-lg text-amber-400"></i>
+          <div>Score record exists in cloud database for this contestant. Submitting will update the record.</div>
+        </div>
+
+        <button id="submit-score-btn" class="touch-btn btn-gold w-full py-4 text-base font-black">
+          <i class="fa-solid fa-cloud-arrow-up mr-2 text-lg"></i> Save Score Sheet to Cloud
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDCdeOsEw6_IkQaMES-YdCh5R3CWhqILUI",
+  authDomain: "result-d1ddc.firebaseapp.com",
+  projectId: "result-d1ddc",
+  storageBucket: "result-d1ddc.firebasestorage.app",
+  messagingSenderId: "9589250968",
+  appId: "1:9589250968:web:cf35482950dcd496bd29ed"
+};
+
+let db, auth;
+const state = { items: [], participants: [], judges: [], scores: [], user: null, profile: null, currentItem: null, html5Qr: null };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+
+function toast(msg, type = "info") {
+  const el = document.createElement("div");
+  el.className = "toast-anim pointer-events-auto rounded-2xl border p-4 text-xs font-extrabold shadow-2xl flex items-center gap-3 " +
+    (type === "success" ? "bg-emerald-950 text-emerald-200 border-emerald-500/40" :
+     type === "error" ? "bg-rose-950 text-rose-200 border-rose-500/40" :
+     "bg-slate-900 text-slate-100 border-slate-700");
+  el.innerHTML = `<i class="fa-solid ${type === "success" ? "fa-circle-check text-emerald-400 text-lg" : type === "error" ? "fa-circle-exclamation text-rose-400 text-lg" : "fa-circle-info text-amber-400 text-lg"}"></i><span>${esc(msg)}</span>`;
+  $("toast").appendChild(el);
+  setTimeout(() => el.remove(), 3800);
+}
+
+function busy(on, text = "Syncing Engine…") {
+  $("loading-text").textContent = text;
+  $("loading").classList.toggle("hidden", !on);
+  $("loading").classList.toggle("flex", on);
+}
+
+// LocalStorage Session Management
+function saveSession(email, pass, profile) {
+  localStorage.setItem("saraga_judge_session", JSON.stringify({ email, pass, profile }));
+}
+
+function getSavedSession() {
+  try {
+    return JSON.parse(localStorage.getItem("saraga_judge_session"));
+  } catch (e) {
+    return null;
+  }
+}
+
+function clearSession() {
+  localStorage.removeItem("saraga_judge_session");
+}
+
+function populateItemDropdown() {
+  const s = $("item-dropdown");
+  s.innerHTML = `<option value="">-- Search or Select Competition Event --</option>` +
+    state.items.map(i => `<option value="${esc(i.code)}">[${esc(i.code)}] ${esc(i.name)} (${esc(i.category)})</option>`).join("");
+}
+
+function updateWorkspaceUI() {
+  if (state.profile && state.user) {
+    $("judge-auth-card").classList.add("hidden");
+    $("judge-workspace").classList.remove("hidden");
+    $("active-judge-name").textContent = state.profile.name || state.user.email;
+    $("active-judge-id").textContent = `Judge ID: ${state.profile.judgeId || "J001"}`;
+    $("judge-status-label").textContent = state.profile.name ? state.profile.name.split(" ")[0] : "Authenticated";
+  } else {
+    $("judge-auth-card").classList.remove("hidden");
+    $("judge-workspace").classList.add("hidden");
+    $("judge-status-label").textContent = "Authenticate";
+  }
+}
+
+async function loginJudge(email, password, isAuto = false) {
+  try {
+    if (!isAuto) busy(true, "Authenticating Judge Credentials…");
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const own = await getDoc(doc(db, "users", cred.user.uid));
+    const prof = own.exists() ? own.data() : { name: email.split("@")[0], judgeId: "J001", role: "judge" };
+    
+    state.user = cred.user;
+    state.profile = prof;
+    saveSession(email, password, prof);
+    updateWorkspaceUI();
+    
+    if (!isAuto) toast(`Welcome back, ${prof.name || "Judge"}`, "success");
+    checkUrlItem();
+  } catch (err) {
+    if (!isAuto) toast("Invalid email or password authentication credentials.", "error");
+    clearSession();
+  } finally {
+    busy(false);
+  }
+}
+
+function loadItemByCode(code) {
+  if (!code) return;
+  const i = state.items.find(x => String(x.code) === String(code));
+  if (!i) {
+    toast(`Event Code "${code}" not found in database.`, "error");
+    return;
+  }
+  state.currentItem = i;
+  $("item-dropdown").value = i.code;
+  $("direct-code-input").value = i.code;
+
+  // Show Preview Badge
+  $("prev-code").textContent = `CODE ${i.code}`;
+  $("prev-title").textContent = i.name;
+  $("prev-cat").textContent = `${i.category} Division`;
+  $("prev-marks").textContent = `${i.totalMarks} Points Max`;
+  $("prev-duration").textContent = `${i.duration} Minutes Duration`;
+  $("item-preview-badge").classList.remove("hidden");
+
+  renderEvalSheet();
+}
+
+function renderEvalSheet() {
+  const i = state.currentItem;
+  if (!i) return;
+
+  $("sheet-code").textContent = `EVENT CODE ${i.code}`;
+  $("sheet-title").textContent = i.name;
+  $("sheet-category").textContent = i.category;
+  $("sheet-duration").textContent = `${i.duration} Mins Limit`;
+  $("max-total-score").textContent = i.totalMarks;
+
+  // Criteria Rows with Stepper +/- Buttons for Touch Excellence
+  $("criteria-container").innerHTML = (i.criteria || []).map(c => `
+    <div class="rounded-2xl bg-slate-900/90 border border-slate-800 p-4 sm:p-5 space-y-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-black uppercase tracking-wider text-amber-400">Target Criterion</span>
+          <h4 class="font-extrabold text-white text-base">${esc(c.name)}</h4>
+        </div>
+        <span class="text-xs font-bold text-slate-400">Max ${c.maxMarks} pts</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button type="button" class="stepper-btn" onclick="stepCriterion('${esc(c.id)}', -1, ${c.maxMarks})">-</button>
+        <input class="input-box text-center font-black text-xl py-2 score-input" data-crit-id="${esc(c.id)}" type="number" min="0" max="${c.maxMarks}" step="0.5" placeholder="0" required>
+        <button type="button" class="stepper-btn" onclick="stepCriterion('${esc(c.id)}', 1, ${c.maxMarks})">+</button>
+      </div>
+    </div>
+  `).join("");
+
+  document.querySelectorAll(".score-input").forEach(inp => inp.oninput = calcLiveTotal);
+
+  // Populate Participants Roster for this Category
+  $("participant-select").innerHTML = `<option value="">-- Select Contestant from Roster --</option>` +
+    state.participants.filter(p => p.category === i.category).map(p => `<option value="${esc(p.participantNo)}">${esc(p.participantNo)} · ${esc(p.name)} (${esc(p.madrasa)})</option>`).join("");
+
+  $("eval-sheet").classList.remove("hidden");
+  calcLiveTotal();
+}
+
+window.stepCriterion = function(id, delta, max) {
+  const inp = document.querySelector(`[data-crit-id="${CSS.escape(id)}"]`);
+  if (!inp) return;
+  let curr = parseFloat(inp.value) || 0;
+  curr = Math.max(0, Math.min(max, curr + delta));
+  inp.value = curr;
+  calcLiveTotal();
+};
+
+function calcLiveTotal() {
+  const total = [...document.querySelectorAll(".score-input")].reduce((sum, el) => sum + (parseFloat(el.value) || 0), 0);
+  $("live-total-score").textContent = total.toFixed(2).replace(/\.00$/, "");
+}
+
+function checkExistingScore() {
+  const pid = $("participant-select").value;
+  if (!pid || !state.currentItem || !state.profile) return;
+  const existing = state.scores.find(s => s.itemCode === state.currentItem.code && s.participantId === pid && s.judgeId === (state.profile.judgeId || "J001"));
+  $("overwrite-alert").classList.toggle("hidden", !existing);
+  if (existing) {
+    document.querySelectorAll(".score-input").forEach(inp => {
+      inp.value = existing.marks?.[inp.dataset.critId] ?? "";
+    });
+    calcLiveTotal();
+  }
+}
+
+async function submitScoreSheet(e) {
+  e.preventDefault();
+  if (!state.profile || !state.currentItem) return;
+  const pid = $("participant-select").value;
+  if (!pid) { toast("Please select a contestant from the roster.", "error"); return; }
+
+  const marks = {};
+  let total = 0;
+  for (const c of state.currentItem.criteria || []) {
+    const inp = document.querySelector(`[data-crit-id="${CSS.escape(c.id)}"]`);
+    const val = parseFloat(inp?.value);
+    if (isNaN(val) || val < 0 || val > c.maxMarks) {
+      toast(`Invalid mark for "${c.name}". Max allowed is ${c.maxMarks}.`, "error");
+      return;
+    }
+    marks[c.id] = val;
+    total += val;
+  }
+
+  const judgeId = state.profile.judgeId || "J001";
+  const docId = `${state.currentItem.code}_${pid}_${judgeId}`;
+  const payload = {
+    eventId: "saraga-2026-27",
+    itemCode: state.currentItem.code,
+    participantId: pid,
+    judgeId: judgeId,
+    judgeName: state.profile.name || state.user.email,
+    marks,
+    total,
+    submitted: true,
+    updatedAt: serverTimestamp()
+  };
+
+  try {
+    busy(true, "Saving Score Sheet to Firebase…");
+    await setDoc(doc(db, "scores", docId), payload, { merge: true });
+    toast("Score sheet successfully synced to cloud!", "success");
+    $("participant-select").value = "";
+    document.querySelectorAll(".score-input").forEach(i => i.value = "");
+    calcLiveTotal();
+    $("overwrite-alert").classList.add("hidden");
+  } catch (err) {
+    toast(err.message || "Failed to save score sheet.", "error");
+  } finally {
+    busy(false);
+  }
+}
+
+function startScanner() {
+  $("qr-modal").classList.remove("hidden");
+  $("qr-modal").classList.add("flex");
+  state.html5Qr = new Html5Qrcode("reader");
+  state.html5Qr.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: { width: 220, height: 220 } },
+    (decodedText) => {
+      stopScanner();
+      const match = decodedText.match(/[?&]item=([^&]+)/);
+      const code = match ? decodeURIComponent(match[1]) : decodedText;
+      loadItemByCode(code);
+      toast(`Scanned Event Code: ${code}`, "success");
+    },
+    () => {}
+  ).catch(() => toast("Unable to access camera.", "error"));
+}
+
+function stopScanner() {
+  if (state.html5Qr) {
+    state.html5Qr.stop().then(() => { state.html5Qr.clear(); }).catch(() => {});
+  }
+  $("qr-modal").classList.add("hidden");
+  $("qr-modal").classList.remove("flex");
+}
+
+function checkUrlItem() {
+  const code = new URLSearchParams(window.location.search).get("item");
+  if (code) loadItemByCode(code);
+}
+
+// Event Listeners
+$("judge-login-form").onsubmit = e => { e.preventDefault(); loginJudge($("j-email").value.trim(), $("j-password").value); };
+$("logout-btn").onclick = async () => {
+  await signOut(auth);
+  state.user = null;
+  state.profile = null;
+  clearSession();
+  updateWorkspaceUI();
+  toast("Signed out successfully.", "info");
+};
+
+$("item-dropdown").onchange = e => loadItemByCode(e.target.value);
+$("load-item-btn").onclick = () => loadItemByCode($("direct-code-input").value.trim());
+$("participant-select").onchange = checkExistingScore;
+$("score-form").onsubmit = submitScoreSheet;
+$("open-scan-btn").onclick = startScanner;
+$("close-qr").onclick = stopScanner;
+
+// Initialize Firebase
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  auth = getAuth(app);
+
+  onSnapshot(collection(db, "items"), s => { state.items = s.docs.map(d => d.data()); populateItemDropdown(); checkUrlItem(); });
+  onSnapshot(collection(db, "participants"), s => { state.participants = s.docs.map(d => d.data()); });
+  onSnapshot(collection(db, "scores"), s => { state.scores = s.docs.map(d => d.data()); checkExistingScore(); });
+
+  const saved = getSavedSession();
+  if (saved && saved.email && saved.pass) {
+    loginJudge(saved.email, saved.pass, true);
+  }
+} catch (e) {
+  toast("Firebase connection initialization failed.", "error");
+}
+</script>
+</body>
+</html>
