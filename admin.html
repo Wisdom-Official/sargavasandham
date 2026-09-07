@@ -1,13 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard | Sargavasantham 2026-2027</title>
+  <title>Admin Control Center | Sargavasantham 2026-2027</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter & Outfit -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -31,13 +32,23 @@
       background: #0f172a;
       color: #f8fafc;
     }
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 6px;
+    }
   </style>
 
+  <!-- Firebase SDK (v11) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBLyKNAbhjVj5yBKWjT4_t0DrPRxnuH86U",
       authDomain: "event-1b1b1.firebaseapp.com",
@@ -47,19 +58,18 @@
       appId: "1:825845170211:web:f9b3fcf5771b2bf0abf196"
     };
 
-    // Cloudinary Credentials
     window.CLOUDINARY_CLOUD_NAME = "dvobmi96";
     window.CLOUDINARY_PRESET = "l5wgxfze";
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     window.db = db;
-    window.firestoreModule = { doc, setDoc, onSnapshot, collection, addDoc, deleteDoc };
+    window.firestoreModule = { doc, setDoc, onSnapshot, collection, addDoc, deleteDoc, updateDoc };
   </script>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-slate-950">
 
+  <!-- SECURITY AUTH OVERLAY -->
   <div id="authOverlay" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-lg flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-3xl max-w-md w-full text-center space-y-6 shadow-2xl">
       <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-2xl mx-auto border border-amber-500/20">
@@ -67,7 +77,7 @@
       </div>
       <div>
         <h2 class="text-2xl font-black font-outfit text-white">Sargavasantham Admin</h2>
-        <p class="text-xs text-slate-400 mt-1">Enter Security Passcode to Access Dashboard</p>
+        <p class="text-xs text-slate-400 mt-1">Enter Passcode to Access Control Panel</p>
       </div>
       <form onsubmit="verifyAdminPass(event)" class="space-y-4">
         <input type="password" id="passcodeKey" placeholder="Enter Passcode (Default: 1234)" required class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-center text-lg tracking-widest text-white focus:outline-none focus:ring-2 focus:ring-amber-500">
@@ -82,6 +92,7 @@
     </div>
   </div>
 
+  <!-- HEADER -->
   <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
       <div class="flex items-center gap-3">
@@ -89,8 +100,8 @@
           <i class="fa-solid fa-sliders"></i>
         </span>
         <div>
-          <h1 class="text-lg font-bold font-outfit text-white leading-tight">Admin Dashboard</h1>
-          <p class="text-xs text-slate-400">Sargavasantham 2026-2027 Control Center</p>
+          <h1 class="text-lg font-bold font-outfit text-white leading-tight">Admin Control Center</h1>
+          <p class="text-xs text-slate-400">Sargavasantham 2026-2027 Dashboard</p>
         </div>
       </div>
 
@@ -102,19 +113,20 @@
     </div>
   </header>
 
+  <!-- MAIN ADMIN DASHBOARD -->
   <main id="adminMainContent" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 opacity-20 pointer-events-none transition-all duration-300">
 
-    <!-- TOP SECTION: TEAM SCORES CONTROL -->
+    <!-- 1. LIVE SCORES MANAGEMENT -->
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-4 gap-2">
         <div>
           <h2 class="text-xl font-black font-outfit text-white flex items-center gap-2">
             <i class="fa-solid fa-trophy text-amber-400"></i> Realtime Team Points Management
           </h2>
-          <p class="text-xs text-slate-400">Updates propagate immediately to public live score screen</p>
+          <p class="text-xs text-slate-400">Score updates sync live to the main portal</p>
         </div>
         <span class="text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 font-bold">
-          <i class="fa-solid fa-wifi mr-1"></i> Connected to Firestore
+          <i class="fa-solid fa-wifi mr-1"></i> Firestore Connected
         </span>
       </div>
 
@@ -167,6 +179,87 @@
       </form>
     </div>
 
+    <!-- 2. STUDENT DIRECTORY MANAGEMENT (ADD & EDIT STUDENTS) -->
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 gap-3">
+        <div>
+          <h2 class="text-xl font-black font-outfit text-white flex items-center gap-2">
+            <i class="fa-solid fa-id-card text-emerald-400"></i> Student Roster & Items Manager
+          </h2>
+          <p class="text-xs text-slate-400">Add or Edit student details, participating items, and individual achievements</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Add/Edit Student Form -->
+        <form id="studentForm" onsubmit="saveStudent(event)" class="space-y-4 bg-slate-950/60 p-5 rounded-2xl border border-slate-800">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+            <h3 class="text-sm font-bold text-emerald-400">
+              <span id="studentFormTitle"><i class="fa-solid fa-user-plus mr-1"></i> Add Student Data</span>
+            </h3>
+            <button type="button" id="cancelEditBtn" onclick="cancelStudentEdit()" class="hidden text-xs text-slate-400 hover:text-white px-2.5 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 transition-all font-bold">
+              <i class="fa-solid fa-xmark mr-1"></i> Cancel
+            </button>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-300 block mb-1">Student Full Name</label>
+            <input type="text" id="studName" required placeholder="e.g. Aman Zad" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-bold text-slate-300 block mb-1">Team</label>
+              <select id="studTeam" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                <option value="TEAM A">Team A (Najah)</option>
+                <option value="TEAM B">Team B (Falah)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-xs font-bold text-slate-300 block mb-1">Category</label>
+              <select id="studCategory" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                <option value="KIDS">Kids</option>
+                <option value="CHILDREN">Children</option>
+                <option value="SUB JUNIOR">Sub Junior</option>
+                <option value="JUNIOR">Junior</option>
+                <option value="SENIOR">Senior</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-300 block mb-1">Participating Items (Comma-Separated)</label>
+            <input type="text" id="studItems" placeholder="e.g. Qirat, Story Telling, Pencil Drawing" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-300 block mb-1">Achievements / Victories (Optional)</label>
+            <input type="text" id="studAchievements" placeholder="e.g. Qirat - 1st Place, Story - A Grade" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+
+          <button type="submit" id="studentSubmitBtn" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl text-xs shadow-md transition-all active:scale-95">
+            <i class="fa-solid fa-floppy-disk mr-1"></i> Save Student Record
+          </button>
+        </form>
+
+        <!-- Manage Existing Students List -->
+        <div class="lg:col-span-2 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-400">Registered Students Directory</span>
+            <input type="text" id="adminStudentFilter" oninput="renderAdminStudents()" placeholder="Filter student list..." class="px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          </div>
+
+          <div id="adminStudentList" class="space-y-2.5 max-h-96 overflow-y-auto pr-1">
+            <!-- Dynamic student cards -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3. PUBLISH WINNER & SCHEDULE EVENTS -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       
       <!-- PUBLISH WINNER FORM -->
@@ -205,8 +298,8 @@
             <div>
               <label class="text-xs font-bold text-slate-300 block mb-1">Team</label>
               <select id="winTeam" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                <option value="TEAM A">Team A (Red)</option>
-                <option value="TEAM B">Team B (Blue)</option>
+                <option value="TEAM A">Team A (Najah)</option>
+                <option value="TEAM B">Team B (Falah)</option>
               </select>
             </div>
           </div>
@@ -227,7 +320,7 @@
           </div>
 
           <div id="uploadStatus" class="hidden text-xs text-amber-400 font-bold flex items-center gap-2">
-            <i class="fa-solid fa-spinner animate-spin"></i> Uploading Image to Cloudinary & Saving Winner...
+            <i class="fa-solid fa-spinner animate-spin"></i> Uploading Image & Publishing Winner...
           </div>
 
           <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs shadow-md transition-all active:scale-95">
@@ -236,6 +329,7 @@
         </form>
       </div>
 
+      <!-- SCHEDULE UPCOMING ITEM -->
       <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
         <div class="border-b border-slate-800 pb-3">
           <h2 class="text-lg font-black font-outfit text-white flex items-center gap-2">
@@ -269,6 +363,7 @@
 
     </div>
 
+    <!-- RECORDS MANAGEMENT LISTS -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       
       <!-- Current Winners Management List -->
@@ -301,6 +396,8 @@
     let scores = { teamA: 0, teamB: 0 };
     let winnersList = [];
     let upcomingList = [];
+    let studentsList = [];
+    let editingStudentId = null;
 
     function verifyAdminPass(e) {
       e.preventDefault();
@@ -352,6 +449,14 @@
         snapshot.forEach(d => upcomingList.push({ id: d.id, ...d.data() }));
         renderAdminSched();
       });
+
+      // 4. Sync Students List
+      const studentsColRef = collection(window.db, "sargavasantham_students");
+      onSnapshot(studentsColRef, (snapshot) => {
+        studentsList = [];
+        snapshot.forEach(d => studentsList.push({ id: d.id, ...d.data() }));
+        renderAdminStudents();
+      });
     }
 
     function adjustScore(team, val) {
@@ -376,6 +481,112 @@
       } catch (err) {
         showNotification("Error updating scores: " + err.message, true);
       }
+    }
+
+    // Edit Existing Student Setup
+    function editStudent(id) {
+      const student = studentsList.find(s => s.id === id);
+      if (!student) return;
+
+      editingStudentId = id;
+      document.getElementById('studName').value = student.name || '';
+      document.getElementById('studTeam').value = student.team || 'TEAM A';
+      document.getElementById('studCategory').value = student.category || 'KIDS';
+      document.getElementById('studItems').value = student.items || '';
+      document.getElementById('studAchievements').value = student.achievements || '';
+
+      document.getElementById('studentFormTitle').innerHTML = `<i class="fa-solid fa-user-pen mr-1"></i> Edit Student Record`;
+      
+      const submitBtn = document.getElementById('studentSubmitBtn');
+      submitBtn.className = "w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs shadow-md transition-all active:scale-95";
+      submitBtn.innerHTML = `<i class="fa-solid fa-pen-to-square mr-1"></i> Update Student Record`;
+      
+      document.getElementById('cancelEditBtn').classList.remove('hidden');
+
+      // Scroll form into focus on mobile devices
+      document.getElementById('studentForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function cancelStudentEdit() {
+      editingStudentId = null;
+      document.getElementById('studentForm').reset();
+      document.getElementById('studentFormTitle').innerHTML = `<i class="fa-solid fa-user-plus mr-1"></i> Add Student Data`;
+      
+      const submitBtn = document.getElementById('studentSubmitBtn');
+      submitBtn.className = "w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl text-xs shadow-md transition-all active:scale-95";
+      submitBtn.innerHTML = `<i class="fa-solid fa-floppy-disk mr-1"></i> Save Student Record`;
+      
+      document.getElementById('cancelEditBtn').classList.add('hidden');
+    }
+
+    // Save/Update Student Record
+    async function saveStudent(e) {
+      e.preventDefault();
+      const name = document.getElementById('studName').value.trim();
+      const team = document.getElementById('studTeam').value;
+      const category = document.getElementById('studCategory').value;
+      const items = document.getElementById('studItems').value.trim();
+      const achievements = document.getElementById('studAchievements').value.trim();
+
+      if (!name) return;
+
+      try {
+        if (editingStudentId) {
+          const docRef = window.firestoreModule.doc(window.db, "sargavasantham_students", editingStudentId);
+          await window.firestoreModule.updateDoc(docRef, {
+            name, team, category, items, achievements
+          });
+          showNotification(`Student "${name}" updated successfully!`);
+          cancelStudentEdit();
+        } else {
+          const colRef = window.firestoreModule.collection(window.db, "sargavasantham_students");
+          await window.firestoreModule.addDoc(colRef, {
+            name, team, category, items, achievements, timestamp: Date.now()
+          });
+          document.getElementById('studentForm').reset();
+          showNotification(`Student "${name}" added!`);
+        }
+      } catch (err) {
+        showNotification("Error saving student: " + err.message, true);
+      }
+    }
+
+    function renderAdminStudents() {
+      const container = document.getElementById('adminStudentList');
+      const filter = (document.getElementById('adminStudentFilter')?.value || '').toLowerCase();
+
+      const filtered = studentsList.filter(s => 
+        (s.name || '').toLowerCase().includes(filter) || 
+        (s.team || '').toLowerCase().includes(filter) ||
+        (s.category || '').toLowerCase().includes(filter)
+      );
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 py-4 text-center">No students found.</p>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(s => `
+        <div class="flex items-center justify-between p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs gap-2">
+          <div class="min-w-0 flex-1">
+            <div class="font-bold text-white flex items-center gap-2 flex-wrap">
+              <span class="truncate">${s.name}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-black shrink-0 ${s.team === 'TEAM A' ? 'bg-rose-500/20 text-rose-300' : 'bg-blue-500/20 text-blue-300'}">${s.team}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-bold shrink-0">${s.category}</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5 truncate"><i class="fa-solid fa-star text-amber-400 mr-1"></i>Items: ${s.items || 'None'}</p>
+            ${s.achievements ? `<p class="text-[11px] text-amber-300 font-semibold truncate"><i class="fa-solid fa-trophy text-amber-400 mr-1"></i>${s.achievements}</p>` : ''}
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="editStudent('${s.id}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 rounded-lg border border-amber-500/30 font-bold transition-all">
+              <i class="fa-solid fa-pen-to-square"></i> Edit
+            </button>
+            <button onclick="deleteRecord('sargavasantham_students', '${s.id}')" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 rounded-lg border border-rose-500/30 font-bold transition-all">
+              <i class="fa-solid fa-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+      `).join('');
     }
 
     async function uploadToCloudinary(file) {
@@ -460,8 +671,8 @@
               <div class="text-[11px] text-slate-400">${w.item} • ${w.team}</div>
             </div>
           </div>
-          <button onclick="deleteRecord('sargavasantham_winners', '${w.id}')" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 rounded-lg border border-rose-500/30 font-bold">
-            Delete
+          <button onclick="deleteRecord('sargavasantham_winners', '${w.id}')" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 rounded-lg border border-rose-500/30 font-bold transition-all">
+            <i class="fa-solid fa-trash"></i> Delete
           </button>
         </div>
       `).join('');
@@ -482,8 +693,8 @@
             <div class="font-bold text-white">${item.title}</div>
             <div class="text-[11px] text-slate-400">${item.stage} • ${item.time}</div>
           </div>
-          <button onclick="deleteRecord('sargavasantham_upcoming', '${item.id}')" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 rounded-lg border border-rose-500/30 font-bold">
-            Delete
+          <button onclick="deleteRecord('sargavasantham_upcoming', '${item.id}')" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 rounded-lg border border-rose-500/30 font-bold transition-all">
+            <i class="fa-solid fa-trash"></i> Delete
           </button>
         </div>
       `).join('');
@@ -491,6 +702,9 @@
 
     async function deleteRecord(collName, id) {
       try {
+        if (collName === 'sargavasantham_students' && editingStudentId === id) {
+          cancelStudentEdit();
+        }
         const docRef = window.firestoreModule.doc(window.db, collName, id);
         await window.firestoreModule.deleteDoc(docRef);
         showNotification("Item deleted.");
