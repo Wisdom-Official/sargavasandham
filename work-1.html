@@ -148,7 +148,7 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#020617;color:#f8
       </button>
     </div>
 
-    <!-- REDESIGNED ITEM SELECTOR CARD (Professional, Sleek, No Messy Chips) -->
+    <!-- ITEM SELECTOR CARD -->
     <div class="glass-panel p-6 space-y-5">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
         <div>
@@ -217,12 +217,15 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#020617;color:#f8
         </div>
       </div>
 
-      <!-- Contestant Selection -->
+      <!-- Item-Filtered Contestant Selection -->
       <div class="glass-panel p-6 space-y-2">
-        <label class="text-xs font-extrabold text-slate-300 uppercase tracking-wider block">Select Contestant / Participant</label>
+        <div class="flex justify-between items-center mb-1">
+          <label class="text-xs font-extrabold text-slate-300 uppercase tracking-wider block">Select Contestant for Event</label>
+          <span id="contestant-count-badge" class="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full">0 Registered</span>
+        </div>
         <div class="relative">
           <select id="participant-select" class="input-box font-bold py-3.5 text-base text-amber-300 appearance-none cursor-pointer">
-            <option value="">-- Choose Contestant from Roster --</option>
+            <option value="">-- Choose Contestant Enrolled in this Item --</option>
           </select>
           <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
         </div>
@@ -306,7 +309,6 @@ function busy(on, text = "Syncing Engine…") {
   $("loading").classList.toggle("flex", on);
 }
 
-// LocalStorage Session Management
 function saveSession(email, pass, profile) {
   localStorage.setItem("saraga_judge_session", JSON.stringify({ email, pass, profile }));
 }
@@ -376,7 +378,6 @@ function loadItemByCode(code) {
   $("item-dropdown").value = i.code;
   $("direct-code-input").value = i.code;
 
-  // Show Preview Badge
   $("prev-code").textContent = `CODE ${i.code}`;
   $("prev-title").textContent = i.name;
   $("prev-cat").textContent = `${i.category} Division`;
@@ -397,7 +398,6 @@ function renderEvalSheet() {
   $("sheet-duration").textContent = `${i.duration} Mins Limit`;
   $("max-total-score").textContent = i.totalMarks;
 
-  // Criteria Rows with Stepper +/- Buttons for Touch Excellence
   $("criteria-container").innerHTML = (i.criteria || []).map(c => `
     <div class="rounded-2xl bg-slate-900/90 border border-slate-800 p-4 sm:p-5 space-y-3">
       <div class="flex items-center justify-between">
@@ -418,9 +418,23 @@ function renderEvalSheet() {
 
   document.querySelectorAll(".score-input").forEach(inp => inp.oninput = calcLiveTotal);
 
-  // Populate Participants Roster for this Category
-  $("participant-select").innerHTML = `<option value="">-- Select Contestant from Roster --</option>` +
-    state.participants.filter(p => p.category === i.category).map(p => `<option value="${esc(p.participantNo)}">${esc(p.participantNo)} · ${esc(p.name)} (${esc(p.madrasa)})</option>`).join("");
+  // STRICTLY FILTER CONTESTANTS FOR THIS SPECIFIC ITEM CODE
+  const eligibleContestants = state.participants.filter(p => {
+    if (Array.isArray(p.itemCodes) && p.itemCodes.length > 0) {
+      return p.itemCodes.includes(i.code);
+    }
+    // Fallback for legacy participant entries matching category
+    return p.category === i.category;
+  });
+
+  $("contestant-count-badge").textContent = `${eligibleContestants.length} Enrolled for Item ${i.code}`;
+
+  if (eligibleContestants.length > 0) {
+    $("participant-select").innerHTML = `<option value="">-- Select Contestant Enrolled in Item Code ${esc(i.code)} --</option>` +
+      eligibleContestants.map(p => `<option value="${esc(p.participantNo)}">${esc(p.participantNo)} · ${esc(p.name)} (${esc(p.madrasa)})</option>`).join("");
+  } else {
+    $("participant-select").innerHTML = `<option value="">No contestants registered for Item Code ${esc(i.code)}</option>`;
+  }
 
   $("eval-sheet").classList.remove("hidden");
   calcLiveTotal();
@@ -532,7 +546,6 @@ function checkUrlItem() {
   if (code) loadItemByCode(code);
 }
 
-// Event Listeners
 $("judge-login-form").onsubmit = e => { e.preventDefault(); loginJudge($("j-email").value.trim(), $("j-password").value); };
 $("logout-btn").onclick = async () => {
   await signOut(auth);
@@ -550,14 +563,13 @@ $("score-form").onsubmit = submitScoreSheet;
 $("open-scan-btn").onclick = startScanner;
 $("close-qr").onclick = stopScanner;
 
-// Initialize Firebase
 try {
   const app = initializeApp(firebaseConfig);
   db = getFirestore(app);
   auth = getAuth(app);
 
   onSnapshot(collection(db, "items"), s => { state.items = s.docs.map(d => d.data()); populateItemDropdown(); checkUrlItem(); });
-  onSnapshot(collection(db, "participants"), s => { state.participants = s.docs.map(d => d.data()); });
+  onSnapshot(collection(db, "participants"), s => { state.participants = s.docs.map(d => d.data()); if (state.currentItem) renderEvalSheet(); });
   onSnapshot(collection(db, "scores"), s => { state.scores = s.docs.map(d => d.data()); checkExistingScore(); });
 
   const saved = getSavedSession();
