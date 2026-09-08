@@ -366,17 +366,42 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
       </div>
     </div>
 
-    <!-- TAB: PARTICIPANTS -->
+    <!-- TAB: PARTICIPANTS / CONTESTANTS -->
     <div id="admin-participants-tab" class="admin-tab-panel hidden space-y-6">
-      <form id="participant-form" class="glass-card p-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div><label class="text-xs font-bold text-slate-300 block mb-1">Contestant No</label><input id="p-no" class="input-field font-bold" placeholder="P001" required></div>
-        <div><label class="text-xs font-bold text-slate-300 block mb-1">Full Name</label><input id="p-name" class="input-field" placeholder="Name" required></div>
-        <div><label class="text-xs font-bold text-slate-300 block mb-1">Madrasa Unit</label><input id="p-madrasa" class="input-field" placeholder="Madrasa Name" required></div>
-        <div><label class="text-xs font-bold text-slate-300 block mb-1">Category</label><select id="p-category" class="select-field font-bold"></select></div>
-        <button class="btn-primary sm:col-span-2 lg:col-span-4 py-3 text-slate-950 font-black mt-2"><i class="fa-solid fa-user-plus mr-2"></i> Register Contestant</button>
+      <form id="participant-form" class="glass-card p-6 sm:p-8 space-y-5">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+          <h3 id="p-form-title" class="text-lg font-black text-white">Register or Edit Contestant</h3>
+          <button type="button" id="cancel-p-edit" class="hidden btn-secondary text-xs py-1.5 px-3 text-slate-400"><i class="fa-solid fa-xmark mr-1"></i> Cancel Editing</button>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div><label class="text-xs font-bold text-slate-300 block mb-1">Contestant No / ID</label><input id="p-no" class="input-field font-bold" placeholder="e.g. P001" required></div>
+          <div><label class="text-xs font-bold text-slate-300 block mb-1">Full Name</label><input id="p-name" class="input-field" placeholder="Full Name" required></div>
+          <div><label class="text-xs font-bold text-slate-300 block mb-1">Madrasa Unit</label><input id="p-madrasa" class="input-field" placeholder="Madrasa Name" required></div>
+          <div><label class="text-xs font-bold text-slate-300 block mb-1">Category</label><select id="p-category" class="select-field font-bold"></select></div>
+        </div>
+
+        <!-- Participated Events / Item Codes Selection -->
+        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-extrabold uppercase tracking-wider text-amber-400 block">
+              <i class="fa-solid fa-list-check mr-1.5"></i> Select Participating Event Items
+            </label>
+            <span class="text-[11px] text-slate-400 font-medium">Check items this contestant will participate in</span>
+          </div>
+          <div id="p-item-codes-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-56 overflow-y-auto p-1">
+            <!-- Dynamic Checkboxes rendered via JavaScript -->
+          </div>
+        </div>
+
+        <button id="p-save-btn" class="btn-primary w-full py-3.5 text-slate-950 font-black"><i class="fa-solid fa-user-plus mr-2"></i> Save Contestant Profile</button>
       </form>
 
       <div class="glass-card overflow-hidden">
+        <div class="p-4 bg-slate-900/80 font-black text-sm text-slate-300 border-b border-slate-800 flex justify-between items-center">
+          <span>Registered Contestants Directory</span>
+          <span id="p-count-badge" class="text-xs font-extrabold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">0 Enrolled</span>
+        </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
             <thead class="bg-slate-950 text-slate-400 text-xs uppercase font-extrabold border-b border-slate-800">
@@ -385,6 +410,8 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
                 <th class="p-3.5">Name</th>
                 <th class="p-3.5">Madrasa</th>
                 <th class="p-3.5 text-center">Category</th>
+                <th class="p-3.5">Participating Items</th>
+                <th class="p-3.5 text-center">Actions</th>
               </tr>
             </thead>
             <tbody id="admin-participants-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
@@ -462,7 +489,7 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, collection, doc, getDoc, setDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDCdeOsEw6_IkQaMES-YdCh5R3CWhqILUI",
@@ -485,16 +512,16 @@ const INITIAL_ITEMS = [
 ];
 
 const INITIAL_PARTICIPANTS = [
-  {"participantNo": "P001", "name": "Muhammad Adil", "madrasa": "Nandi Madrasa", "category": "Kids"},
-  {"participantNo": "P002", "name": "Fathima Nasrin", "madrasa": "Nandi Madrasa", "category": "Kids"},
-  {"participantNo": "P003", "name": "Abdullah Yaseen", "madrasa": "Nandi Madrasa", "category": "Kids"},
-  {"participantNo": "P101", "name": "Ahmed Rayan", "madrasa": "Nandi Madrasa", "category": "Children"}
+  {"participantNo": "P001", "name": "Muhammad Adil", "madrasa": "Nandi Madrasa", "category": "Kids", "itemCodes": ["101", "102", "103"]},
+  {"participantNo": "P002", "name": "Fathima Nasrin", "madrasa": "Nandi Madrasa", "category": "Kids", "itemCodes": ["101", "104", "105"]},
+  {"participantNo": "P003", "name": "Abdullah Yaseen", "madrasa": "Nandi Madrasa", "category": "Kids", "itemCodes": ["102", "108"]},
+  {"participantNo": "P101", "name": "Ahmed Rayan", "madrasa": "Nandi Madrasa", "category": "Children", "itemCodes": ["201", "203"]}
 ];
 
 const CATEGORIES = ["Kids", "Children", "Sub Junior", "Junior", "Senior", "Teacher"];
 
 let db, auth;
-const state = { items: [], participants: [], judges: [], scores: [], user: null, profile: null, unsubs: [] };
+const state = { items: [], participants: [], judges: [], scores: [], user: null, profile: null, unsubs: [], editingParticipantNo: null };
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
@@ -533,6 +560,32 @@ function populateCategorySelect(id, all = false) {
   const curr = s.value;
   s.innerHTML = (all ? `<option value="ALL">All Categories</option>` : "") + CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join("");
   if ([...s.options].some(o => o.value === curr)) s.value = curr;
+}
+
+function renderParticipantItemCheckboxes(selectedCodes = [], filterCategory = null) {
+  const container = $("p-item-codes-container");
+  if (!container) return;
+
+  const category = filterCategory || $("p-category")?.value;
+  const availableItems = category ? state.items.filter(i => i.category === category) : state.items;
+
+  if (!availableItems.length) {
+    container.innerHTML = `<div class="col-span-full text-xs text-slate-500 italic p-3 text-center">No competition items created for category "${esc(category || 'All')}". Create items first.</div>`;
+    return;
+  }
+
+  container.innerHTML = availableItems.map(i => {
+    const isChecked = selectedCodes.includes(i.code);
+    return `
+      <label class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-900 border ${isChecked ? 'border-amber-400/80 bg-amber-500/10' : 'border-slate-800'} hover:border-amber-400/50 cursor-pointer transition">
+        <input type="checkbox" value="${esc(i.code)}" class="p-item-checkbox accent-amber-500 h-4 w-4 rounded" ${isChecked ? "checked" : ""}>
+        <div class="truncate">
+          <div class="text-xs font-black text-amber-400">Code ${esc(i.code)}</div>
+          <div class="text-[11px] font-semibold text-slate-200 truncate">${esc(i.name)}</div>
+        </div>
+      </label>
+    `;
+  }).join("");
 }
 
 function renderHome() {
@@ -632,14 +685,32 @@ function renderAdmin() {
     </tr>
   `).join("");
 
-  $("admin-participants-body").innerHTML = state.participants.map(p => `
-    <tr class="hover:bg-slate-900/40">
-      <td class="p-3.5 font-mono font-bold text-amber-400">${esc(p.participantNo)}</td>
-      <td class="p-3.5 font-bold text-white">${esc(p.name)}</td>
-      <td class="p-3.5 text-slate-300">${esc(p.madrasa)}</td>
-      <td class="p-3.5 text-center font-bold text-slate-400">${esc(p.category)}</td>
-    </tr>
-  `).join("");
+  $("p-count-badge").textContent = `${state.participants.length} Enrolled`;
+
+  $("admin-participants-body").innerHTML = state.participants.length ? state.participants.map(p => {
+    const itemBadges = (p.itemCodes && p.itemCodes.length)
+      ? p.itemCodes.map(code => {
+          const item = state.items.find(x => x.code === code);
+          return `<span class="inline-block bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold text-[11px] px-2 py-0.5 rounded-md mr-1 mb-1" title="${esc(item?.name || '')}">Code ${esc(code)}</span>`;
+        }).join("")
+      : `<span class="text-slate-500 italic text-xs">No items linked</span>`;
+
+    return `
+      <tr class="hover:bg-slate-900/40">
+        <td class="p-3.5 font-mono font-bold text-amber-400">${esc(p.participantNo)}</td>
+        <td class="p-3.5 font-bold text-white">${esc(p.name)}</td>
+        <td class="p-3.5 text-slate-300">${esc(p.madrasa)}</td>
+        <td class="p-3.5 text-center font-bold text-slate-400">${esc(p.category)}</td>
+        <td class="p-3.5">${itemBadges}</td>
+        <td class="p-3.5 text-center">
+          <div class="flex justify-center items-center gap-1.5">
+            <button class="btn-secondary text-xs py-1 px-2.5 text-amber-400 hover:bg-amber-500/20" data-edit-p="${esc(p.participantNo)}"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="btn-secondary text-xs py-1 px-2.5 text-rose-400 hover:bg-rose-500/20" data-del-p="${esc(p.participantNo)}"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("") : `<tr><td colspan="6" class="p-8 text-center text-slate-500">No contestants enrolled yet.</td></tr>`;
 
   $("admin-judges-list").innerHTML = state.judges.map(j => `
     <div class="rounded-2xl border border-slate-800 p-4 bg-slate-900/50">
@@ -650,6 +721,12 @@ function renderAdmin() {
   `).join("");
 
   document.querySelectorAll("[data-edit-item]").forEach(b => b.onclick = () => editItem(b.dataset.editItem));
+  document.querySelectorAll("[data-edit-p]").forEach(b => b.onclick = () => editParticipant(b.dataset.editP));
+  document.querySelectorAll("[data-del-p]").forEach(b => b.onclick = () => deleteParticipant(b.dataset.delP));
+  
+  if (!state.editingParticipantNo) {
+    renderParticipantItemCheckboxes();
+  }
 }
 
 function editItem(code) {
@@ -664,6 +741,49 @@ function editItem(code) {
   $("criteria-builder").innerHTML = "";
   (i.criteria || []).forEach(c => addCriterion(c.name, c.maxMarks));
   window.scrollTo({ top: document.getElementById("item-form").offsetTop - 100, behavior: "smooth" });
+}
+
+function editParticipant(id) {
+  const p = state.participants.find(x => x.participantNo === id);
+  if (!p) return;
+
+  state.editingParticipantNo = p.participantNo;
+  $("p-no").value = p.participantNo;
+  $("p-no").readOnly = true;
+  $("p-name").value = p.name;
+  $("p-madrasa").value = p.madrasa;
+  $("p-category").value = p.category;
+
+  renderParticipantItemCheckboxes(p.itemCodes || [], p.category);
+
+  $("p-form-title").textContent = `Edit Contestant (${p.participantNo})`;
+  $("p-save-btn").innerHTML = `<i class="fa-solid fa-floppy-disk mr-2"></i> Update Contestant Profile`;
+  $("cancel-p-edit").classList.remove("hidden");
+
+  window.scrollTo({ top: document.getElementById("participant-form").offsetTop - 100, behavior: "smooth" });
+}
+
+function resetParticipantForm() {
+  state.editingParticipantNo = null;
+  $("participant-form").reset();
+  $("p-no").readOnly = false;
+  $("p-form-title").textContent = `Register or Edit Contestant`;
+  $("p-save-btn").innerHTML = `<i class="fa-solid fa-user-plus mr-2"></i> Save Contestant Profile`;
+  $("cancel-p-edit").classList.add("hidden");
+  renderParticipantItemCheckboxes();
+}
+
+async function deleteParticipant(id) {
+  if (!confirm(`Are you sure you want to delete contestant ${id}?`)) return;
+  try {
+    busy(true, "Deleting Contestant Document…");
+    await deleteDoc(doc(db, "participants", id));
+    toast(`Contestant ${id} deleted successfully.`, "success");
+  } catch (err) {
+    toast(err.message, "error");
+  } finally {
+    busy(false);
+  }
 }
 
 function addCriterion(name = "", max = 25) {
@@ -719,18 +839,23 @@ async function saveParticipant(e) {
   e.preventDefault();
   const id = $("p-no").value.trim();
   if (!id) return;
+
+  const itemCodes = [...document.querySelectorAll(".p-item-checkbox:checked")].map(cb => cb.value);
+
   const p = {
     participantNo: id,
     name: $("p-name").value.trim(),
     madrasa: $("p-madrasa").value.trim(),
     category: $("p-category").value,
+    itemCodes: itemCodes,
     updatedAt: serverTimestamp()
   };
+
   try {
-    busy(true, "Saving Contestant…");
+    busy(true, "Saving Contestant Profile…");
     await setDoc(doc(db, "participants", id), p, { merge: true });
-    toast("Contestant profile saved.", "success");
-    e.target.reset();
+    toast("Contestant profile saved successfully.", "success");
+    resetParticipantForm();
   } catch (err) {
     toast(err.message, "error");
   } finally {
@@ -811,6 +936,8 @@ $("admin-login-form").onsubmit = e => { e.preventDefault(); signInAdmin($("admin
 $("admin-logout").onclick = async () => { await signOut(auth); $("admin-login-card").classList.remove("hidden"); $("admin-panel").classList.add("hidden"); toast("Signed out.", "info"); };
 $("item-form").onsubmit = saveItem;
 $("participant-form").onsubmit = saveParticipant;
+$("p-category").onchange = () => renderParticipantItemCheckboxes();
+$("cancel-p-edit").onclick = resetParticipantForm;
 $("judge-form").onsubmit = saveJudge;
 $("add-criterion").onclick = () => addCriterion();
 $("print-qr").onclick = () => window.print();
