@@ -1,24 +1,27 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sargavasantham 2026-27 | ID Card Studio & Alignment Calibrator</title>
+    <title>Sargavasantham 2026-27 | Auto-Excel ID Card Studio & Calibrator</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Google Fonts for High Quality Malayalam, Arabic & English Typography -->
+    <!-- Google Fonts for Malayalam, Arabic & English Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cinzel:wght@600;700;800&family=Noto+Sans+Malayalam:wght@500;600;700;800&family=Poppins:wght@500;600;700&family=Manjari:wght@700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cinzel:wght@600;700;800&family=Noto+Sans+Malayalam:wght@500;600;700;800&family=Poppins:wght@500;600;700&family=Manjari:wght@700&display=swap" rel="stylesheet">
 
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- JSZip for batch zip downloading -->
+    <!-- JSZip for Batch Zip Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- SheetJS (XLSX) for Reading Excel and CSV files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -40,7 +43,6 @@
     </script>
 
     <style>
-        /* Custom Scrollbars */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -60,7 +62,6 @@
 </head>
 <body class="bg-slate-100 font-body text-slate-800 min-h-screen flex flex-col">
 
-    <!-- Top Header Bar -->
     <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-30 border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
             <div class="flex items-center gap-3">
@@ -74,7 +75,9 @@
                     <p class="text-xs text-slate-300 flex items-center gap-2">
                         <span>സർഗ വസന്തം 2026-27</span>
                         <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                        <span class="text-emerald-400 font-medium"><i class="fa-solid fa-circle-check"></i> Calibrated Template Overlay</span>
+                        <span class="text-emerald-400 font-medium flex items-center gap-1">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Auto Excel + Calibrated Studio
+                        </span>
                     </p>
                 </div>
             </div>
@@ -82,47 +85,189 @@
             <div class="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
                 <button id="btnExportBatch" onclick="downloadAllCardsZip()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3.5 py-2 rounded-xl transition-all flex items-center gap-2 shadow-md active:scale-95">
                     <i class="fa-solid fa-file-zipper text-sm"></i>
-                    <span>Download All 16 Cards (ZIP)</span>
+                    <span id="btnBatchZipLabel">Download All Cards (ZIP)</span>
                 </button>
                 <button onclick="openPrintModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-medium px-3.5 py-2 rounded-xl transition-all flex items-center gap-2 border border-slate-700">
                     <i class="fa-solid fa-print"></i>
-                    <span class="hidden sm:inline">A4 Print Sheet</span>
+                    <span class="hidden sm:inline">Print A4 Sheet</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
+    <div id="toastMessage" class="fixed top-16 right-4 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center gap-3 pointer-events-none">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-amber-400 text-lg"></i>
+        <div>
+            <h4 id="toastTitle" class="font-bold text-xs text-amber-400">Notification</h4>
+            <p id="toastText" class="text-xs text-slate-200">Action performed successfully.</p>
+        </div>
+    </div>
+
     <main class="flex-1 max-w-7xl w-full mx-auto p-3 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- Left Column: Controls, Alignments & Participant Picker (5 Cols) -->
+        <!-- Left Column: Excel Reader, Mapper, Controls & Alignments (5 Cols) -->
         <section class="lg:col-span-5 flex flex-col gap-4">
             
-            <!-- Quick Participant Picker Box -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
+                        <i class="fa-solid fa-file-excel text-emerald-600"></i>
+                        <span>Upload Kids.xlsx / Any Excel File</span>
+                    </h2>
+                    <button onclick="downloadSampleExcel()" class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded-lg transition-colors flex items-center gap-1">
+                        <i class="fa-solid fa-download"></i> Sample Excel
+                    </button>
+                </div>
+                
+                <p class="text-xs text-slate-500 mb-3">
+                    `Kids_2.xlsx` അല്ലെങ്കിൽ ഏത് എക്സൽ ഫയലും അപ്‌ലോഡ് ചെയ്താൽ കോളങ്ങൾ ഓട്ടോമാറ്റിക്കായി ഐഡി കാർഡിലേക്ക് സെറ്റ് ചെയ്യപ്പെടും.
+                </p>
+
+                <!-- Drag & Drop Zone -->
+                <label id="dropZone" class="border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50 hover:bg-emerald-50/40 rounded-xl p-4 text-center cursor-pointer block transition-all group">
+                    <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" onchange="handleExcelUpload(event)" class="hidden">
+                    <div class="w-10 h-10 rounded-full bg-emerald-100 group-hover:bg-emerald-200 text-emerald-700 flex items-center justify-center mx-auto mb-2 transition-all">
+                        <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+                    </div>
+                    <span class="font-bold text-slate-700 text-xs block group-hover:text-emerald-800">
+                        Select Excel File (.xlsx, .xls, .csv)
+                    </span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">Drag and drop `Kids_2.xlsx` here or click to browse</span>
+                </label>
+
+                <!-- File & Sheet Status Badge -->
+                <div id="fileUploadStatus" class="mt-2.5 hidden bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 space-y-2 text-xs">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 truncate">
+                            <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                            <span id="uploadedFileName" class="font-semibold text-emerald-900 truncate">Kids_2.xlsx</span>
+                        </div>
+                        <span id="uploadedCountBadge" class="bg-emerald-700 text-white font-bold px-2 py-0.5 rounded-full text-[10px]">0 Rows</span>
+                    </div>
+
+                    <div id="sheetSelectContainer" class="hidden flex items-center gap-2 pt-1 border-t border-emerald-200/60">
+                        <label class="text-[10px] font-bold text-emerald-800">Select Sheet:</label>
+                        <select id="excelSheetSelect" onchange="switchExcelSheet()" class="flex-1 bg-white text-xs p-1 rounded border border-emerald-300 focus:outline-none"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h2 class="font-bold text-slate-800 text-xs md:text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-file-image text-indigo-600"></i>
+                        <span>Upload Custom Background (PNG / JPG)</span>
+                    </h2>
+                    <span class="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">Custom Template</span>
+                </div>
+
+                <p class="text-[11px] text-slate-500">
+                    സ്വന്തമായി ഡിസൈൻ ചെയ്ത Najah / Falah PNG ബാക്ക്ഗ്രൗണ്ട് ടെംപ്ലേറ്റുകൾ ഇവിടെ നേരിട്ട് അപ്‌ലോഡ് ചെയ്യാം:
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    <!-- Najah Custom PNG Upload -->
+                    <div class="p-2.5 rounded-xl border border-red-200 bg-red-50/50 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-red-900 text-xs">النجاح (Najah) PNG</span>
+                            <span id="badgeNajahPng" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-200 text-red-800">Vector Default</span>
+                        </div>
+                        <label class="block cursor-pointer bg-white border border-red-300 hover:border-red-500 rounded-lg p-2 text-center text-red-800 text-xs font-semibold hover:bg-red-50 transition-colors shadow-sm">
+                            <input type="file" id="najahPngInput" accept="image/png, image/jpeg, image/webp" onchange="uploadCustomTemplatePng('Najah', event)" class="hidden">
+                            <i class="fa-solid fa-cloud-arrow-up mr-1 text-red-700"></i> Najah PNG അപ്‌ലോഡ്
+                        </label>
+                        <button type="button" onclick="resetTemplatePng('Najah')" class="w-full text-[10px] text-slate-500 hover:text-red-700 underline text-center block">Default Vector-ലേക്ക് മടങ്ങുക</button>
+                    </div>
+
+                    <!-- Falah Custom PNG Upload -->
+                    <div class="p-2.5 rounded-xl border border-blue-200 bg-blue-50/50 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-blue-900 text-xs">الفلاح (Falah) PNG</span>
+                            <span id="badgeFalahPng" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-200 text-blue-800">Vector Default</span>
+                        </div>
+                        <label class="block cursor-pointer bg-white border border-blue-300 hover:border-blue-500 rounded-lg p-2 text-center text-blue-800 text-xs font-semibold hover:bg-blue-50 transition-colors shadow-sm">
+                            <input type="file" id="falahPngInput" accept="image/png, image/jpeg, image/webp" onchange="uploadCustomTemplatePng('Falah', event)" class="hidden">
+                            <i class="fa-solid fa-cloud-arrow-up mr-1 text-blue-700"></i> Falah PNG അപ്‌ലോഡ്
+                        </label>
+                        <button type="button" onclick="resetTemplatePng('Falah')" class="w-full text-[10px] text-slate-500 hover:text-blue-700 underline text-center block">Default Vector-ലേക്ക് മടങ്ങുക</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="columnMapperCard" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between cursor-pointer" onclick="toggleColumnMapper()">
+                    <h2 class="font-bold text-slate-800 text-xs md:text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-amber-600"></i>
+                        <span>Auto Column Field Mapping</span>
+                        <span class="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-bold">Auto Matched</span>
+                    </h2>
+                    <i id="mapperToggleIcon" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200"></i>
+                </div>
+
+                <p class="text-[11px] text-slate-500 mt-1 mb-3">
+                    ഫയലിലെ കോളങ്ങൾ ആവശ്യമെങ്കിൽ ഇവിടുന്ന് നേരിട്ട് മാപ്പ് ചെയ്യാം:
+                </p>
+
+                <div id="columnMapperBody" class="space-y-2 text-xs pt-1">
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-semibold text-slate-600 text-[11px] mb-0.5">Name Column</label>
+                            <select id="mapName" onchange="applyCustomMapping()" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-1 focus:ring-amber-500"></select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 text-[11px] mb-0.5">Reg / Chest No Column</label>
+                            <select id="mapRegNo" onchange="applyCustomMapping()" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-1 focus:ring-amber-500"></select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-semibold text-slate-600 text-[11px] mb-0.5">Category Column</label>
+                            <select id="mapCategory" onchange="applyCustomMapping()" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-1 focus:ring-amber-500"></select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 text-[11px] mb-0.5">Team Column</label>
+                            <select id="mapTeam" onchange="applyCustomMapping()" class="w-full p-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-1 focus:ring-amber-500"></select>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100">
+                        <label class="block font-semibold text-slate-700 text-[11px] mb-1">Events Columns (Select up to 5 Columns)</label>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <select id="mapEvent1" onchange="applyCustomMapping()" class="w-full p-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px]"></select>
+                            <select id="mapEvent2" onchange="applyCustomMapping()" class="w-full p-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px]"></select>
+                            <select id="mapEvent3" onchange="applyCustomMapping()" class="w-full p-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px]"></select>
+                            <select id="mapEvent4" onchange="applyCustomMapping()" class="w-full p-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px]"></select>
+                            <select id="mapEvent5" onchange="applyCustomMapping()" class="w-full p-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px] col-span-2"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
                 <div class="flex items-center justify-between mb-2">
                     <h2 class="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
                         <i class="fa-solid fa-users text-amber-600"></i>
                         <span>Participants List</span>
                     </h2>
-                    <span id="studentCounter" class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">1 Participant</span>
+                    <span id="studentCounter" class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">0 Participants</span>
                 </div>
 
                 <!-- Search Input -->
                 <div class="relative mb-3">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                    <input type="text" id="studentSearch" onkeyup="filterStudents()" placeholder="Search student name, reg no, or event..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <input type="text" id="studentSearch" onkeyup="filterStudents()" placeholder="Search name, reg no, or event..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500">
                 </div>
 
-                <!-- Scrollable Participant Buttons -->
-                <div id="studentListContainer" class="max-h-[220px] overflow-y-auto space-y-1.5 pr-1">
-                    <!-- Populated programmatically -->
+                <!-- Scrollable Participant List Buttons -->
+                <div id="studentListContainer" class="max-h-[180px] overflow-y-auto space-y-1.5 pr-1">
+                    <!-- Dynamic rendering -->
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 mt-3">
                     <button onclick="addNewStudent()" class="py-2 border-2 border-dashed border-slate-300 hover:border-amber-500 hover:text-amber-600 text-slate-600 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-2">
                         <i class="fa-solid fa-plus"></i>
-                        <span>Add Participant</span>
+                        <span>Add Manual</span>
                     </button>
                     <button onclick="clearAllStudents()" class="py-2 border border-red-200 hover:bg-red-50 text-red-600 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-trash-can"></i>
@@ -131,7 +276,6 @@
                 </div>
             </div>
 
-            <!-- Template & Card Customization Form -->
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
                 
                 <div class="flex items-center justify-between border-b border-slate-100 pb-2">
@@ -139,12 +283,12 @@
                         <i class="fa-solid fa-pen-to-square text-amber-600"></i>
                         <span>Participant Details</span>
                     </h2>
-                    <span class="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md" id="activeStudentBadge">Zaid al ameen (J01)</span>
+                    <span class="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md" id="activeStudentBadge">None Selected</span>
                 </div>
 
                 <!-- Team Select Radio -->
                 <div>
-                    <label class="block font-semibold text-slate-700 text-xs mb-1">Select Team Template Image</label>
+                    <label class="block font-semibold text-slate-700 text-xs mb-1">Select Team Template</label>
                     <div class="grid grid-cols-2 gap-2">
                         <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-[:checked]:border-red-700 has-[:checked]:bg-red-50 transition-all">
                             <input type="radio" name="team" value="Najah" checked onchange="updateCardFromForm()" class="accent-red-700">
@@ -159,27 +303,6 @@
                                 <span class="font-bold text-blue-800 block text-xs">الفلاح (Falah)</span>
                                 <span class="text-[10px] text-slate-500">Blue / Gold</span>
                             </div>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Template Image Uploader -->
-                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5">
-                    <div class="flex justify-between items-center">
-                        <span class="font-semibold text-slate-700 text-[11px] flex items-center gap-1.5">
-                            <i class="fa-solid fa-cloud-arrow-up text-amber-600"></i>
-                            <span>Upload Local PNG Backgrounds</span>
-                        </span>
-                        <span class="text-[10px] text-slate-500">Optional</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <label class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-2 py-1.5 rounded-lg text-center cursor-pointer block font-medium truncate text-[11px] transition-colors">
-                            <i class="fa-solid fa-upload mr-1 text-red-700"></i> Upload Najah.png
-                            <input type="file" accept="image/*" onchange="uploadTemplate(event, 'Najah')" class="hidden">
-                        </label>
-                        <label class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-2 py-1.5 rounded-lg text-center cursor-pointer block font-medium truncate text-[11px] transition-colors">
-                            <i class="fa-solid fa-upload mr-1 text-blue-700"></i> Upload Falah.png
-                            <input type="file" accept="image/*" onchange="uploadTemplate(event, 'Falah')" class="hidden">
                         </label>
                     </div>
                 </div>
@@ -203,7 +326,7 @@
                     </div>
                 </div>
 
-                <!-- Events 1 to 5 Inputs -->
+                <!-- Events Inputs -->
                 <div>
                     <label class="block font-semibold text-slate-700 text-xs mb-1 flex justify-between items-center">
                         <span>Participating Events (Lines 1 to 5)</span>
@@ -213,17 +336,16 @@
                         <input type="text" id="inputEvent1" oninput="updateCardFromForm()" placeholder="1. Padhapayattu" class="w-full px-2.5 py-1 rounded-lg border border-slate-200 focus:ring-1 focus:ring-amber-500">
                         <input type="text" id="inputEvent2" oninput="updateCardFromForm()" placeholder="2. Islamic song malayalam" class="w-full px-2.5 py-1 rounded-lg border border-slate-200 focus:ring-1 focus:ring-amber-500">
                         <input type="text" id="inputEvent3" oninput="updateCardFromForm()" placeholder="3. Quiz" class="w-full px-2.5 py-1 rounded-lg border border-slate-200 focus:ring-1 focus:ring-amber-500">
-                        <input type="text" id="inputEvent4" oninput="updateCardFromForm()" placeholder="4. Group song malayalam, Arabic" class="w-full px-2.5 py-1 rounded-lg border border-slate-200 focus:ring-1 focus:ring-amber-500">
+                        <input type="text" id="inputEvent4" oninput="updateCardFromForm()" placeholder="4. Group song" class="w-full px-2.5 py-1 rounded-lg border border-slate-200 focus:ring-1 focus:ring-amber-500">
                         <input type="text" id="inputEvent5" oninput="updateCardFromForm()" placeholder="5. Additional event" class="w-full px-2.5 py-1 rounded-lg border border-slate-200 focus:ring-1 focus:ring-amber-500">
                     </div>
                 </div>
 
-                <!-- Alignment & Font Size Calibration Panel -->
                 <div class="pt-3 border-t border-slate-200">
                     <div class="flex justify-between items-center mb-2">
                         <span class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
                             <i class="fa-solid fa-sliders text-amber-600"></i>
-                            <span>Fine-Tune Alignment & Font Sizes</span>
+                            <span>Fine-Tune Text Alignment & Sizes</span>
                         </span>
                         <button type="button" onclick="resetAlignmentToCalibrated()" class="text-[10px] text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded font-bold transition-colors">
                             <i class="fa-solid fa-rotate-left mr-1"></i> Auto Align
@@ -249,7 +371,7 @@
                             </div>
                         </div>
 
-                        <!-- Name Y-Offset & Left X-Offset -->
+                        <!-- Offsets -->
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <div class="flex justify-between text-[10px] text-slate-600 font-semibold mb-0.5">
@@ -267,7 +389,7 @@
                             </div>
                         </div>
 
-                        <!-- Events Box X/Y Offset -->
+                        <!-- Events Box Offsets -->
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <div class="flex justify-between text-[10px] text-slate-600 font-semibold mb-0.5">
@@ -278,17 +400,17 @@
                             </div>
                             <div>
                                 <div class="flex justify-between text-[10px] text-slate-600 font-semibold mb-0.5">
-                                    <span>Events Top Y-Offset</span>
+                                    <span>Events Y-Offset</span>
                                     <span id="lblEventsY" class="text-amber-700">0px</span>
                                 </div>
                                 <input type="range" id="offsetYEvents" min="-60" max="60" value="0" oninput="updateCardFromForm()" class="w-full accent-amber-600">
                             </div>
                         </div>
 
-                        <!-- Event Line Spacing Slider -->
+                        <!-- Event Line Gap Slider -->
                         <div>
                             <div class="flex justify-between text-[10px] text-slate-600 font-semibold mb-0.5">
-                                <span>Event Lines Vertical Gap (Spacing)</span>
+                                <span>Event Line Vertical Gap</span>
                                 <span id="lblLineGap" class="text-amber-700">75px</span>
                             </div>
                             <input type="range" id="eventLineGap" min="50" max="100" value="75" oninput="updateCardFromForm()" class="w-full accent-amber-600">
@@ -299,7 +421,7 @@
             </div>
         </section>
 
-        <!-- Right Column: Live HD Canvas Preview & Directory (7 Cols) -->
+        <!-- Right Column: Canvas Live HD Preview & Directory (7 Cols) -->
         <section class="lg:col-span-7 flex flex-col gap-4">
             
             <div class="bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-slate-200 flex flex-col items-center sticky top-20 z-20">
@@ -308,9 +430,9 @@
                     <div>
                         <h2 class="font-bold text-slate-800 text-base md:text-lg flex items-center gap-2">
                             <i class="fa-solid fa-eye text-amber-600"></i>
-                            <span>Live Precision Overlay Preview</span>
+                            <span>Live Canvas HD Studio</span>
                         </h2>
-                        <p class="text-xs text-slate-500">Text printed directly inside white boxes & onto ruled lines</p>
+                        <p class="text-xs text-slate-500">1800 x 1200 Precision Resolution Template</p>
                     </div>
 
                     <div class="flex items-center gap-2">
@@ -325,42 +447,41 @@
                     </div>
                 </div>
 
-                <!-- Canvas Preview Box -->
+                <!-- Canvas Preview Container -->
                 <div class="w-full flex justify-center items-center bg-slate-900/5 p-2 sm:p-3 rounded-xl border border-slate-200 overflow-hidden">
                     <canvas id="cardCanvas" width="1800" height="1200" class="w-full h-auto max-w-[780px] canvas-shadow rounded-lg transition-all duration-150"></canvas>
                 </div>
 
                 <div class="mt-3 text-center text-xs text-slate-500 flex flex-wrap items-center justify-center gap-4">
-                    <span class="flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-600"></i> Calibrated Coordinates</span>
-                    <span class="flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-600"></i> 1800 x 1200 HD PNG</span>
-                    <span class="flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-600"></i> Exact Template Match</span>
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-600"></i> Auto Arabic & Malayalam Vector Fonts</span>
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-600"></i> Auto Team Theme Swapper</span>
                 </div>
 
             </div>
 
-            <!-- Preloaded Participant Directory Table -->
             <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-list-check text-amber-600"></i>
-                        <span>Participants Directory</span>
+                        <i class="fa-solid fa-table text-amber-600"></i>
+                        <span>Parsed Excel Participants Directory</span>
                     </h3>
-                    <span class="text-xs text-slate-500">Click any participant to edit or render</span>
+                    <span class="text-xs text-slate-500">Click any row to view/edit</span>
                 </div>
                 
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto max-h-[350px] overflow-y-auto border border-slate-100 rounded-xl">
                     <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                        <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200 sticky top-0 bg-slate-100 z-10">
                             <tr>
-                                <th class="p-2">Reg</th>
-                                <th class="p-2">Name</th>
-                                <th class="p-2">Team</th>
-                                <th class="p-2">Events</th>
-                                <th class="p-2 text-right">Action</th>
+                                <th class="p-2.5">Reg</th>
+                                <th class="p-2.5">Name</th>
+                                <th class="p-2.5">Category</th>
+                                <th class="p-2.5">Team</th>
+                                <th class="p-2.5">Events</th>
+                                <th class="p-2.5 text-right">Action</th>
                             </tr>
                         </thead>
                         <tbody id="studentTableBody" class="divide-y divide-slate-100">
-                            <!-- Populated dynamically -->
+                            <!-- Dynamic rows -->
                         </tbody>
                     </table>
                 </div>
@@ -372,27 +493,27 @@
 
     <!-- Modal: Batch Export Progress Overlay -->
     <div id="batchModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-2xl">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-2xl border border-slate-200">
             <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 animate-bounce">
                 <i class="fa-solid fa-file-zipper"></i>
             </div>
-            <h3 class="font-bold text-lg text-slate-800 mb-1">Exporting High-Res Cards...</h3>
-            <p class="text-xs text-slate-500 mb-4">Rendering student details onto Najah & Falah template cards.</p>
+            <h3 class="font-bold text-lg text-slate-800 mb-1">Generating All ID Cards...</h3>
+            <p class="text-xs text-slate-500 mb-4">Rendering student details into High-Res Najah & Falah PNGs into ZIP.</p>
             
             <div class="w-full bg-slate-100 rounded-full h-3 mb-2 overflow-hidden border border-slate-200">
                 <div id="batchProgressBar" class="bg-amber-500 h-full w-0 transition-all duration-200"></div>
             </div>
-            <span id="batchProgressText" class="text-xs font-bold text-amber-700">0 / 16 rendered</span>
+            <span id="batchProgressText" class="text-xs font-bold text-amber-700">0 / 0 rendered</span>
         </div>
     </div>
 
-    <!-- Modal: A4 Printable Grid Overlay -->
+    <!-- Modal: A4 Printable Grid Sheet -->
     <div id="printModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 overflow-y-auto p-4 md:p-8 hidden">
         <div class="max-w-5xl mx-auto bg-white rounded-2xl p-6 shadow-2xl">
             <div class="flex justify-between items-center pb-4 mb-4 border-b border-slate-200 no-print">
                 <div>
                     <h3 class="font-bold text-lg text-slate-800">A4 Printable Grid Layout</h3>
-                    <p class="text-xs text-slate-500">Ready to print all cards with exact overlay alignment</p>
+                    <p class="text-xs text-slate-500">Ready to print all ID cards</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <button onclick="window.print()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow">
@@ -412,24 +533,43 @@
     </div>
 
     <script>
-        // Removed default hardcoded participants to start clean
-        const PRELOADED_STUDENTS = [
-            { id: 1, name: "", regNo: "J01", category: "Junior", team: "Najah", events: [] }
+        // Default Sample Data
+        const SAMPLE_STUDENTS = [
+            {
+                id: 1,
+                name: "Zaid Al Ameen",
+                regNo: "J01",
+                category: "Junior",
+                team: "Najah",
+                events: ["Padhapayattu", "Islamic song malayalam", "Quiz", "Group song malayalam"]
+            },
+            {
+                id: 2,
+                name: "Muhammed Raihan",
+                regNo: "J02",
+                category: "Junior",
+                team: "Falah",
+                events: ["Quran Recitation", "Elocution Arabic", "Pencil Drawing"]
+            }
         ];
 
-        let studentsList = [...PRELOADED_STUDENTS];
+        let studentsList = [...SAMPLE_STUDENTS];
         let currentStudentIndex = 0;
+        let currentWorkbook = null;
+        let rawJsonRows = [];
+        let availableColumns = [];
 
-        // Image template cache
+        // Image template cache & state
         const templateImages = {
             Najah: new Image(),
             Falah: new Image()
         };
 
-        /**
-         * GENERATE HIGH-DEF VECTOR TEMPLATES (1800 x 1200)
-         * Perfectly matched with exact coordinates of Najah.png / Falah.png
-         */
+        let customPngActive = {
+            Najah: false,
+            Falah: false
+        };
+
         function createTemplateDataUrl(team) {
             const isNajah = team === 'Najah';
             const primaryColor = isNajah ? '#6b0012' : '#012a52';
@@ -438,11 +578,9 @@
 
             const svg = `
             <svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1200" viewBox="0 0 1800 1200">
-                <!-- Background Base -->
                 <rect width="1800" height="1200" fill="#ffffff" />
                 <rect width="1800" height="1200" fill="${primaryColor}" opacity="0.03" />
 
-                <!-- Decorative Pattern -->
                 <g opacity="0.05" stroke="${primaryColor}" stroke-width="1.5" fill="none">
                     <pattern id="pat_${team}" width="100" height="100" patternUnits="userSpaceOnUse">
                         <path d="M50 0 L100 50 L50 100 L0 50 Z" />
@@ -451,59 +589,47 @@
                     <rect width="1800" height="1200" fill="url(#pat_${team})" />
                 </g>
 
-                <!-- Top Header Bar Curved -->
                 <path d="M0,0 L1800,0 L1800,160 C1350,250 450,250 0,160 Z" fill="${darkColor}" />
                 <path d="M0,163 C450,253 1350,253 1800,163" stroke="#d4af37" stroke-width="6" fill="none" />
 
-                <!-- Bottom Footer Curve -->
                 <path d="M0,1200 L1800,1200 L1800,1090 C1400,1150 900,980 0,1060 Z" fill="${darkColor}" />
                 <path d="M0,1063 C900,983 1400,1153 1800,1093" stroke="#d4af37" stroke-width="6" fill="none" />
 
-                <!-- Wisdom Logo Header Text -->
                 <text x="180" y="75" font-family="'Noto Sans Malayalam', sans-serif" font-weight="bold" font-size="22" fill="#ffffff">هيئة الحكمة للتعليم والتربية الإسلامية</text>
                 <text x="180" y="105" font-family="'Cinzel', serif" font-weight="bold" font-size="22" fill="#ffffff" letter-spacing="1">WISDOM EDUCATION BOARD</text>
 
-                <!-- Sargavasantham Malayalam Badge -->
                 <text x="1480" y="80" font-family="'Noto Sans Malayalam', sans-serif" font-weight="bold" font-size="36" fill="#ffffff">സർഗ വസന്തം</text>
                 <rect x="1480" y="92" width="110" height="26" rx="6" fill="#d50000" />
                 <text x="1495" y="110" font-family="'Poppins', sans-serif" font-weight="bold" font-size="15" fill="#ffffff">2026-27</text>
 
-                <!-- Arabic Title Center -->
                 <text x="900" y="295" font-family="'Amiri', serif" font-weight="bold" font-size="105" fill="${primaryColor}" text-anchor="middle">${titleArabic}</text>
                 <line x1="680" y1="315" x2="1120" y2="315" stroke="#d4af37" stroke-width="3" />
                 <circle cx="900" cy="315" r="6" fill="#d4af37" />
 
-                <!-- Madrasa Title Center -->
                 <text x="900" y="425" font-family="'Cinzel', serif" font-weight="bold" font-size="38" fill="${darkColor}" text-anchor="middle" letter-spacing="2">AL HIKMA MADRASA, NANDI</text>
 
-                <!-- Left Column 3 Field Boxes (Calibrated EXACTLY to 512px - 812px) -->
-                <!-- 1. Name -->
                 <g>
                     <rect x="85" y="512" width="275" height="80" rx="16" fill="${primaryColor}" />
                     <text x="115" y="560" font-family="'Cinzel', serif" font-weight="bold" font-size="26" fill="#ffffff">Name   :</text>
                     <rect x="370" y="512" width="610" height="80" rx="16" fill="#ffffff" stroke="${primaryColor}" stroke-width="2.5" />
                 </g>
 
-                <!-- 2. Reg No -->
                 <g>
                     <rect x="85" y="622" width="275" height="80" rx="16" fill="${primaryColor}" />
                     <text x="115" y="670" font-family="'Cinzel', serif" font-weight="bold" font-size="26" fill="#ffffff">Reg No :</text>
                     <rect x="370" y="622" width="610" height="80" rx="16" fill="#ffffff" stroke="${primaryColor}" stroke-width="2.5" />
                 </g>
 
-                <!-- 3. Category -->
                 <g>
                     <rect x="85" y="732" width="275" height="80" rx="16" fill="${primaryColor}" />
                     <text x="115" y="780" font-family="'Cinzel', serif" font-weight="bold" font-size="24" fill="#ffffff">Category:</text>
                     <rect x="370" y="732" width="610" height="80" rx="16" fill="#ffffff" stroke="${primaryColor}" stroke-width="2.5" />
                 </g>
 
-                <!-- Right Column Box ("PARTICIPATING EVENTS") -->
                 <rect x="1005" y="512" width="715" height="528" rx="24" fill="#ffffff" stroke="${primaryColor}" stroke-width="3" />
                 <rect x="1005" y="512" width="715" height="70" rx="20" fill="${primaryColor}" stroke="#d4af37" stroke-width="2" />
                 <text x="1362" y="556" font-family="'Cinzel', serif" font-weight="bold" font-size="26" fill="#d4af37" text-anchor="middle">★   PARTICIPATING EVENTS   ★</text>
 
-                <!-- Event Lines 1 to 5 -->
                 <g font-family="'Cinzel', serif" font-weight="bold" font-size="30" fill="${primaryColor}">
                     <text x="1040" y="660">1.</text>
                     <line x1="1080" y1="665" x2="1670" y2="665" stroke="${primaryColor}" stroke-opacity="0.35" stroke-width="1.5" />
@@ -521,7 +647,6 @@
                     <line x1="1080" y1="965" x2="1670" y2="965" stroke="${primaryColor}" stroke-opacity="0.35" stroke-width="1.5" />
                 </g>
 
-                <!-- Bottom Emblem Circle -->
                 <circle cx="220" cy="990" r="110" stroke="#d4af37" stroke-width="8" fill="${primaryColor}" />
                 <path d="M170,1045 L270,1045 L255,1000 C240,965 200,965 185,1000 Z" fill="#ffffff" />
                 <circle cx="220" cy="955" r="20" fill="#d4af37" />
@@ -529,6 +654,57 @@
             </svg>`;
 
             return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        }
+
+        function uploadCustomTemplatePng(team, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showToast("Invalid File", "Please select a valid PNG or JPG image file.", true);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    templateImages[team] = img;
+                    customPngActive[team] = true;
+
+                    const badge = document.getElementById(`badge${team}Png`);
+                    if (badge) {
+                        badge.textContent = "Custom PNG Active";
+                        badge.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-800";
+                    }
+
+                    renderCanvas();
+                    showToast("PNG Background Loaded", `${team} team custom PNG template uploaded successfully!`);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetTemplatePng(team) {
+            const defaultDataUrl = createTemplateDataUrl(team);
+            const img = new Image();
+            img.onload = function() {
+                templateImages[team] = img;
+                customPngActive[team] = false;
+
+                const badge = document.getElementById(`badge${team}Png`);
+                if (badge) {
+                    badge.textContent = "Vector Default";
+                    badge.className = team === 'Najah' 
+                        ? "text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-200 text-red-800"
+                        : "text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-200 text-blue-800";
+                }
+
+                renderCanvas();
+                showToast("Template Reset", `Reverted ${team} template to built-in vector default.`);
+            };
+            img.src = defaultDataUrl;
         }
 
         window.onload = function() {
@@ -551,23 +727,291 @@
             document.fonts.ready.then(() => {
                 renderCanvas();
             });
+
+            // Drag and drop listeners
+            const dropZone = document.getElementById('dropZone');
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            dropZone.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    processExcelFile(files[0]);
+                }
+            }
         };
 
-        // Upload custom Najah.png / Falah.png from user's disk
-        function uploadTemplate(event, team) {
+        function showToast(title, message, isError = false) {
+            const toast = document.getElementById('toastMessage');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastText = document.getElementById('toastText');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastTitle.textContent = title;
+            toastText.textContent = message;
+
+            if (isError) {
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-red-400 text-lg";
+                toastTitle.className = "font-bold text-xs text-red-400";
+            } else {
+                toastIcon.className = "fa-solid fa-circle-check text-amber-400 text-lg";
+                toastTitle.className = "font-bold text-xs text-amber-400";
+            }
+
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-[-100px]', 'opacity-0');
+            }, 3500);
+        }
+
+        function toggleColumnMapper() {
+            const body = document.getElementById('columnMapperBody');
+            const icon = document.getElementById('mapperToggleIcon');
+            body.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+
+        function handleExcelUpload(event) {
             const file = event.target.files[0];
-            if (!file) return;
+            if (file) {
+                processExcelFile(file);
+            }
+        }
+
+        function processExcelFile(file) {
+            if (typeof XLSX === 'undefined') {
+                showToast("Error", "SheetJS library loading. Please try again.", true);
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    templateImages[team] = img;
-                    renderCanvas();
-                };
-                img.src = e.target.result;
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    currentWorkbook = XLSX.read(data, { type: 'array' });
+
+                    // Handle Sheets
+                    const sheetNames = currentWorkbook.SheetNames;
+                    const sheetSelect = document.getElementById('excelSheetSelect');
+                    sheetSelect.innerHTML = '';
+
+                    sheetNames.forEach(sName => {
+                        const opt = document.createElement('option');
+                        opt.value = sName;
+                        opt.textContent = sName;
+                        sheetSelect.appendChild(opt);
+                    });
+
+                    if (sheetNames.length > 1) {
+                        document.getElementById('sheetSelectContainer').classList.remove('hidden');
+                    } else {
+                        document.getElementById('sheetSelectContainer').classList.add('hidden');
+                    }
+
+                    // Process First Sheet
+                    parseSelectedSheet(sheetNames[0], file.name);
+
+                } catch (err) {
+                    console.error("Excel Parsing Error:", err);
+                    showToast("Upload Failed", "Error reading Excel file format.", true);
+                }
             };
-            reader.readAsDataURL(file);
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function switchExcelSheet() {
+            if (!currentWorkbook) return;
+            const sheetName = document.getElementById('excelSheetSelect').value;
+            const fileName = document.getElementById('uploadedFileName').textContent;
+            parseSelectedSheet(sheetName, fileName);
+        }
+
+        function parseSelectedSheet(sheetName, fileName) {
+            const worksheet = currentWorkbook.Sheets[sheetName];
+            rawJsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+            if (!rawJsonRows || rawJsonRows.length === 0) {
+                showToast("Sheet Empty", `No data rows found in sheet '${sheetName}'.`, true);
+                return;
+            }
+
+            // Get all headers from first row
+            availableColumns = Object.keys(rawJsonRows[0] || {});
+
+            // Populate Column Select Dropdowns
+            populateMapperDropdowns();
+
+            // Perform Smart Auto-Matching for Headers
+            autoMatchColumns();
+
+            // Render mapped students
+            applyCustomMapping();
+
+            // Update UI status
+            document.getElementById('fileUploadStatus').classList.remove('hidden');
+            document.getElementById('uploadedFileName').textContent = fileName;
+            document.getElementById('uploadedCountBadge').textContent = `${rawJsonRows.length} Rows (${sheetName})`;
+
+            showToast("Smart Import Success", `Auto-mapped columns & loaded ${rawJsonRows.length} participants!`);
+        }
+
+        function populateMapperDropdowns() {
+            const dropdownIds = ['mapName', 'mapRegNo', 'mapCategory', 'mapTeam', 'mapEvent1', 'mapEvent2', 'mapEvent3', 'mapEvent4', 'mapEvent5'];
+            
+            dropdownIds.forEach(id => {
+                const sel = document.getElementById(id);
+                sel.innerHTML = `<option value="">-- None / Automatic --</option>`;
+                
+                availableColumns.forEach(col => {
+                    const opt = document.createElement('option');
+                    opt.value = col;
+                    opt.textContent = col;
+                    sel.appendChild(opt);
+                });
+            });
+        }
+
+        function autoMatchColumns() {
+            const matchHeader = (keywords) => {
+                return availableColumns.find(col => {
+                    const cleanCol = col.trim().toLowerCase();
+                    return keywords.some(kw => cleanCol.includes(kw.toLowerCase()));
+                }) || "";
+            };
+
+            // Intelligent Keyword Dictionary
+            const nameCol = matchHeader(['Name', 'Student Name', 'Full Name', 'പേര്', 'വിദ്യാർത്ഥി', 'കുട്ടി']);
+            const regCol = matchHeader(['Reg No', 'RegNo', 'Chest No', 'Chest', 'Sl No', 'Roll No', 'NO', 'NO.', 'ID', 'ചെസ്റ്റ്', 'രജി']);
+            const catCol = matchHeader(['Category', 'വിഭാഗം', 'Class', 'Div', 'കാറ്റഗറി', 'ക്ലാസ്']);
+            
+            let teamCol = matchHeader(['Team', 'ടീം', 'Group', 'ഗ്രൂപ്പ്']);
+            if (!teamCol && availableColumns.length >= 2) {
+                teamCol = availableColumns[1];
+            }
+
+            if (nameCol) document.getElementById('mapName').value = nameCol;
+            if (regCol) document.getElementById('mapRegNo').value = regCol;
+            if (catCol) document.getElementById('mapCategory').value = catCol;
+            if (teamCol) document.getElementById('mapTeam').value = teamCol;
+
+            const eventCols = availableColumns.filter(col => {
+                const c = col.trim().toLowerCase();
+                return c.includes('event') || c.includes('item') || c.includes('പരിപാടി') || c.includes('ഇനം') || c.includes('മത്സരം');
+            });
+
+            for (let i = 1; i <= 5; i++) {
+                if (eventCols[i - 1]) {
+                    document.getElementById(`mapEvent${i}`).value = eventCols[i - 1];
+                } else {
+                    document.getElementById(`mapEvent${i}`).value = "";
+                }
+            }
+        }
+
+        function applyCustomMapping() {
+            if (!rawJsonRows || rawJsonRows.length === 0) return;
+
+            const nameCol = document.getElementById('mapName').value;
+            const regCol = document.getElementById('mapRegNo').value;
+            const catCol = document.getElementById('mapCategory').value;
+            let teamCol = document.getElementById('mapTeam').value;
+
+            if (!teamCol && availableColumns.length >= 2) {
+                teamCol = availableColumns[1];
+            }
+
+            const eventCols = [
+                document.getElementById('mapEvent1').value,
+                document.getElementById('mapEvent2').value,
+                document.getElementById('mapEvent3').value,
+                document.getElementById('mapEvent4').value,
+                document.getElementById('mapEvent5').value
+            ].filter(Boolean);
+
+            const parsedStudents = [];
+
+            rawJsonRows.forEach((row, idx) => {
+                const getVal = (colName) => colName && row[colName] !== undefined ? String(row[colName]).trim() : "";
+
+                const nameVal = getVal(nameCol) || row['Name'] || row['പേര്'] || row['Student Name'] || "";
+                const regVal = getVal(regCol) || row['Reg No'] || row['Chest No'] || row['രജി. നമ്പർ'] || row['ചെസ്റ്റ് നം'] || "";
+                const catVal = getVal(catCol) || row['Category'] || row['വിഭാഗം'] || "Junior";
+                
+                const rawTeamVal = getVal(teamCol) || (availableColumns[1] ? getVal(availableColumns[1]) : "") || row['Team'] || row['ടീം'] || "";
+                
+                let teamVal = "Najah";
+
+                const cleanTeam = rawTeamVal.toLowerCase();
+                if (cleanTeam.includes('falah') || cleanTeam.includes('ഫലാഹ്') || cleanTeam.includes('فلاح')) {
+                    teamVal = "Falah";
+                } else {
+                    teamVal = "Najah";
+                }
+
+                const eventsList = [];
+                if (eventCols.length > 0) {
+                    eventCols.forEach(eCol => {
+                        const eVal = getVal(eCol);
+                        if (eVal) eventsList.push(eVal);
+                    });
+                } else {
+                    Object.keys(row).forEach(k => {
+                        const val = String(row[k]).trim();
+                        if (val && k !== nameCol && k !== regCol && k !== catCol && k !== teamCol && eventsList.length < 5) {
+                            if (k.toLowerCase().includes('event') || k.toLowerCase().includes('item') || k.toLowerCase().includes('ഇനം')) {
+                                eventsList.push(val);
+                            }
+                        }
+                    });
+                }
+
+                if (nameVal || regVal) {
+                    parsedStudents.push({
+                        id: Date.now() + idx,
+                        name: nameVal || `Student ${idx + 1}`,
+                        regNo: regVal || `J${(idx + 1) < 10 ? '0' + (idx + 1) : (idx + 1)}`,
+                        category: catVal,
+                        team: teamVal,
+                        events: eventsList
+                    });
+                }
+            });
+
+            if (parsedStudents.length > 0) {
+                studentsList = parsedStudents;
+                currentStudentIndex = 0;
+                populateStudentList();
+                populateTableDirectory();
+                selectStudent(0);
+            }
+        }
+
+        function downloadSampleExcel() {
+            const sampleData = [
+                { "ചെസ്റ്റ് നം": "J01", "പേര്": "Zaid Al Ameen", "വിഭാഗം": "Junior", "ടീം": "Najah", "ഇനം 1": "Padhapayattu", "ഇനം 2": "Islamic song malayalam", "ഇനം 3": "Quiz" },
+                { "ചെസ്റ്റ് നം": "J02", "പേര്": "Muhammed Raihan", "വിഭാഗം": "Junior", "ടീം": "Falah", "ഇനം 1": "Quran Recitation", "ഇനം 2": "Elocution Arabic", "ഇനം 3": "Pencil Drawing" },
+                { "ചെസ്റ്റ് നം": "J03", "പേര്": "Ahammed Kabeer", "വിഭാഗം": "Sub Junior", "ടീം": "Najah", "ഇനം 1": "Group Song", "ഇനം 2": "Story Telling", "ഇനം 3": "" }
+            ];
+
+            const worksheet = XLSX.utils.json_to_sheet(sampleData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Kids_2");
+
+            XLSX.writeFile(workbook, "Kids_2_Sample_Sargavasantham.xlsx");
+            showToast("Sample Downloaded", "Downloaded sample Kids_2.xlsx template!");
         }
 
         function populateStudentList() {
@@ -575,8 +1019,9 @@
             container.innerHTML = '';
 
             if (studentsList.length === 0) {
-                container.innerHTML = `<div class="p-4 text-center text-xs text-slate-400 border border-dashed rounded-xl">No participants added yet.<br>Click "+ Add Participant" below to start.</div>`;
+                container.innerHTML = `<div class="p-4 text-center text-xs text-slate-400 border border-dashed rounded-xl">No participants added yet.<br>Upload Kids_2.xlsx or click "+ Add Manual".</div>`;
                 document.getElementById('studentCounter').textContent = `0 Participants`;
+                document.getElementById('btnBatchZipLabel').textContent = `Download All Cards (ZIP)`;
                 return;
             }
 
@@ -612,6 +1057,7 @@
             });
 
             document.getElementById('studentCounter').textContent = `${studentsList.length} Participant${studentsList.length === 1 ? '' : 's'}`;
+            document.getElementById('btnBatchZipLabel').textContent = `Download All ${studentsList.length} Cards (ZIP)`;
         }
 
         function populateTableDirectory() {
@@ -619,24 +1065,27 @@
             tbody.innerHTML = '';
 
             if (studentsList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">No participants added yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 text-xs">No participants added yet. Upload Kids_2.xlsx to get started.</td></tr>`;
                 return;
             }
 
             studentsList.forEach((st, idx) => {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50 transition-colors';
+                tr.className = 'hover:bg-slate-50 transition-colors cursor-pointer';
+                tr.onclick = () => selectStudent(idx);
+
                 const displayName = st.name.trim() || "Untitled Participant";
                 const eventsText = st.events.length > 0 ? st.events.join(', ') : "None";
 
                 tr.innerHTML = `
-                    <td class="p-2 font-mono font-bold text-slate-700">${st.regNo || '---'}</td>
-                    <td class="p-2 font-medium text-slate-900">${displayName}</td>
-                    <td class="p-2">
+                    <td class="p-2.5 font-mono font-bold text-slate-700">${st.regNo || '---'}</td>
+                    <td class="p-2.5 font-medium text-slate-900">${displayName}</td>
+                    <td class="p-2.5 text-slate-600">${st.category || 'Junior'}</td>
+                    <td class="p-2.5">
                         <span class="text-[10px] px-2 py-0.5 rounded font-bold ${st.team === 'Najah' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">${st.team}</span>
                     </td>
-                    <td class="p-2 text-slate-600 truncate max-w-[220px]">${eventsText}</td>
-                    <td class="p-2 text-right">
+                    <td class="p-2.5 text-slate-600 truncate max-w-[200px]">${eventsText}</td>
+                    <td class="p-2.5 text-right">
                         <button onclick="selectStudent(${idx}); window.scrollTo({top:0, behavior:'smooth'})" class="text-amber-700 hover:text-amber-900 font-bold text-xs bg-amber-50 px-2 py-1 rounded-md">
                             Select &rarr;
                         </button>
@@ -723,6 +1172,7 @@
             document.getElementById('offsetYEvents').value = "0";
             document.getElementById('eventLineGap').value = "75";
             updateCardFromForm();
+            showToast("Alignment Reset", "Reset text positions to default calibrated layout!");
         }
 
         function filterStudents() {
@@ -761,7 +1211,6 @@
             studentsList = [];
             currentStudentIndex = 0;
             
-            // Clear inputs
             document.getElementById('inputName').value = "";
             document.getElementById('inputRegNo').value = "";
             document.getElementById('inputCategory').value = "Junior";
@@ -769,18 +1218,17 @@
                 document.getElementById(`inputEvent${i}`).value = "";
             }
             document.getElementById('activeStudentBadge').textContent = "No Student Selected";
+            document.getElementById('fileUploadStatus').classList.add('hidden');
 
             populateStudentList();
             populateTableDirectory();
             renderCanvas();
+            showToast("Cleared All", "Removed all participants from memory.");
         }
 
-        /**
-         * CORE HIGH-DEFINITION CANVAS OVERLAY ENGINE
-         */
         function renderCanvas(targetCanvas = null, customStudent = null) {
             const canvas = targetCanvas || document.getElementById('cardCanvas');
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
             const width = canvas.width;   // 1800 px
             const height = canvas.height;  // 1200 px
@@ -792,7 +1240,7 @@
             // Clear canvas
             ctx.clearRect(0, 0, width, height);
 
-            // 1. Draw Background Template Image
+            // Draw Background Image
             if (bgImage && bgImage.complete) {
                 ctx.drawImage(bgImage, 0, 0, width, height);
             } else {
@@ -811,7 +1259,7 @@
 
             ctx.save();
 
-            // --- 2. OVERLAY LEFT COLUMN FIELDS (Name, Reg No, Category) ---
+            // Overlay Left Column Fields (Name, Reg No, Category)
             const leftBoxX = 390 + leftXOffset;
 
             // A) Name Field Overlay
@@ -841,7 +1289,7 @@
                 ctx.fillText(student.category, leftBoxX, catBoxCenterY);
             }
 
-            // --- 3. OVERLAY RIGHT COLUMN PARTICIPATING EVENTS (Lines 1 to 5) ---
+            // Overlay Right Column Events (Lines 1 to 5)
             const eventsX = 1080 + eventsXOffset;
             const line1Y = 648 + eventsYOffset;
 
@@ -868,19 +1316,24 @@
             ctx.restore();
         }
 
-        // Single PNG Download
         function downloadCurrentCard() {
             const student = studentsList[currentStudentIndex] || { name: "Participant", regNo: "J01" };
             const canvas = document.getElementById('cardCanvas');
             
-            const link = document.createElement('a');
             const cleanName = (student.name || "Participant").replace(/[^a-zA-Z0-9]/g, '_');
-            link.download = `${student.regNo || 'ID'}_${cleanName}_Sargavasantham.png`;
+            const regStr = student.regNo ? String(student.regNo).replace(/[^a-zA-Z0-9]/g, '') : 'ID';
+            
+            const link = document.createElement('a');
+            link.download = `${regStr}_${cleanName}_Sargavasantham.png`;
             link.href = canvas.toDataURL('image/png', 1.0);
+            document.body.appendChild(link);
             link.click();
+            setTimeout(() => {
+                document.body.removeChild(link);
+            }, 500);
+            showToast("Downloaded", `Saved ${student.name}'s card as HD PNG!`);
         }
 
-        // Single Card Printing
         function printCurrentCard() {
             const canvas = document.getElementById('cardCanvas');
             const dataUrl = canvas.toDataURL('image/png');
@@ -905,15 +1358,14 @@
             printWindow.document.close();
         }
 
-        // Batch Zip Download for all students
         async function downloadAllCardsZip() {
             if (studentsList.length === 0) {
-                alert("No participants to download. Please add at least one participant first.");
+                showToast("No Students", "Please add or import students before downloading ZIP.", true);
                 return;
             }
 
             if (typeof JSZip === 'undefined') {
-                alert("JSZip library is loading. Please try again in a few seconds.");
+                showToast("Library Loading", "JSZip library is still loading. Please wait 2 seconds.", true);
                 return;
             }
 
@@ -923,48 +1375,73 @@
 
             modal.classList.remove('hidden');
 
-            const zip = new JSZip();
-            const total = studentsList.length;
+            try {
+                const zip = new JSZip();
+                const total = studentsList.length;
 
-            const offscreenCanvas = document.createElement('canvas');
-            offscreenCanvas.width = 1800;
-            offscreenCanvas.height = 1200;
+                const offscreenCanvas = document.createElement('canvas');
+                offscreenCanvas.width = 1800;
+                offscreenCanvas.height = 1200;
 
-            for (let i = 0; i < total; i++) {
-                const st = studentsList[i];
-                renderCanvas(offscreenCanvas, st);
+                for (let i = 0; i < total; i++) {
+                    const st = studentsList[i];
+                    renderCanvas(offscreenCanvas, st);
 
-                const dataUrl = offscreenCanvas.toDataURL('image/png');
-                const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+                    const dataUrl = offscreenCanvas.toDataURL('image/png', 1.0);
+                    const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
 
-                const cleanName = (st.name || "Participant").replace(/[^a-zA-Z0-9]/g, '_');
-                const filename = `${st.regNo || 'J' + (i+1)}_${cleanName}_Card.png`;
-                zip.file(filename, base64Data, { base64: true });
+                    const cleanName = (st.name || "Participant").replace(/[^a-zA-Z0-9]/g, '_');
+                    const regStr = st.regNo ? String(st.regNo).replace(/[^a-zA-Z0-9]/g, '') : `CARD_${i+1}`;
+                    const filename = `${regStr}_${cleanName || 'Student'}.png`;
 
-                const percent = Math.round(((i + 1) / total) * 100);
-                progressBar.style.width = `${percent}%`;
-                progressText.textContent = `${i + 1} / ${total} cards rendered (${percent}%)`;
+                    zip.file(filename, base64Data, { base64: true });
 
-                await new Promise(r => setTimeout(r, 60));
-            }
+                    const percent = Math.round(((i + 1) / total) * 100);
+                    progressBar.style.width = `${percent}%`;
+                    progressText.textContent = `${i + 1} / ${total} cards rendered (${percent}%)`;
 
-            progressText.textContent = "Creating ZIP file...";
-            
-            const zipContent = await zip.generateAsync({ type: "blob" });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(zipContent);
-            link.download = "Sargavasantham_2026-27_Cards.zip";
-            link.click();
+                    // Non-blocking UI loop step
+                    await new Promise(r => requestAnimationFrame(r));
+                }
 
-            setTimeout(() => {
+                progressText.textContent = "Compressing into ZIP archive...";
+                await new Promise(r => setTimeout(r, 100));
+
+                const zipContent = await zip.generateAsync({ 
+                    type: "blob",
+                    compression: "STORE"
+                });
+
+                const zipFilename = `Sargavasantham_2026-27_ID_Cards_${total}_Students.zip`;
+
+                // Multi-browser compatible download anchor
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(zipContent);
+                link.href = url;
+                link.download = zipFilename;
+                document.body.appendChild(link);
+                link.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }, 1000);
+
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    showToast("ZIP Downloaded", `Successfully exported all ${total} cards as ZIP!`);
+                }, 300);
+
+            } catch (err) {
+                console.error("ZIP Generation Error:", err);
                 modal.classList.add('hidden');
-            }, 500);
+                showToast("Export Error", "Failed to generate ZIP: " + err.message, true);
+            }
         }
 
-        // Open A4 Printable Sheet Overlay
         function openPrintModal() {
             if (studentsList.length === 0) {
-                alert("No participants added yet. Please add a participant first.");
+                showToast("No Students", "Please add participants first.", true);
                 return;
             }
 
@@ -998,3 +1475,4 @@
     </script>
 </body>
 </html>
+```
