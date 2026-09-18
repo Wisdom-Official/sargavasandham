@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sargavasantham 2026-27 | ID Card Studio & Alignment Calibrator</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts for High Quality Malayalam, Arabic & English Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cinzel:wght@600;700;800&family=Noto+Sans+Malayalam:wght@500;600;700;800&family=Poppins:wght@500;600;700&family=Manjari:wght@700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- JSZip for batch zip downloading -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        najah: { DEFAULT: '#7a0016', dark: '#52000e', light: '#fdfbf7', gold: '#d4af37' },
+                        falah: { DEFAULT: '#003366', dark: '#001f3f', light: '#f2f7fc', gold: '#e2b042' }
+                    },
+                    fontFamily: {
+                        arabic: ['Amiri', 'serif'],
+                        englishHeader: ['Cinzel', 'serif'],
+                        malayalam: ['Noto Sans Malayalam', 'Manjari', 'sans-serif'],
+                        body: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .canvas-shadow {
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.3), 0 10px 15px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 font-body text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Top Header Bar -->
+    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-30 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-bold text-xl shadow-md">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <div>
+                    <h1 class="font-englishHeader font-bold text-lg md:text-xl text-amber-400 tracking-wide leading-tight">
+                        AL HIKMA MADRASA, NANDI
+                    </h1>
+                    <p class="text-xs text-slate-300 flex items-center gap-2">
+                        <span>സർഗ വസന്തം 2026-27</span>
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                        <span class="text-emerald-400 font-medium"><i class="fa-solid fa-circle-check"></i> Calibrated Template Overlay</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+                <button id="btnExportBatch" onclick="downloadAllCardsZip()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3.5 py-2 rounded-xl transition-all flex items-center gap-2 shadow-md active:scale-95">
+                    <i class="fa-solid fa-file-zipper text-sm"></i>
+                    <span>Download All 16 Cards (ZIP)</span>
+                </button>
+                <button onclick="openPrintModal()" class="bg-slate-800 hover:bg-slate-700 text-white font-medium px-3.5 py-2 rounded-xl transition-all flex items-center gap-2 border border-slate-700">
+                    <i class="fa-solid fa-print"></i>
+                    <span class="hidden sm:inline">A4 Print Sheet</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Left Column: Controls, Alignments & Participant Picker (5 Cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-4">
+            
+            <!-- Quick Participant Picker Box -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
+                        <i class="fa-solid fa-users text-amber-600"></i>
+                        <span>Junior Participants (16)</span>
+                    </h2>
+                    <span id="studentCounter" class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">16 Loaded</span>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative mb-3">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                    <input type="text" id="studentSearch" onkeyup="filterStudents()" placeholder="Search student name, reg no, or event..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                </div>
+
+                <!-- Scrollable Participant Buttons -->
+                <div id="studentListContainer" class="max-h-[220px] overflow-y-auto space-y-1.5 pr-1">
+                    <!-- Populated programmatically -->
+                </div>
+
+                <button onclick="addNewStudent()" class="w-full mt-3 py-2 border-2 border-dashed border-slate-300 hover:border-amber-500 hover:text-amber-600 text-slate-600 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add New Participant</span>
+                </button>
+            </div>
+
+            <!-- Template & Card Customization Form -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 space-y-3">
+                
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h2 class="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-amber-600"></i>
+                        <span>Participant Details</span>
+                    </h2>
+                    <span class="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md" id="activeStudentBadge">Zaid al ameen (J01)</span>
+                </div>
+
+                <!-- Team Select Radio -->
+                <div>
+                    <label class="block font-semibold text-slate-700 text-xs mb-1">Select Team Template Image</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-[:checked]:border-red-700 has-[:checked]:bg-red-50 transition-all">
+                            <input type="radio" name="team" value="Najah" checked onchange="updateCardFromForm()" class="accent-red-700">
+                            <div>
+                                <span class="font-bold text-red-800 block text-xs">النجاح (Najah)</span>
+                                <span class="text-[10px] text-slate-500">Maroon / Gold</span>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-2 p-2 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-[:checked]:border-blue-700 has-[:checked]:bg-blue-50 transition-all">
+                            <input type="radio" name="team" value="Falah" onchange="updateCardFromForm()" class="accent-blue-700">
+                            <div>
+                                <span class="font-bold text-blue-800 block text-xs">الفلاح (Falah)</span>
+                                <span class="text-[10px] text-slate-500">Blue / Gold</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Template Image Uploader -->
+                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold text-slate-700 text-[11px] flex items-center gap-1.5">
+                            <i class="fa-solid fa-cloud-arrow-up text-amber-600"></i>
+                            <span>Upload Local PNG Backgrounds</span>
+                        </span>
+                        <span class="text-[10px] text-slate-500">Optional</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-2 py-1.5 rounded-lg text-center cursor-pointer block font-medium truncate text-[11px] transition-colors">
+                            <i class="fa-solid fa-upload mr-1 text-red-700"></i> Upload Najah.png
+                            <input type="file" accept="image/*" onchange="uploadTemplate(event, 'Najah')" class="hidden">
+                        </label>
+                        <label class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 px-2 py-1.5 rounded-lg text-center cursor-pointer block font-medium truncate text-[11px] transition-colors">
+                            <i class="fa-solid fa-upload mr-1 text-blue-700"></i> Upload Falah.png
+                            <input type="file" accept="image/*" onchange="uploadTemplate(event, 'Falah')" class="hidden">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Name Input -->
+                <div>
+                    <label class="block font-semibold text-slate-700 text-xs mb-1">Participant Name</label>
+                    <input type="text" id="inputName" oninput="updateCardFromForm()" placeholder="e.g. Zaid Al Ameen" class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-none font-medium">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <!-- Reg No -->
+                    <div>
+                        <label class="block font-semibold text-slate-700 text-xs mb-1">Reg No</label>
+                        <input type="text" id="inputRegNo" oninput="updateCardFromForm()" placeholder="e.g. J01" class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-none font-bold font-mono">
+                    </div>
+                    <!-- Category -->
+                    <div>
+                        <label class="block font-semibold text-slate-700 text-xs mb-1">Category</label>
+                        <input type="text" id="inputCategory" oninput="updateCardFromForm()" value="Junior" class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- Events 1 to 5 Inputs -->
+                <div>
+                    <label class="block font-semibold text-slate-700 text-xs mb-1 flex justify-between items-center">
+                        <span>Participating Events (Lines 1 to 5)</span>
+                        <span class="text-[10px] text-amber-700 font-normal">Malayalam / Arabic</span>
+                    </label>
+                    <div class="space-y-1 text-xs">
+                        <input type="text" id="inputEvent1" oninput="updateCardFromForm()" placeholder="1. Padhapayattu" class="w-full px-2.5 py-1 rounded-lg border border-slate-200 focus:ring-1 focus:ring-amber-500">
+                        <input type="text" id="inputEvent2" oninput="updateCardFromForm()" placeholder="2. Islamic song malayalam" class="w-full px-2.5 py-1 rounded-lg border border-slate-200 focus:ring-1 focus:ring-amber-500">
+                        <input type="text" id="inputEvent3" oninput="updateCardFromForm()" placeholder="3. Quiz" class="w-full px-2.5 py-1 rounded-lg border border-slate-200 focus:ring-1 focus:ring-amber-500">
+                        <input type="text" id="inputEvent4" oninput="updateCardFromForm()" placeholder="4. Group song malayalam, Arabic" class="w-full px-2.5 py-1 rounded-lg border border-slate-200 focus:ring-1 focus:ring-amber-500">
+                        <input type="text" id="inputEvent5" oninput="updateCardFromForm()" placeholder="5. Additional event" class="w-full px-2.5 py-1 rounded-lg border border-slate-200 focus:ring-1 focus:ring-amber-500">
+                    </div>
+                </div>
+
+                <!-- Alignment & Font Size Calibration Panel -->
+                <div class="pt-3 border-t border-slate-200">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-xs text-slate-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-sliders text-amber-600"></i>
+                            <span>Fine-Tune Alignment & Font Sizes</span>
+                        </span>
+                        <button type="button" onclick="resetAlignmentToCalibrated()" class="text-[10px] text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded font-bold transition-colors">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> Auto Align
+                        </button>
+                    </div>
+
+                    <div class="p-3 bg-slate-50 rounded-xl space-y-2.5 border border-slate-200 text-xs">
+                        <!-- Font Size Sliders -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <div class="flex justify-between text-[10px] text-slate-600 font-semibold mb-0.5">
+                                    <span>Name Font Size</span>
+                                    <span id="lblFontSizeName" class="text-amber-700">32px</span>
+                                </div>
+                                <input type="range" id="fontSizeName" min="18" max="42" value="32" oninput="updateCardFromForm()" class="w-full accent-amber-600">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] text-slate-600 font-semibold mb-0.5">
+                                    <span>Events Font Size</span>
+                                    <span id="lblFontSizeEvents" class="text-amber-700">26px</span>
+                                </div>
+                                <input type="range" id="fontSizeEvents" min="16" max="36" value="26" oninput="updateCardFromForm()" class="w-full accent-amber-600">
+                            </div>
+                        </div>
+
+                        <!-- Name Y-Offset & Left X-Offset -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <div class="flex justify-between text-[10px] text-slate-600 font-semibold mb-0.5">
+                                    <span>Left Fields X-Offset</span>
+                                    <span id="lblLeftX" class="text-amber-700">0px</span>
+                                </div>
+                                <input type="range" id="offsetXLeft" min="-100" max="100" value="0" oninput="updateCardFromForm()" class="w-full accent-amber-600">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] text-slate-600 font-semibold mb-0.5">
+                                    <span>Name Y-Offset</span>
+                                    <span id="lblNameY" class="text-amber-700">0px</span>
+                                </div>
+                                <input type="range" id="offsetYName" min="-60" max="60" value="0" oninput="updateCardFromForm()" class="w-full accent-amber-600">
+                            </div>
+                        </div>
+
+                        <!-- Events Box X/Y Offset -->
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <div class="flex justify-between text-[10px] text-slate-600 font-semibold mb-0.5">
+                                    <span>Events X-Offset</span>
+                                    <span id="lblEventsX" class="text-amber-700">0px</span>
+                                </div>
+                                <input type="range" id="offsetXRight" min="-100" max="100" value="0" oninput="updateCardFromForm()" class="w-full accent-amber-600">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] text-slate-600 font-semibold mb-0.5">
+                                    <span>Events Top Y-Offset</span>
+                                    <span id="lblEventsY" class="text-amber-700">0px</span>
+                                </div>
+                                <input type="range" id="offsetYEvents" min="-60" max="60" value="0" oninput="updateCardFromForm()" class="w-full accent-amber-600">
+                            </div>
+                        </div>
+
+                        <!-- Event Line Spacing Slider -->
+                        <div>
+                            <div class="flex justify-between text-[10px] text-slate-600 font-semibold mb-0.5">
+                                <span>Event Lines Vertical Gap (Spacing)</span>
+                                <span id="lblLineGap" class="text-amber-700">75px</span>
+                            </div>
+                            <input type="range" id="eventLineGap" min="50" max="100" value="75" oninput="updateCardFromForm()" class="w-full accent-amber-600">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Right Column: Live HD Canvas Preview & Directory (7 Cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-4">
+            
+            <div class="bg-white rounded-2xl p-4 md:p-5 shadow-sm border border-slate-200 flex flex-col items-center sticky top-20 z-20">
+                
+                <div class="w-full flex flex-wrap justify-between items-center gap-2 mb-3 pb-3 border-b border-slate-100">
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-base md:text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-eye text-amber-600"></i>
+                            <span>Live Precision Overlay Preview</span>
+                        </h2>
+                        <p class="text-xs text-slate-500">Text printed directly inside white boxes & onto ruled lines</p>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="downloadCurrentCard()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Download PNG</span>
+                        </button>
+                        <button onclick="printCurrentCard()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-3 py-2 rounded-xl transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-print"></i>
+                            <span>Print Single</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Preview Box -->
+                <div class="w-full flex justify-center items-center bg-slate-900/5 p-2 sm:p-3 rounded-xl border border-slate-200 overflow-hidden">
+                    <canvas id="cardCanvas" width="1800" height="1200" class="w-full h-auto max-w-[780px] canvas-shadow rounded-lg transition-all duration-150"></canvas>
+                </div>
+
+                <div class="mt-3 text-center text-xs text-slate-500 flex flex-wrap items-center justify-center gap-4">
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-600"></i> Calibrated Coordinates</span>
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-600"></i> 1800 x 1200 HD PNG</span>
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-600"></i> Exact Template Match</span>
+                </div>
+
+            </div>
+
+            <!-- Preloaded Participant Directory Table -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-amber-600"></i>
+                        <span>Preloaded 16 Junior Participants Directory</span>
+                    </h3>
+                    <span class="text-xs text-slate-500">Click any participant to edit or render</span>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 text-slate-600 font-semibold border-b border-slate-200">
+                            <tr>
+                                <th class="p-2">Reg</th>
+                                <th class="p-2">Name</th>
+                                <th class="p-2">Team</th>
+                                <th class="p-2">Events</th>
+                                <th class="p-2 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody" class="divide-y divide-slate-100">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Modal: Batch Export Progress Overlay -->
+    <div id="batchModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center shadow-2xl">
+            <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 animate-bounce">
+                <i class="fa-solid fa-file-zipper"></i>
+            </div>
+            <h3 class="font-bold text-lg text-slate-800 mb-1">Exporting High-Res Cards...</h3>
+            <p class="text-xs text-slate-500 mb-4">Rendering student details onto Najah & Falah template cards.</p>
+            
+            <div class="w-full bg-slate-100 rounded-full h-3 mb-2 overflow-hidden border border-slate-200">
+                <div id="batchProgressBar" class="bg-amber-500 h-full w-0 transition-all duration-200"></div>
+            </div>
+            <span id="batchProgressText" class="text-xs font-bold text-amber-700">0 / 16 rendered</span>
+        </div>
+    </div>
+
+    <!-- Modal: A4 Printable Grid Overlay -->
+    <div id="printModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 overflow-y-auto p-4 md:p-8 hidden">
+        <div class="max-w-5xl mx-auto bg-white rounded-2xl p-6 shadow-2xl">
+            <div class="flex justify-between items-center pb-4 mb-4 border-b border-slate-200 no-print">
+                <div>
+                    <h3 class="font-bold text-lg text-slate-800">A4 Printable Grid Layout</h3>
+                    <p class="text-xs text-slate-500">Ready to print all cards with exact overlay alignment</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="window.print()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-2 shadow">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Start Print</span>
+                    </button>
+                    <button onclick="closePrintModal()" class="text-slate-400 hover:text-slate-600 text-xl px-2">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="printArea" class="grid grid-cols-1 md:grid-cols-2 gap-6 p-2">
+                <!-- Injected programmatically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 16 Junior Participants directly from user prompt
+        const PRELOADED_STUDENTS = [
+            { id: 1, name: "Zaid al ameen", regNo: "J01", category: "Junior", team: "Najah", events: ["Padhapayattu", "Islamic song malayalam", "Quiz", "Group song malayalam, Arabic"] },
+            { id: 2, name: "Muhammed Rayyan", regNo: "J02", category: "Junior", team: "Falah", events: ["Padhapayattu", "Hifz", "Speech Arabic", "Group song Arabic"] },
+            { id: 3, name: "Muhammed Aydin", regNo: "J03", category: "Junior", team: "Najah", events: ["Padhapayattu", "Islamic song malayalam", "Islamic song Arabic", "Group song malayalam, Arabic"] },
+            { id: 4, name: "Ahammed Hamdan", regNo: "J04", category: "Junior", team: "Falah", events: ["Padhapayattu", "Quiz", "Calligraphy", "Group song malayalam"] },
+            { id: 5, name: "Jeza khadeeja", regNo: "J05", category: "Junior", team: "Najah", events: ["Poem Arabic", "Qur'an recitation", "Mappilapaatt", "Group song malayalam, Arabic"] },
+            { id: 6, name: "Aymen Muhammed", regNo: "J06", category: "Junior", team: "Falah", events: ["Mappilapaatt", "Hifz general", "Islamic song malayalam", "Group song malayalam, Arabic"] },
+            { id: 7, name: "Ayisha Jamal", regNo: "J07", category: "Junior", team: "Najah", events: ["Padhapayattu", "English speech", "Islamic song malayalam", "Group song malayalam, Arabic"] },
+            { id: 8, name: "Aquish Nabhan", regNo: "J08", category: "Junior", team: "Falah", events: ["Calligraphy", "Quiz", "Padhappayattu"] },
+            { id: 9, name: "Muhammed Hamdan", regNo: "J09", category: "Junior", team: "Najah", events: ["Quran recitation", "Mappilapaatt", "Islamic song Arabic, malayalam", "Group song malayalam, Arabic"] },
+            { id: 10, name: "Asiya Emna", regNo: "J10", category: "Junior", team: "Falah", events: ["Hifz", "Padhapayattu", "Calligraphy", "Group song malayalam, Arabic"] },
+            { id: 11, name: "Shayan Muhammed", regNo: "J11", category: "Junior", team: "Najah", events: ["Islamic song malayalam", "Arabic poem", "Group song Arabic"] },
+            { id: 12, name: "Wildan Sadik", regNo: "J12", category: "Junior", team: "Falah", events: ["Calligraphy", "Group song malayalam"] },
+            { id: 13, name: "Naiza Nourin", regNo: "J13", category: "Junior", team: "Najah", events: ["Calligraphy"] },
+            { id: 14, name: "Abdul Basith", regNo: "J14", category: "Junior", team: "Falah", events: ["Calligraphy", "Poem Arabic"] },
+            { id: 15, name: "Athif Muhammed", regNo: "J15", category: "Junior", team: "Najah", events: ["Speech English", "Speech malayalam", "Arabic poem", "Group song malayalam, Arabic"] },
+            { id: 16, name: "Maryam", regNo: "J16", category: "Junior", team: "Falah", events: ["Speech malayalam", "Group song Malayalam, Arabic"] }
+        ];
+
+        let studentsList = [...PRELOADED_STUDENTS];
+        let currentStudentIndex = 0;
+
+        // Image template cache
+        const templateImages = {
+            Najah: new Image(),
+            Falah: new Image()
+        };
+
+        /**
+         * GENERATE HIGH-DEF VECTOR TEMPLATES (1800 x 1200)
+         * Perfectly matched with exact coordinates of Najah.png / Falah.png
+         */
+        function createTemplateDataUrl(team) {
+            const isNajah = team === 'Najah';
+            const primaryColor = isNajah ? '#6b0012' : '#012a52';
+            const darkColor = isNajah ? '#42000b' : '#001a36';
+            const titleArabic = isNajah ? 'النجاح' : 'الفلاح';
+
+            const svg = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1200" viewBox="0 0 1800 1200">
+                <!-- Background Base -->
+                <rect width="1800" height="1200" fill="#ffffff" />
+                <rect width="1800" height="1200" fill="${primaryColor}" opacity="0.03" />
+
+                <!-- Decorative Pattern -->
+                <g opacity="0.05" stroke="${primaryColor}" stroke-width="1.5" fill="none">
+                    <pattern id="pat_${team}" width="100" height="100" patternUnits="userSpaceOnUse">
+                        <path d="M50 0 L100 50 L50 100 L0 50 Z" />
+                        <circle cx="50" cy="50" r="25" />
+                    </pattern>
+                    <rect width="1800" height="1200" fill="url(#pat_${team})" />
+                </g>
+
+                <!-- Top Header Bar Curved -->
+                <path d="M0,0 L1800,0 L1800,160 C1350,250 450,250 0,160 Z" fill="${darkColor}" />
+                <path d="M0,163 C450,253 1350,253 1800,163" stroke="#d4af37" stroke-width="6" fill="none" />
+
+                <!-- Bottom Footer Curve -->
+                <path d="M0,1200 L1800,1200 L1800,1090 C1400,1150 900,980 0,1060 Z" fill="${darkColor}" />
+                <path d="M0,1063 C900,983 1400,1153 1800,1093" stroke="#d4af37" stroke-width="6" fill="none" />
+
+                <!-- Wisdom Logo Header Text -->
+                <text x="180" y="75" font-family="'Noto Sans Malayalam', sans-serif" font-weight="bold" font-size="22" fill="#ffffff">هيئة الحكمة للتعليم والتربية الإسلامية</text>
+                <text x="180" y="105" font-family="'Cinzel', serif" font-weight="bold" font-size="22" fill="#ffffff" letter-spacing="1">WISDOM EDUCATION BOARD</text>
+
+                <!-- Sargavasantham Malayalam Badge -->
+                <text x="1480" y="80" font-family="'Noto Sans Malayalam', sans-serif" font-weight="bold" font-size="36" fill="#ffffff">സർഗ വസന്തം</text>
+                <rect x="1480" y="92" width="110" height="26" rx="6" fill="#d50000" />
+                <text x="1495" y="110" font-family="'Poppins', sans-serif" font-weight="bold" font-size="15" fill="#ffffff">2026-27</text>
+
+                <!-- Arabic Title Center -->
+                <text x="900" y="295" font-family="'Amiri', serif" font-weight="bold" font-size="105" fill="${primaryColor}" text-anchor="middle">${titleArabic}</text>
+                <line x1="680" y1="315" x2="1120" y2="315" stroke="#d4af37" stroke-width="3" />
+                <circle cx="900" cy="315" r="6" fill="#d4af37" />
+
+                <!-- Madrasa Title Center -->
+                <text x="900" y="425" font-family="'Cinzel', serif" font-weight="bold" font-size="38" fill="${darkColor}" text-anchor="middle" letter-spacing="2">AL HIKMA MADRASA, NANDI</text>
+
+                <!-- Left Column 3 Field Boxes (Calibrated EXACTLY to 512px - 812px) -->
+                <!-- 1. Name -->
+                <g>
+                    <rect x="85" y="512" width="275" height="80" rx="16" fill="${primaryColor}" />
+                    <text x="115" y="560" font-family="'Cinzel', serif" font-weight="bold" font-size="26" fill="#ffffff">Name   :</text>
+                    <rect x="370" y="512" width="610" height="80" rx="16" fill="#ffffff" stroke="${primaryColor}" stroke-width="2.5" />
+                </g>
+
+                <!-- 2. Reg No -->
+                <g>
+                    <rect x="85" y="622" width="275" height="80" rx="16" fill="${primaryColor}" />
+                    <text x="115" y="670" font-family="'Cinzel', serif" font-weight="bold" font-size="26" fill="#ffffff">Reg No :</text>
+                    <rect x="370" y="622" width="610" height="80" rx="16" fill="#ffffff" stroke="${primaryColor}" stroke-width="2.5" />
+                </g>
+
+                <!-- 3. Category -->
+                <g>
+                    <rect x="85" y="732" width="275" height="80" rx="16" fill="${primaryColor}" />
+                    <text x="115" y="780" font-family="'Cinzel', serif" font-weight="bold" font-size="24" fill="#ffffff">Category:</text>
+                    <rect x="370" y="732" width="610" height="80" rx="16" fill="#ffffff" stroke="${primaryColor}" stroke-width="2.5" />
+                </g>
+
+                <!-- Right Column Box ("PARTICIPATING EVENTS") -->
+                <rect x="1005" y="512" width="715" height="528" rx="24" fill="#ffffff" stroke="${primaryColor}" stroke-width="3" />
+                <rect x="1005" y="512" width="715" height="70" rx="20" fill="${primaryColor}" stroke="#d4af37" stroke-width="2" />
+                <text x="1362" y="556" font-family="'Cinzel', serif" font-weight="bold" font-size="26" fill="#d4af37" text-anchor="middle">★   PARTICIPATING EVENTS   ★</text>
+
+                <!-- Event Lines 1 to 5 -->
+                <g font-family="'Cinzel', serif" font-weight="bold" font-size="30" fill="${primaryColor}">
+                    <text x="1040" y="660">1.</text>
+                    <line x1="1080" y1="665" x2="1670" y2="665" stroke="${primaryColor}" stroke-opacity="0.35" stroke-width="1.5" />
+
+                    <text x="1040" y="735">2.</text>
+                    <line x1="1080" y1="740" x2="1670" y2="740" stroke="${primaryColor}" stroke-opacity="0.35" stroke-width="1.5" />
+
+                    <text x="1040" y="810">3.</text>
+                    <line x1="1080" y1="815" x2="1670" y2="815" stroke="${primaryColor}" stroke-opacity="0.35" stroke-width="1.5" />
+
+                    <text x="1040" y="885">4.</text>
+                    <line x1="1080" y1="890" x2="1670" y2="890" stroke="${primaryColor}" stroke-opacity="0.35" stroke-width="1.5" />
+
+                    <text x="1040" y="960">5.</text>
+                    <line x1="1080" y1="965" x2="1670" y2="965" stroke="${primaryColor}" stroke-opacity="0.35" stroke-width="1.5" />
+                </g>
+
+                <!-- Bottom Emblem Circle -->
+                <circle cx="220" cy="990" r="110" stroke="#d4af37" stroke-width="8" fill="${primaryColor}" />
+                <path d="M170,1045 L270,1045 L255,1000 C240,965 200,965 185,1000 Z" fill="#ffffff" />
+                <circle cx="220" cy="955" r="20" fill="#d4af37" />
+                <circle cx="226" cy="950" r="18" fill="${primaryColor}" />
+            </svg>`;
+
+            return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        }
+
+        window.onload = function() {
+            templateImages.Najah.src = createTemplateDataUrl('Najah');
+            templateImages.Falah.src = createTemplateDataUrl('Falah');
+
+            let loadedCount = 0;
+            const onImgLoad = () => {
+                loadedCount++;
+                if (loadedCount >= 1) {
+                    populateStudentList();
+                    populateTableDirectory();
+                    selectStudent(0);
+                }
+            };
+
+            templateImages.Najah.onload = onImgLoad;
+            templateImages.Falah.onload = onImgLoad;
+
+            document.fonts.ready.then(() => {
+                renderCanvas();
+            });
+        };
+
+        // Upload custom Najah.png / Falah.png from user's disk
+        function uploadTemplate(event, team) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    templateImages[team] = img;
+                    renderCanvas();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function populateStudentList() {
+            const container = document.getElementById('studentListContainer');
+            container.innerHTML = '';
+
+            studentsList.forEach((st, index) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = () => selectStudent(index);
+                
+                const isSelected = index === currentStudentIndex;
+                const isNajah = st.team === 'Najah';
+
+                btn.className = `w-full text-left p-2 rounded-xl border transition-all flex items-center justify-between gap-2 ${
+                    isSelected 
+                        ? 'border-amber-500 bg-amber-50/90 shadow-sm ring-1 ring-amber-400' 
+                        : 'border-slate-200 hover:border-slate-300 bg-white'
+                }`;
+
+                btn.innerHTML = `
+                    <div class="min-w-0 flex-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${isNajah ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">${st.regNo}</span>
+                            <span class="font-semibold text-slate-800 text-xs truncate">${st.name}</span>
+                        </div>
+                        <p class="text-[10px] text-slate-500 truncate mt-0.5">${st.events.slice(0, 2).join(', ')}${st.events.length > 2 ? '...' : ''}</p>
+                    </div>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isNajah ? 'bg-red-700 text-white' : 'bg-blue-800 text-white'}">${isNajah ? 'النجاح' : 'الفلاح'}</span>
+                `;
+
+                container.appendChild(btn);
+            });
+
+            document.getElementById('studentCounter').textContent = `${studentsList.length} Loaded`;
+        }
+
+        function populateTableDirectory() {
+            const tbody = document.getElementById('studentTableBody');
+            tbody.innerHTML = '';
+
+            studentsList.forEach((st, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors';
+                tr.innerHTML = `
+                    <td class="p-2 font-mono font-bold text-slate-700">${st.regNo}</td>
+                    <td class="p-2 font-medium text-slate-900">${st.name}</td>
+                    <td class="p-2">
+                        <span class="text-[10px] px-2 py-0.5 rounded font-bold ${st.team === 'Najah' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">${st.team}</span>
+                    </td>
+                    <td class="p-2 text-slate-600 truncate max-w-[220px]">${st.events.join(', ')}</td>
+                    <td class="p-2 text-right">
+                        <button onclick="selectStudent(${idx}); window.scrollTo({top:0, behavior:'smooth'})" class="text-amber-700 hover:text-amber-900 font-bold text-xs bg-amber-50 px-2 py-1 rounded-md">
+                            Select &rarr;
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function selectStudent(index) {
+            currentStudentIndex = index;
+            const st = studentsList[index];
+
+            document.getElementById('inputName').value = st.name;
+            document.getElementById('inputRegNo').value = st.regNo;
+            document.getElementById('inputCategory').value = st.category || "Junior";
+
+            const radios = document.getElementsByName('team');
+            for (let r of radios) {
+                r.checked = (r.value === st.team);
+            }
+
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`inputEvent${i}`).value = st.events[i - 1] || "";
+            }
+
+            document.getElementById('activeStudentBadge').textContent = `${st.name} (${st.regNo})`;
+
+            populateStudentList();
+            renderCanvas();
+        }
+
+        function updateCardFromForm() {
+            if (studentsList[currentStudentIndex]) {
+                const teamVal = document.querySelector('input[name="team"]:checked').value;
+                const nameVal = document.getElementById('inputName').value;
+                const regVal = document.getElementById('inputRegNo').value;
+                const catVal = document.getElementById('inputCategory').value;
+
+                const eventsVal = [];
+                for (let i = 1; i <= 5; i++) {
+                    const ev = document.getElementById(`inputEvent${i}`).value.trim();
+                    if (ev) eventsVal.push(ev);
+                }
+
+                studentsList[currentStudentIndex] = {
+                    ...studentsList[currentStudentIndex],
+                    name: nameVal,
+                    regNo: regVal,
+                    category: catVal,
+                    team: teamVal,
+                    events: eventsVal
+                };
+
+                document.getElementById('activeStudentBadge').textContent = `${nameVal || 'Participant'} (${regVal})`;
+            }
+
+            // Update Label Indicators
+            document.getElementById('lblFontSizeName').textContent = `${document.getElementById('fontSizeName').value}px`;
+            document.getElementById('lblFontSizeEvents').textContent = `${document.getElementById('fontSizeEvents').value}px`;
+            document.getElementById('lblLeftX').textContent = `${document.getElementById('offsetXLeft').value}px`;
+            document.getElementById('lblNameY').textContent = `${document.getElementById('offsetYName').value}px`;
+            document.getElementById('lblEventsX').textContent = `${document.getElementById('offsetXRight').value}px`;
+            document.getElementById('lblEventsY').textContent = `${document.getElementById('offsetYEvents').value}px`;
+            document.getElementById('lblLineGap').textContent = `${document.getElementById('eventLineGap').value}px`;
+
+            renderCanvas();
+        }
+
+        function resetAlignmentToCalibrated() {
+            document.getElementById('fontSizeName').value = "32";
+            document.getElementById('fontSizeEvents').value = "26";
+            document.getElementById('offsetXLeft').value = "0";
+            document.getElementById('offsetYName').value = "0";
+            document.getElementById('offsetXRight').value = "0";
+            document.getElementById('offsetYEvents').value = "0";
+            document.getElementById('eventLineGap').value = "75";
+            updateCardFromForm();
+        }
+
+        function filterStudents() {
+            const query = document.getElementById('studentSearch').value.toLowerCase();
+            const container = document.getElementById('studentListContainer');
+            const buttons = container.getElementsByTagName('button');
+
+            Array.from(buttons).forEach((btn, i) => {
+                const st = studentsList[i];
+                if (st) {
+                    const match = st.name.toLowerCase().includes(query) || 
+                                  st.regNo.toLowerCase().includes(query) || 
+                                  st.events.some(e => e.toLowerCase().includes(query));
+                    btn.style.display = match ? 'flex' : 'none';
+                }
+            });
+        }
+
+        function addNewStudent() {
+            const newId = studentsList.length + 1;
+            const newStudent = {
+                id: newId,
+                name: "New Participant",
+                regNo: `J${newId < 10 ? '0' + newId : newId}`,
+                category: "Junior",
+                team: "Najah",
+                events: ["Participating Event 1"]
+            };
+
+            studentsList.push(newStudent);
+            populateStudentList();
+            populateTableDirectory();
+            selectStudent(studentsList.length - 1);
+        }
+
+        /**
+         * CORE HIGH-DEFINITION CANVAS OVERLAY ENGINE
+         * Coordinates calibrated precisely to match Najah.png / Falah.png background images!
+         */
+        function renderCanvas(targetCanvas = null, customStudent = null) {
+            const canvas = targetCanvas || document.getElementById('cardCanvas');
+            const ctx = canvas.getContext('2d');
+
+            const width = canvas.width;   // 1800 px
+            const height = canvas.height;  // 1200 px
+
+            const student = customStudent || (studentsList[currentStudentIndex] || PRELOADED_STUDENTS[0]);
+            const team = student.team || "Najah";
+            const bgImage = templateImages[team] || templateImages.Najah;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+
+            // 1. Draw Background Template Image
+            if (bgImage && bgImage.complete) {
+                ctx.drawImage(bgImage, 0, 0, width, height);
+            } else {
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            // Get Slider Adjustment Offsets
+            const nameFontSize = parseInt(document.getElementById('fontSizeName')?.value || '32');
+            const eventFontSize = parseInt(document.getElementById('fontSizeEvents')?.value || '26');
+            const leftXOffset = parseInt(document.getElementById('offsetXLeft')?.value || '0');
+            const nameYOffset = parseInt(document.getElementById('offsetYName')?.value || '0');
+            const eventsXOffset = parseInt(document.getElementById('offsetXRight')?.value || '0');
+            const eventsYOffset = parseInt(document.getElementById('offsetYEvents')?.value || '0');
+            const lineGap = parseInt(document.getElementById('eventLineGap')?.value || '75');
+
+            ctx.save();
+
+            // --- 2. OVERLAY LEFT COLUMN FIELDS (Name, Reg No, Category) ---
+            // Calibrated exact X position inside white rounded input boxes = 390px
+            const leftBoxX = 390 + leftXOffset;
+
+            // A) Name Field Overlay (Centered vertically inside Name white box)
+            const nameBoxCenterY = 552 + nameYOffset;
+            ctx.fillStyle = "#0f172a";
+            ctx.font = `700 ${nameFontSize}px 'Poppins', 'Noto Sans Malayalam', sans-serif`;
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+
+            let nameText = student.name || "";
+            if (nameText.length > 28) nameText = nameText.substring(0, 26) + '...';
+            ctx.fillText(nameText, leftBoxX, nameBoxCenterY);
+
+            // B) Reg No Field Overlay (Centered vertically inside Reg No white box)
+            const regBoxCenterY = 662 + nameYOffset;
+            ctx.font = `700 ${nameFontSize - 2}px 'Poppins', sans-serif`;
+            ctx.fillText(student.regNo || "", leftBoxX, regBoxCenterY);
+
+            // C) Category Field Overlay (Centered vertically inside Category white box)
+            const catBoxCenterY = 772 + nameYOffset;
+            ctx.font = `600 ${nameFontSize - 4}px 'Poppins', sans-serif`;
+            ctx.fillText(student.category || "Junior", leftBoxX, catBoxCenterY);
+
+            // --- 3. OVERLAY RIGHT COLUMN PARTICIPATING EVENTS (Lines 1 to 5) ---
+            // Line 1 rests precisely on top of line 1 graphic in template = 648px
+            const eventsX = 1080 + eventsXOffset;
+            const line1Y = 648 + eventsYOffset;
+
+            ctx.fillStyle = "#0f172a";
+            ctx.font = `600 ${eventFontSize}px 'Noto Sans Malayalam', 'Poppins', sans-serif`;
+            ctx.textAlign = "left";
+            ctx.textBaseline = "bottom"; // Sits neatly right on top of ruled line
+
+            for (let i = 0; i < 5; i++) {
+                const currentLineY = line1Y + (i * lineGap);
+                const eventText = student.events[i] || "";
+
+                if (eventText) {
+                    let formattedEvent = eventText;
+                    if (formattedEvent.length > 46) {
+                        formattedEvent = formattedEvent.substring(0, 43) + "...";
+                    }
+                    ctx.fillText(formattedEvent, eventsX, currentLineY);
+                }
+            }
+
+            ctx.restore();
+        }
+
+        // Single PNG Download
+        function downloadCurrentCard() {
+            const student = studentsList[currentStudentIndex];
+            const canvas = document.getElementById('cardCanvas');
+            
+            const link = document.createElement('a');
+            const cleanName = student.name.replace(/[^a-zA-Z0-9]/g, '_');
+            link.download = `${student.regNo}_${cleanName}_Sargavasantham.png`;
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        }
+
+        // Single Card Printing
+        function printCurrentCard() {
+            const canvas = document.getElementById('cardCanvas');
+            const dataUrl = canvas.toDataURL('image/png');
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Print Card - ${studentsList[currentStudentIndex].name}</title>
+                    <style>
+                        body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #fff; }
+                        img { max-width: 98%; height: auto; }
+                        @media print { img { width: 100%; max-width: 100%; } }
+                    </style>
+                </head>
+                <body onload="window.print(); window.close();">
+                    <img src="${dataUrl}" />
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        // Batch Zip Download for all 16 students
+        async function downloadAllCardsZip() {
+            if (typeof JSZip === 'undefined') {
+                alert("JSZip library is loading. Please try again in a few seconds.");
+                return;
+            }
+
+            const modal = document.getElementById('batchModal');
+            const progressBar = document.getElementById('batchProgressBar');
+            const progressText = document.getElementById('batchProgressText');
+
+            modal.classList.remove('hidden');
+
+            const zip = new JSZip();
+            const total = studentsList.length;
+
+            const offscreenCanvas = document.createElement('canvas');
+            offscreenCanvas.width = 1800;
+            offscreenCanvas.height = 1200;
+
+            for (let i = 0; i < total; i++) {
+                const st = studentsList[i];
+                renderCanvas(offscreenCanvas, st);
+
+                const dataUrl = offscreenCanvas.toDataURL('image/png');
+                const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+
+                const filename = `${st.regNo}_${st.name.replace(/[^a-zA-Z0-9]/g, '_')}_Card.png`;
+                zip.file(filename, base64Data, { base64: true });
+
+                const percent = Math.round(((i + 1) / total) * 100);
+                progressBar.style.width = `${percent}%`;
+                progressText.textContent = `${i + 1} / ${total} cards rendered (${percent}%)`;
+
+                await new Promise(r => setTimeout(r, 60));
+            }
+
+            progressText.textContent = "Creating ZIP file...";
+            
+            const zipContent = await zip.generateAsync({ type: "blob" });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(zipContent);
+            link.download = "Sargavasantham_2026-27_Cards.zip";
+            link.click();
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 500);
+        }
+
+        // Open A4 Printable Sheet Overlay
+        function openPrintModal() {
+            const modal = document.getElementById('printModal');
+            const printArea = document.getElementById('printArea');
+            printArea.innerHTML = '';
+
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 1800;
+            tempCanvas.height = 1200;
+
+            studentsList.forEach((st) => {
+                renderCanvas(tempCanvas, st);
+                const dataUrl = tempCanvas.toDataURL('image/png');
+
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'border border-slate-200 rounded-xl overflow-hidden p-2 bg-white shadow-sm';
+                cardDiv.innerHTML = `
+                    <img src="${dataUrl}" class="w-full h-auto rounded" />
+                    <p class="text-[10px] text-center font-bold text-slate-700 mt-1">${st.regNo} - ${st.name} (${st.team})</p>
+                `;
+                printArea.appendChild(cardDiv);
+            });
+
+            modal.classList.remove('hidden');
+        }
+
+        function closePrintModal() {
+            document.getElementById('printModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
+```
