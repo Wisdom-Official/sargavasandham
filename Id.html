@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,9 +103,9 @@
                 <div class="flex items-center justify-between mb-2">
                     <h2 class="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
                         <i class="fa-solid fa-users text-amber-600"></i>
-                        <span>Junior Participants (16)</span>
+                        <span>Participants List</span>
                     </h2>
-                    <span id="studentCounter" class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">16 Loaded</span>
+                    <span id="studentCounter" class="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">1 Participant</span>
                 </div>
 
                 <!-- Search Input -->
@@ -118,10 +119,16 @@
                     <!-- Populated programmatically -->
                 </div>
 
-                <button onclick="addNewStudent()" class="w-full mt-3 py-2 border-2 border-dashed border-slate-300 hover:border-amber-500 hover:text-amber-600 text-slate-600 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Add New Participant</span>
-                </button>
+                <div class="grid grid-cols-2 gap-2 mt-3">
+                    <button onclick="addNewStudent()" class="py-2 border-2 border-dashed border-slate-300 hover:border-amber-500 hover:text-amber-600 text-slate-600 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add Participant</span>
+                    </button>
+                    <button onclick="clearAllStudents()" class="py-2 border border-red-200 hover:bg-red-50 text-red-600 rounded-xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Clear All</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Template & Card Customization Form -->
@@ -336,7 +343,7 @@
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
                         <i class="fa-solid fa-list-check text-amber-600"></i>
-                        <span>Preloaded 16 Junior Participants Directory</span>
+                        <span>Participants Directory</span>
                     </h3>
                     <span class="text-xs text-slate-500">Click any participant to edit or render</span>
                 </div>
@@ -405,24 +412,9 @@
     </div>
 
     <script>
-        // 16 Junior Participants directly from user prompt
+        // Removed default hardcoded participants to start clean
         const PRELOADED_STUDENTS = [
-            { id: 1, name: "Zaid al ameen", regNo: "J01", category: "Junior", team: "Najah", events: ["Padhapayattu", "Islamic song malayalam", "Quiz", "Group song malayalam, Arabic"] },
-            { id: 2, name: "Muhammed Rayyan", regNo: "J02", category: "Junior", team: "Falah", events: ["Padhapayattu", "Hifz", "Speech Arabic", "Group song Arabic"] },
-            { id: 3, name: "Muhammed Aydin", regNo: "J03", category: "Junior", team: "Najah", events: ["Padhapayattu", "Islamic song malayalam", "Islamic song Arabic", "Group song malayalam, Arabic"] },
-            { id: 4, name: "Ahammed Hamdan", regNo: "J04", category: "Junior", team: "Falah", events: ["Padhapayattu", "Quiz", "Calligraphy", "Group song malayalam"] },
-            { id: 5, name: "Jeza khadeeja", regNo: "J05", category: "Junior", team: "Najah", events: ["Poem Arabic", "Qur'an recitation", "Mappilapaatt", "Group song malayalam, Arabic"] },
-            { id: 6, name: "Aymen Muhammed", regNo: "J06", category: "Junior", team: "Falah", events: ["Mappilapaatt", "Hifz general", "Islamic song malayalam", "Group song malayalam, Arabic"] },
-            { id: 7, name: "Ayisha Jamal", regNo: "J07", category: "Junior", team: "Najah", events: ["Padhapayattu", "English speech", "Islamic song malayalam", "Group song malayalam, Arabic"] },
-            { id: 8, name: "Aquish Nabhan", regNo: "J08", category: "Junior", team: "Falah", events: ["Calligraphy", "Quiz", "Padhappayattu"] },
-            { id: 9, name: "Muhammed Hamdan", regNo: "J09", category: "Junior", team: "Najah", events: ["Quran recitation", "Mappilapaatt", "Islamic song Arabic, malayalam", "Group song malayalam, Arabic"] },
-            { id: 10, name: "Asiya Emna", regNo: "J10", category: "Junior", team: "Falah", events: ["Hifz", "Padhapayattu", "Calligraphy", "Group song malayalam, Arabic"] },
-            { id: 11, name: "Shayan Muhammed", regNo: "J11", category: "Junior", team: "Najah", events: ["Islamic song malayalam", "Arabic poem", "Group song Arabic"] },
-            { id: 12, name: "Wildan Sadik", regNo: "J12", category: "Junior", team: "Falah", events: ["Calligraphy", "Group song malayalam"] },
-            { id: 13, name: "Naiza Nourin", regNo: "J13", category: "Junior", team: "Najah", events: ["Calligraphy"] },
-            { id: 14, name: "Abdul Basith", regNo: "J14", category: "Junior", team: "Falah", events: ["Calligraphy", "Poem Arabic"] },
-            { id: 15, name: "Athif Muhammed", regNo: "J15", category: "Junior", team: "Najah", events: ["Speech English", "Speech malayalam", "Arabic poem", "Group song malayalam, Arabic"] },
-            { id: 16, name: "Maryam", regNo: "J16", category: "Junior", team: "Falah", events: ["Speech malayalam", "Group song Malayalam, Arabic"] }
+            { id: 1, name: "", regNo: "J01", category: "Junior", team: "Najah", events: [] }
         ];
 
         let studentsList = [...PRELOADED_STUDENTS];
@@ -582,6 +574,12 @@
             const container = document.getElementById('studentListContainer');
             container.innerHTML = '';
 
+            if (studentsList.length === 0) {
+                container.innerHTML = `<div class="p-4 text-center text-xs text-slate-400 border border-dashed rounded-xl">No participants added yet.<br>Click "+ Add Participant" below to start.</div>`;
+                document.getElementById('studentCounter').textContent = `0 Participants`;
+                return;
+            }
+
             studentsList.forEach((st, index) => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
@@ -589,6 +587,7 @@
                 
                 const isSelected = index === currentStudentIndex;
                 const isNajah = st.team === 'Najah';
+                const displayName = st.name.trim() || "Untitled Participant";
 
                 btn.className = `w-full text-left p-2 rounded-xl border transition-all flex items-center justify-between gap-2 ${
                     isSelected 
@@ -596,13 +595,15 @@
                         : 'border-slate-200 hover:border-slate-300 bg-white'
                 }`;
 
+                const eventsSummary = st.events.length > 0 ? st.events.slice(0, 2).join(', ') : "No events added";
+
                 btn.innerHTML = `
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${isNajah ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">${st.regNo}</span>
-                            <span class="font-semibold text-slate-800 text-xs truncate">${st.name}</span>
+                            <span class="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${isNajah ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">${st.regNo || '---'}</span>
+                            <span class="font-semibold text-slate-800 text-xs truncate">${displayName}</span>
                         </div>
-                        <p class="text-[10px] text-slate-500 truncate mt-0.5">${st.events.slice(0, 2).join(', ')}${st.events.length > 2 ? '...' : ''}</p>
+                        <p class="text-[10px] text-slate-500 truncate mt-0.5">${eventsSummary}</p>
                     </div>
                     <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isNajah ? 'bg-red-700 text-white' : 'bg-blue-800 text-white'}">${isNajah ? 'النجاح' : 'الفلاح'}</span>
                 `;
@@ -610,23 +611,31 @@
                 container.appendChild(btn);
             });
 
-            document.getElementById('studentCounter').textContent = `${studentsList.length} Loaded`;
+            document.getElementById('studentCounter').textContent = `${studentsList.length} Participant${studentsList.length === 1 ? '' : 's'}`;
         }
 
         function populateTableDirectory() {
             const tbody = document.getElementById('studentTableBody');
             tbody.innerHTML = '';
 
+            if (studentsList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">No participants added yet.</td></tr>`;
+                return;
+            }
+
             studentsList.forEach((st, idx) => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 transition-colors';
+                const displayName = st.name.trim() || "Untitled Participant";
+                const eventsText = st.events.length > 0 ? st.events.join(', ') : "None";
+
                 tr.innerHTML = `
-                    <td class="p-2 font-mono font-bold text-slate-700">${st.regNo}</td>
-                    <td class="p-2 font-medium text-slate-900">${st.name}</td>
+                    <td class="p-2 font-mono font-bold text-slate-700">${st.regNo || '---'}</td>
+                    <td class="p-2 font-medium text-slate-900">${displayName}</td>
                     <td class="p-2">
                         <span class="text-[10px] px-2 py-0.5 rounded font-bold ${st.team === 'Najah' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}">${st.team}</span>
                     </td>
-                    <td class="p-2 text-slate-600 truncate max-w-[220px]">${st.events.join(', ')}</td>
+                    <td class="p-2 text-slate-600 truncate max-w-[220px]">${eventsText}</td>
                     <td class="p-2 text-right">
                         <button onclick="selectStudent(${idx}); window.scrollTo({top:0, behavior:'smooth'})" class="text-amber-700 hover:text-amber-900 font-bold text-xs bg-amber-50 px-2 py-1 rounded-md">
                             Select &rarr;
@@ -638,11 +647,13 @@
         }
 
         function selectStudent(index) {
+            if (studentsList.length === 0) return;
+
             currentStudentIndex = index;
             const st = studentsList[index];
 
-            document.getElementById('inputName').value = st.name;
-            document.getElementById('inputRegNo').value = st.regNo;
+            document.getElementById('inputName').value = st.name || "";
+            document.getElementById('inputRegNo').value = st.regNo || "";
             document.getElementById('inputCategory').value = st.category || "Junior";
 
             const radios = document.getElementsByName('team');
@@ -651,18 +662,22 @@
             }
 
             for (let i = 1; i <= 5; i++) {
-                document.getElementById(`inputEvent${i}`).value = st.events[i - 1] || "";
+                document.getElementById(`inputEvent${i}`).value = (st.events && st.events[i - 1]) ? st.events[i - 1] : "";
             }
 
-            document.getElementById('activeStudentBadge').textContent = `${st.name} (${st.regNo})`;
+            document.getElementById('activeStudentBadge').textContent = `${st.name || 'Participant'} (${st.regNo || '---'})`;
 
             populateStudentList();
             renderCanvas();
         }
 
         function updateCardFromForm() {
+            if (studentsList.length === 0) {
+                addNewStudent();
+            }
+
             if (studentsList[currentStudentIndex]) {
-                const teamVal = document.querySelector('input[name="team"]:checked').value;
+                const teamVal = document.querySelector('input[name="team"]:checked')?.value || "Najah";
                 const nameVal = document.getElementById('inputName').value;
                 const regVal = document.getElementById('inputRegNo').value;
                 const catVal = document.getElementById('inputCategory').value;
@@ -682,7 +697,7 @@
                     events: eventsVal
                 };
 
-                document.getElementById('activeStudentBadge').textContent = `${nameVal || 'Participant'} (${regVal})`;
+                document.getElementById('activeStudentBadge').textContent = `${nameVal || 'Participant'} (${regVal || '---'})`;
             }
 
             // Update Label Indicators
@@ -694,6 +709,8 @@
             document.getElementById('lblEventsY').textContent = `${document.getElementById('offsetYEvents').value}px`;
             document.getElementById('lblLineGap').textContent = `${document.getElementById('eventLineGap').value}px`;
 
+            populateStudentList();
+            populateTableDirectory();
             renderCanvas();
         }
 
@@ -716,9 +733,9 @@
             Array.from(buttons).forEach((btn, i) => {
                 const st = studentsList[i];
                 if (st) {
-                    const match = st.name.toLowerCase().includes(query) || 
-                                  st.regNo.toLowerCase().includes(query) || 
-                                  st.events.some(e => e.toLowerCase().includes(query));
+                    const match = (st.name || "").toLowerCase().includes(query) || 
+                                  (st.regNo || "").toLowerCase().includes(query) || 
+                                  (st.events || []).some(e => e.toLowerCase().includes(query));
                     btn.style.display = match ? 'flex' : 'none';
                 }
             });
@@ -727,23 +744,39 @@
         function addNewStudent() {
             const newId = studentsList.length + 1;
             const newStudent = {
-                id: newId,
-                name: "New Participant",
+                id: Date.now(),
+                name: "",
                 regNo: `J${newId < 10 ? '0' + newId : newId}`,
                 category: "Junior",
                 team: "Najah",
-                events: ["Participating Event 1"]
+                events: []
             };
 
             studentsList.push(newStudent);
+            selectStudent(studentsList.length - 1);
+            populateTableDirectory();
+        }
+
+        function clearAllStudents() {
+            studentsList = [];
+            currentStudentIndex = 0;
+            
+            // Clear inputs
+            document.getElementById('inputName').value = "";
+            document.getElementById('inputRegNo').value = "";
+            document.getElementById('inputCategory').value = "Junior";
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`inputEvent${i}`).value = "";
+            }
+            document.getElementById('activeStudentBadge').textContent = "No Student Selected";
+
             populateStudentList();
             populateTableDirectory();
-            selectStudent(studentsList.length - 1);
+            renderCanvas();
         }
 
         /**
          * CORE HIGH-DEFINITION CANVAS OVERLAY ENGINE
-         * Coordinates calibrated precisely to match Najah.png / Falah.png background images!
          */
         function renderCanvas(targetCanvas = null, customStudent = null) {
             const canvas = targetCanvas || document.getElementById('cardCanvas');
@@ -752,7 +785,7 @@
             const width = canvas.width;   // 1800 px
             const height = canvas.height;  // 1200 px
 
-            const student = customStudent || (studentsList[currentStudentIndex] || PRELOADED_STUDENTS[0]);
+            const student = customStudent || (studentsList[currentStudentIndex] || { name: "", regNo: "", category: "Junior", team: "Najah", events: [] });
             const team = student.team || "Najah";
             const bgImage = templateImages[team] || templateImages.Najah;
 
@@ -779,10 +812,9 @@
             ctx.save();
 
             // --- 2. OVERLAY LEFT COLUMN FIELDS (Name, Reg No, Category) ---
-            // Calibrated exact X position inside white rounded input boxes = 390px
             const leftBoxX = 390 + leftXOffset;
 
-            // A) Name Field Overlay (Centered vertically inside Name white box)
+            // A) Name Field Overlay
             const nameBoxCenterY = 552 + nameYOffset;
             ctx.fillStyle = "#0f172a";
             ctx.font = `700 ${nameFontSize}px 'Poppins', 'Noto Sans Malayalam', sans-serif`;
@@ -791,38 +823,45 @@
 
             let nameText = student.name || "";
             if (nameText.length > 28) nameText = nameText.substring(0, 26) + '...';
-            ctx.fillText(nameText, leftBoxX, nameBoxCenterY);
+            if (nameText) {
+                ctx.fillText(nameText, leftBoxX, nameBoxCenterY);
+            }
 
-            // B) Reg No Field Overlay (Centered vertically inside Reg No white box)
+            // B) Reg No Field Overlay
             const regBoxCenterY = 662 + nameYOffset;
             ctx.font = `700 ${nameFontSize - 2}px 'Poppins', sans-serif`;
-            ctx.fillText(student.regNo || "", leftBoxX, regBoxCenterY);
+            if (student.regNo) {
+                ctx.fillText(student.regNo, leftBoxX, regBoxCenterY);
+            }
 
-            // C) Category Field Overlay (Centered vertically inside Category white box)
+            // C) Category Field Overlay
             const catBoxCenterY = 772 + nameYOffset;
             ctx.font = `600 ${nameFontSize - 4}px 'Poppins', sans-serif`;
-            ctx.fillText(student.category || "Junior", leftBoxX, catBoxCenterY);
+            if (student.category) {
+                ctx.fillText(student.category, leftBoxX, catBoxCenterY);
+            }
 
             // --- 3. OVERLAY RIGHT COLUMN PARTICIPATING EVENTS (Lines 1 to 5) ---
-            // Line 1 rests precisely on top of line 1 graphic in template = 648px
             const eventsX = 1080 + eventsXOffset;
             const line1Y = 648 + eventsYOffset;
 
             ctx.fillStyle = "#0f172a";
             ctx.font = `600 ${eventFontSize}px 'Noto Sans Malayalam', 'Poppins', sans-serif`;
             ctx.textAlign = "left";
-            ctx.textBaseline = "bottom"; // Sits neatly right on top of ruled line
+            ctx.textBaseline = "bottom";
 
-            for (let i = 0; i < 5; i++) {
-                const currentLineY = line1Y + (i * lineGap);
-                const eventText = student.events[i] || "";
+            if (student.events && student.events.length > 0) {
+                for (let i = 0; i < 5; i++) {
+                    const currentLineY = line1Y + (i * lineGap);
+                    const eventText = student.events[i] || "";
 
-                if (eventText) {
-                    let formattedEvent = eventText;
-                    if (formattedEvent.length > 46) {
-                        formattedEvent = formattedEvent.substring(0, 43) + "...";
+                    if (eventText) {
+                        let formattedEvent = eventText;
+                        if (formattedEvent.length > 46) {
+                            formattedEvent = formattedEvent.substring(0, 43) + "...";
+                        }
+                        ctx.fillText(formattedEvent, eventsX, currentLineY);
                     }
-                    ctx.fillText(formattedEvent, eventsX, currentLineY);
                 }
             }
 
@@ -831,12 +870,12 @@
 
         // Single PNG Download
         function downloadCurrentCard() {
-            const student = studentsList[currentStudentIndex];
+            const student = studentsList[currentStudentIndex] || { name: "Participant", regNo: "J01" };
             const canvas = document.getElementById('cardCanvas');
             
             const link = document.createElement('a');
-            const cleanName = student.name.replace(/[^a-zA-Z0-9]/g, '_');
-            link.download = `${student.regNo}_${cleanName}_Sargavasantham.png`;
+            const cleanName = (student.name || "Participant").replace(/[^a-zA-Z0-9]/g, '_');
+            link.download = `${student.regNo || 'ID'}_${cleanName}_Sargavasantham.png`;
             link.href = canvas.toDataURL('image/png', 1.0);
             link.click();
         }
@@ -845,12 +884,13 @@
         function printCurrentCard() {
             const canvas = document.getElementById('cardCanvas');
             const dataUrl = canvas.toDataURL('image/png');
+            const studentName = (studentsList[currentStudentIndex] && studentsList[currentStudentIndex].name) ? studentsList[currentStudentIndex].name : "Participant";
 
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
                 <html>
                 <head>
-                    <title>Print Card - ${studentsList[currentStudentIndex].name}</title>
+                    <title>Print Card - ${studentName}</title>
                     <style>
                         body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #fff; }
                         img { max-width: 98%; height: auto; }
@@ -865,8 +905,13 @@
             printWindow.document.close();
         }
 
-        // Batch Zip Download for all 16 students
+        // Batch Zip Download for all students
         async function downloadAllCardsZip() {
+            if (studentsList.length === 0) {
+                alert("No participants to download. Please add at least one participant first.");
+                return;
+            }
+
             if (typeof JSZip === 'undefined') {
                 alert("JSZip library is loading. Please try again in a few seconds.");
                 return;
@@ -892,7 +937,8 @@
                 const dataUrl = offscreenCanvas.toDataURL('image/png');
                 const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
 
-                const filename = `${st.regNo}_${st.name.replace(/[^a-zA-Z0-9]/g, '_')}_Card.png`;
+                const cleanName = (st.name || "Participant").replace(/[^a-zA-Z0-9]/g, '_');
+                const filename = `${st.regNo || 'J' + (i+1)}_${cleanName}_Card.png`;
                 zip.file(filename, base64Data, { base64: true });
 
                 const percent = Math.round(((i + 1) / total) * 100);
@@ -917,6 +963,11 @@
 
         // Open A4 Printable Sheet Overlay
         function openPrintModal() {
+            if (studentsList.length === 0) {
+                alert("No participants added yet. Please add a participant first.");
+                return;
+            }
+
             const modal = document.getElementById('printModal');
             const printArea = document.getElementById('printArea');
             printArea.innerHTML = '';
@@ -933,7 +984,7 @@
                 cardDiv.className = 'border border-slate-200 rounded-xl overflow-hidden p-2 bg-white shadow-sm';
                 cardDiv.innerHTML = `
                     <img src="${dataUrl}" class="w-full h-auto rounded" />
-                    <p class="text-[10px] text-center font-bold text-slate-700 mt-1">${st.regNo} - ${st.name} (${st.team})</p>
+                    <p class="text-[10px] text-center font-bold text-slate-700 mt-1">${st.regNo || '---'} - ${st.name || 'Participant'} (${st.team})</p>
                 `;
                 printArea.appendChild(cardDiv);
             });
@@ -947,4 +998,3 @@
     </script>
 </body>
 </html>
-```
