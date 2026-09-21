@@ -12,6 +12,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SheetJS (XLSX Parsing Library) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <script>
     tailwind.config = {
@@ -34,6 +36,7 @@
     }
     ::-webkit-scrollbar {
       width: 6px;
+      height: 6px;
     }
     ::-webkit-scrollbar-track {
       background: #1e293b;
@@ -44,7 +47,6 @@
     }
   </style>
 
-  <!-- Firebase SDK (v11) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
     import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
@@ -179,15 +181,95 @@
       </form>
     </div>
 
-    <!-- 2. STUDENT DIRECTORY MANAGEMENT (ADD & EDIT STUDENTS) -->
+    <!-- 2. STUDENT DIRECTORY MANAGEMENT & EXCEL UPLOADER -->
     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 gap-3">
         <div>
           <h2 class="text-xl font-black font-outfit text-white flex items-center gap-2">
             <i class="fa-solid fa-id-card text-emerald-400"></i> Student Roster & Items Manager
           </h2>
-          <p class="text-xs text-slate-400">Add or Edit student details, participating items, and individual achievements</p>
+          <p class="text-xs text-slate-400">Add or Edit student details, upload Excel files (.xlsx/.xls), or batch import records</p>
         </div>
+      </div>
+
+      <!-- EXCEL UPLOAD CONTAINER -->
+      <div class="bg-slate-950/80 border border-emerald-500/30 p-5 rounded-2xl space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg border border-emerald-500/20 shrink-0">
+              <i class="fa-solid fa-file-excel"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-white">Upload Excel Student Sheet (.xlsx, .xls, .csv)</h3>
+              <p class="text-[11px] text-slate-400">Select or drop your Excel file to parse and fill form automatically</p>
+            </div>
+          </div>
+          <a href="javascript:void(0)" onclick="toggleExcelGuide()" class="text-xs text-emerald-400 hover:underline font-bold flex items-center gap-1 shrink-0">
+            <i class="fa-solid fa-circle-info"></i> Column Header Format Guide
+          </a>
+        </div>
+
+        <!-- Excel Format Instructions Modal/Accordion -->
+        <div id="excelGuideBox" class="hidden text-xs bg-slate-900 p-4 rounded-xl border border-slate-800 text-slate-300 space-y-2">
+          <p class="font-bold text-emerald-400"><i class="fa-solid fa-table mr-1"></i> Supported Excel Column Names:</p>
+          <ul class="list-disc list-inside space-y-1 text-slate-400 text-[11px]">
+            <li><strong>Name / Student Name / പേര്:</strong> Student Full Name</li>
+            <li><strong>Team / Group / ടീം:</strong> Team A (Najah) or Team B (Falah)</li>
+            <li><strong>Category / കാറ്റഗറി:</strong> KIDS, CHILDREN, SUB JUNIOR, JUNIOR, SENIOR</li>
+            <li><strong>Items / വിഷയം:</strong> Participated events (e.g. Qirat, Story Telling)</li>
+            <li><strong>Achievements / നേട്ടങ്ങൾ:</strong> Victories/Grades (Optional)</li>
+          </ul>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+          <div class="md:col-span-2">
+            <label class="relative flex flex-col items-center justify-center border-2 border-dashed border-emerald-500/40 hover:border-emerald-400 rounded-2xl p-4 cursor-pointer bg-emerald-500/5 hover:bg-emerald-500/10 transition-all group">
+              <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" onchange="handleExcelUpload(event)" class="hidden">
+              <div class="flex items-center gap-3">
+                <i class="fa-solid fa-cloud-arrow-up text-2xl text-emerald-400 group-hover:scale-110 transition-transform"></i>
+                <div class="text-left">
+                  <span id="excelFileName" class="text-xs font-bold text-emerald-300 block">Click to select Excel file or drop here</span>
+                  <span class="text-[10px] text-slate-400 block">Supported: .xlsx, .xls, .csv files</span>
+                </div>
+              </div>
+            </label>
+          </div>
+          <div>
+            <button type="button" id="bulkImportBtn" onclick="bulkImportExcelStudents()" disabled class="w-full py-3.5 bg-emerald-600/50 cursor-not-allowed text-white font-extrabold rounded-xl text-xs transition-all flex items-center justify-center gap-2">
+              <i class="fa-solid fa-file-import"></i>
+              <span id="bulkBtnText">Bulk Import All Rows</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Excel Preview Table (Shown after file parse) -->
+        <div id="excelPreviewContainer" class="hidden space-y-3 pt-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-amber-400 flex items-center gap-1">
+              <i class="fa-solid fa-list-check"></i> Parsed Excel Rows (<span id="excelRowCount">0</span>)
+            </span>
+            <span class="text-[11px] text-slate-400">Click <strong>"Auto-Fill Form"</strong> on any row to load into editor below</span>
+          </div>
+
+          <div class="overflow-x-auto max-h-52 bg-slate-900 rounded-xl border border-slate-800 p-2">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-950 text-slate-400 font-bold uppercase text-[10px] border-b border-slate-800">
+                <tr>
+                  <th class="p-2">#</th>
+                  <th class="p-2">Name</th>
+                  <th class="p-2">Team</th>
+                  <th class="p-2">Category</th>
+                  <th class="p-2">Items</th>
+                  <th class="p-2 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="excelPreviewBody" class="divide-y divide-slate-800/60">
+                <!-- Dynamically populated Excel preview rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -398,6 +480,7 @@
     let upcomingList = [];
     let studentsList = [];
     let editingStudentId = null;
+    let parsedExcelData = [];
 
     function verifyAdminPass(e) {
       e.preventDefault();
@@ -483,7 +566,188 @@
       }
     }
 
-    // Edit Existing Student Setup
+    function toggleExcelGuide() {
+      const box = document.getElementById('excelGuideBox');
+      box.classList.toggle('hidden');
+    }
+
+    function handleExcelUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      document.getElementById('excelFileName').textContent = `Selected: ${file.name}`;
+      
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          
+          // Convert sheet to JSON array
+          const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+          
+          if (!rawRows || rawRows.length === 0) {
+            showNotification("Excel file is empty!", true);
+            return;
+          }
+
+          parsedExcelData = rawRows.map(row => normalizeExcelRow(row)).filter(r => r.name !== "");
+
+          if (parsedExcelData.length === 0) {
+            showNotification("No valid student records found in file!", true);
+            return;
+          }
+
+          renderExcelPreviewTable();
+          showNotification(`Successfully parsed ${parsedExcelData.length} students from Excel!`);
+        } catch (err) {
+          showNotification("Failed to parse Excel file: " + err.message, true);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function normalizeExcelRow(row) {
+      // Find matching keys regardless of casing or Malayalam names
+      const findKey = (candidates) => {
+        const key = Object.keys(row).find(k => 
+          candidates.some(c => k.trim().toLowerCase().includes(c.toLowerCase()))
+        );
+        return key ? String(row[key]).trim() : "";
+      };
+
+      const rawName = findKey(["name", "student name", "student", "പേര്", "വിദ്യാർത്ഥി"]);
+      const rawTeam = findKey(["team", "group", "ടീം"]);
+      const rawCategory = findKey(["category", "cat", "കാറ്റഗറി", "section"]);
+      const rawItems = findKey(["items", "item", "participating", "വിഷയം", "ഇനങ്ങൾ", "events"]);
+      const rawAchievements = findKey(["achievements", "victory", "rank", "grade", "നേട്ടങ്ങൾ"]);
+
+      // Normalize Team Name
+      let normalizedTeam = "TEAM A";
+      if (rawTeam) {
+        const tLower = rawTeam.toLowerCase();
+        if (tLower.includes("b") || tLower.includes("falah")) {
+          normalizedTeam = "TEAM B";
+        } else if (tLower.includes("a") || tLower.includes("najah")) {
+          normalizedTeam = "TEAM A";
+        }
+      }
+
+      // Normalize Category
+      let normalizedCategory = "KIDS";
+      if (rawCategory) {
+        const cLower = rawCategory.toLowerCase();
+        if (cLower.includes("senior")) normalizedCategory = "SENIOR";
+        else if (cLower.includes("sub junior") || cLower.includes("subjuniors")) normalizedCategory = "SUB JUNIOR";
+        else if (cLower.includes("junior")) normalizedCategory = "JUNIOR";
+        else if (cLower.includes("children")) normalizedCategory = "CHILDREN";
+        else if (cLower.includes("kids")) normalizedCategory = "KIDS";
+      }
+
+      return {
+        name: rawName,
+        team: normalizedTeam,
+        category: normalizedCategory,
+        items: rawItems,
+        achievements: rawAchievements
+      };
+    }
+
+    function renderExcelPreviewTable() {
+      const container = document.getElementById('excelPreviewContainer');
+      const tbody = document.getElementById('excelPreviewBody');
+      const countEl = document.getElementById('excelRowCount');
+      const bulkBtn = document.getElementById('bulkImportBtn');
+
+      container.classList.remove('hidden');
+      countEl.textContent = parsedExcelData.length;
+
+      if (parsedExcelData.length > 0) {
+        bulkBtn.disabled = false;
+        bulkBtn.className = "w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-xl text-xs shadow-md transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-2";
+      }
+
+      tbody.innerHTML = parsedExcelData.map((row, idx) => `
+        <tr class="hover:bg-slate-800/50 transition-colors">
+          <td class="p-2 text-slate-500 font-bold">${idx + 1}</td>
+          <td class="p-2 font-bold text-white">${row.name}</td>
+          <td class="p-2">
+            <span class="px-2 py-0.5 text-[10px] rounded-md font-bold ${row.team === 'TEAM A' ? 'bg-rose-500/20 text-rose-300' : 'bg-blue-500/20 text-blue-300'}">${row.team}</span>
+          </td>
+          <td class="p-2 text-slate-300 font-medium">${row.category}</td>
+          <td class="p-2 text-slate-400 truncate max-w-xs">${row.items || '-'}</td>
+          <td class="p-2 text-right space-x-1">
+            <button type="button" onclick="loadExcelRowToForm(${idx})" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 rounded-lg text-[11px] font-bold border border-amber-500/30 transition-all">
+              <i class="fa-solid fa-arrow-down-left-and-arrow-up-right-to-center mr-1"></i> Auto-Fill Form
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function loadExcelRowToForm(index) {
+      const item = parsedExcelData[index];
+      if (!item) return;
+
+      document.getElementById('studName').value = item.name || '';
+      document.getElementById('studTeam').value = item.team || 'TEAM A';
+      document.getElementById('studCategory').value = item.category || 'KIDS';
+      document.getElementById('studItems').value = item.items || '';
+      document.getElementById('studAchievements').value = item.achievements || '';
+
+      showNotification(`Loaded "${item.name}" into Add Student form!`);
+      
+      // Scroll to student form
+      document.getElementById('studentForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    async function bulkImportExcelStudents() {
+      if (parsedExcelData.length === 0) return;
+
+      const bulkBtn = document.getElementById('bulkImportBtn');
+      const btnText = document.getElementById('bulkBtnText');
+
+      bulkBtn.disabled = true;
+      btnText.innerText = `Importing 0/${parsedExcelData.length}...`;
+
+      let importedCount = 0;
+      const colRef = window.firestoreModule.collection(window.db, "sargavasantham_students");
+
+      try {
+        for (let i = 0; i < parsedExcelData.length; i++) {
+          const item = parsedExcelData[i];
+          await window.firestoreModule.addDoc(colRef, {
+            name: item.name,
+            team: item.team,
+            category: item.category,
+            items: item.items,
+            achievements: item.achievements,
+            timestamp: Date.now() + i
+          });
+          importedCount++;
+          btnText.innerText = `Importing ${importedCount}/${parsedExcelData.length}...`;
+        }
+
+        showNotification(`Successfully imported ${importedCount} students from Excel!`);
+        
+        // Reset Excel section
+        parsedExcelData = [];
+        document.getElementById('excelFileInput').value = '';
+        document.getElementById('excelFileName').textContent = "Click to select Excel file or drop here";
+        document.getElementById('excelPreviewContainer').classList.add('hidden');
+        bulkBtn.disabled = true;
+        bulkBtn.className = "w-full py-3.5 bg-emerald-600/50 cursor-not-allowed text-white font-extrabold rounded-xl text-xs transition-all flex items-center justify-center gap-2";
+        btnText.innerText = "Bulk Import All Rows";
+
+      } catch (err) {
+        showNotification("Error during bulk import: " + err.message, true);
+        btnText.innerText = "Retry Bulk Import";
+        bulkBtn.disabled = false;
+      }
+    }
+
     function editStudent(id) {
       const student = studentsList.find(s => s.id === id);
       if (!student) return;
@@ -503,7 +767,7 @@
       
       document.getElementById('cancelEditBtn').classList.remove('hidden');
 
-      // Scroll form into focus on mobile devices
+      // Scroll form into focus
       document.getElementById('studentForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
@@ -519,7 +783,6 @@
       document.getElementById('cancelEditBtn').classList.add('hidden');
     }
 
-    // Save/Update Student Record
     async function saveStudent(e) {
       e.preventDefault();
       const name = document.getElementById('studName').value.trim();
