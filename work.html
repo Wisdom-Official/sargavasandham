@@ -40,7 +40,10 @@ tailwind.config={
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<!-- QR Code Library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- SheetJS XLSX Library for Parsing & Generating Excel Files -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
 *{box-sizing:border-box}
@@ -52,6 +55,8 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
 .btn-primary:hover{transform:scale(1.02);filter:brightness(1.1)}
 .btn-secondary{background:rgba(255,255,255,0.06);color:#f1f5f9;border:1px solid rgba(255,255,255,0.12);border-radius:1rem;padding:0.75rem 1.25rem;font-weight:700;transition:all 0.2s ease}
 .btn-secondary:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.25)}
+.btn-emerald{background:linear-gradient(135deg, #059669 0%, #10b981 100%);color:#ffffff;font-weight:800;border-radius:1rem;padding:0.75rem 1.5rem;transition:all 0.2s ease;box-shadow:0 4px 20px rgba(16,185,129,0.3)}
+.btn-emerald:hover{transform:scale(1.02);filter:brightness(1.1)}
 .input-field,.select-field{width:100%;border:1px solid rgba(255,255,255,0.12);border-radius:1rem;padding:0.875rem 1.25rem;outline:0;background:rgba(15,23,42,0.6);color:#fff;font-size:0.9rem;transition:all 0.2s ease}
 .input-field:focus,.select-field:focus{border-color:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,0.2)}
 .nav-active{background:linear-gradient(135deg, #d97706 0%, #f59e0b 100%)!important;color:#0f172a!important;font-weight:900!important;box-shadow:0 4px 16px rgba(217,119,6,0.4)}
@@ -61,6 +66,7 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
 ::-webkit-scrollbar-track{background:#0f172a}
 ::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
 ::-webkit-scrollbar-thumb:hover{background:#475569}
+.drag-over{border-color:#f59e0b !important;background:rgba(245,158,11,0.1) !important}
 @media print{
   body *{visibility:hidden!important}
   .print-card,.print-card *{visibility:visible!important}
@@ -71,7 +77,6 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
 
 <body class="bg-slate-950 text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950">
 
-<!-- Top Navigation -->
 <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800/80 shadow-2xl">
   <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <div class="flex items-center justify-between h-20 gap-4">
@@ -79,7 +84,7 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
       <!-- Logo Branding -->
       <div class="flex items-center gap-3.5 cursor-pointer" onclick="setView('home')">
         <div class="h-12 w-12 rounded-2xl bg-white p-1.5 flex items-center justify-center shadow-lg border border-amber-400/40 shrink-0">
-          <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="max-h-full max-w-full object-contain">
+          <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="max-h-full max-w-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e293b/f59e0b?text=WEB';">
         </div>
         <div class="h-9 w-px bg-slate-800 hidden sm:block"></div>
         <div class="flex flex-col justify-center">
@@ -88,7 +93,7 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
             SARAGA <span class="text-amber-400 font-extrabold text-xs sm:text-sm">2026–27</span>
           </h1>
           <p class="text-[11px] text-slate-400 flex items-center gap-1.5 font-medium">
-            <img src="madrasa.png" alt="Madrasa Logo" class="w-3.5 h-3.5 object-contain inline"> Al Hikma Holiday Madrasa, Nandi
+            <img src="madrasa.png" alt="Madrasa Logo" class="w-3.5 h-3.5 object-contain inline" onerror="this.onerror=null; this.src='https://placehold.co/50x50/0f172a/ffffff?text=M';"> Al Hikma Holiday Madrasa, Nandi
           </p>
         </div>
       </div>
@@ -131,6 +136,61 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
   </div>
 </div>
 
+<!-- EXCEL PREVIEW MODAL -->
+<div id="excel-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+  <div class="glass-card max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-amber-500/40">
+    <div class="p-6 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl font-bold border border-emerald-500/30">
+          <i class="fa-solid fa-file-excel"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-black text-white">Excel Contestants Import Preview</h3>
+          <p class="text-xs text-slate-400">വിവരങ്ങൾ പരിശോധിച്ച ശേഷം "Confirm & Import" ക്ലിക്ക് ചെയ്യുക</p>
+        </div>
+      </div>
+      <button id="close-excel-modal" class="text-slate-400 hover:text-white p-2 text-xl"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="p-4 bg-slate-900/60 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div class="flex items-center gap-4">
+        <span class="text-slate-300 font-bold">ആകെ കണ്ടസ്റ്റന്റ്സ്: <span id="excel-total-count" class="text-amber-400 font-extrabold text-sm">0</span></span>
+        <span class="text-emerald-400 font-bold"><i class="fa-solid fa-circle-check mr-1"></i> റെഡി: <span id="excel-valid-count">0</span></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="inline-flex items-center gap-2 text-slate-300 cursor-pointer">
+          <input type="checkbox" id="excel-overwrite" class="accent-amber-500 rounded h-4 w-4" checked>
+          <span>നിലവിലുള്ള ഐഡികൾ പുതുക്കുക (Overwrite existing)</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="flex-1 overflow-auto p-4">
+      <table class="w-full text-left text-xs">
+        <thead class="bg-slate-950 text-amber-400 uppercase font-black sticky top-0 border-b border-slate-800">
+          <tr>
+            <th class="p-3">#</th>
+            <th class="p-3">ID / Chest No</th>
+            <th class="p-3">Name</th>
+            <th class="p-3">Madrasa Unit</th>
+            <th class="p-3">Category</th>
+            <th class="p-3">Item Codes</th>
+            <th class="p-3 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody id="excel-preview-body" class="divide-y divide-slate-800/80 font-medium"></tbody>
+      </table>
+    </div>
+
+    <div class="p-5 bg-slate-900 border-t border-slate-800 flex flex-col sm:flex-row gap-3 justify-end">
+      <button id="cancel-excel-import" class="btn-secondary text-xs px-5 py-2.5">Cancel</button>
+      <button id="confirm-excel-import" class="btn-emerald text-xs px-6 py-2.5 font-black flex items-center justify-center gap-2">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Confirm & Upload All to System
+      </button>
+    </div>
+  </div>
+</div>
+
 <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-grow w-full">
 
 <!-- SECTION: HOME -->
@@ -146,7 +206,7 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
           SARAGA <span class="text-amber-400">2026–27</span> Digital Judging Engine
         </h2>
         <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-          Al Hikma Holiday Madrasa, Nandi. Cloud tabulations, criteria-based evaluation sheets, QR automation, and live rank publishing.
+          Al Hikma Holiday Madrasa, Nandi. Cloud tabulations, criteria-based evaluation sheets, QR automation, bulk Excel imports, and live rank publishing.
         </p>
         <div class="pt-2 flex flex-wrap gap-3">
           <a href="judge.html" class="btn-primary flex items-center gap-2 font-black text-sm">
@@ -158,7 +218,7 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
       </div>
       <div class="lg:col-span-5 flex justify-center">
         <div class="glass-card p-8 max-w-md w-full text-center hover:scale-105 transition duration-300">
-          <img src="SargHor.png" alt="SARAGA Logo" class="max-h-40 mx-auto object-contain filter drop-shadow-lg">
+          <img src="SargHor.png" alt="SARAGA Logo" class="max-h-40 mx-auto object-contain filter drop-shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/300x150/1e293b/f59e0b?text=SARAGA+2026-27';">
           <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
             <span class="font-bold text-slate-300">Wisdom Education Board</span>
             <span>Nandi Unit</span>
@@ -309,7 +369,7 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
     <!-- Admin Navigation Tabs -->
     <div class="flex gap-2 overflow-x-auto pb-2">
       <button class="admin-tab btn-primary text-xs px-4 py-2.5" data-tab="items"><i class="fa-solid fa-list-check mr-1.5"></i> Items</button>
-      <button class="admin-tab btn-secondary text-xs px-4 py-2.5" data-tab="participants"><i class="fa-solid fa-users mr-1.5"></i> Contestants</button>
+      <button class="admin-tab btn-secondary text-xs px-4 py-2.5" data-tab="participants"><i class="fa-solid fa-users mr-1.5"></i> Contestants & Excel</button>
       <button class="admin-tab btn-secondary text-xs px-4 py-2.5" data-tab="judges"><i class="fa-solid fa-gavel mr-1.5"></i> Judges</button>
       <button class="admin-tab btn-secondary text-xs px-4 py-2.5" data-tab="qr"><i class="fa-solid fa-qrcode mr-1.5"></i> QR Generator</button>
     </div>
@@ -366,11 +426,51 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
       </div>
     </div>
 
-    <!-- TAB: PARTICIPANTS / CONTESTANTS -->
+    <!-- TAB: PARTICIPANTS / CONTESTANTS + EXCEL IMPORT -->
     <div id="admin-participants-tab" class="admin-tab-panel hidden space-y-6">
+
+      <!-- EXCEL BULK IMPORT CARD -->
+      <div class="glass-card p-6 sm:p-8 space-y-5 border-l-4 border-l-emerald-500">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-800">
+          <div>
+            <h3 class="text-lg font-black text-white flex items-center gap-2">
+              <i class="fa-solid fa-file-excel text-emerald-400"></i>
+              Excel Bulk Import Contestants (എക്സൽ ഇമ്പോർട്ട്)
+            </h3>
+            <p class="text-xs text-slate-400 mt-1">Directly upload Excel files (.xlsx, .xls, .csv) to import all contestants instantly.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btn-download-template" class="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10">
+              <i class="fa-solid fa-download"></i> Sample Excel Template
+            </button>
+            <button id="btn-export-contestants" class="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5 border-amber-500/30 text-amber-300 hover:bg-amber-500/10">
+              <i class="fa-solid fa-file-export"></i> Export Registered (.xlsx)
+            </button>
+          </div>
+        </div>
+
+        <!-- Drag & Drop Dropzone -->
+        <div id="excel-dropzone" class="border-2 border-dashed border-slate-700 hover:border-emerald-500/60 bg-slate-900/60 rounded-2xl p-8 text-center transition cursor-pointer relative group">
+          <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="hidden">
+          <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center text-2xl border border-emerald-500/30 mb-3 group-hover:scale-110 transition">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </div>
+          <h4 class="font-extrabold text-white text-sm sm:text-base">Click or Drag & Drop Excel File Here</h4>
+          <p class="text-xs text-slate-400 mt-1">Supports <span class="text-amber-400 font-bold">.XLSX</span>, <span class="text-amber-400 font-bold">.XLS</span>, and <span class="text-amber-400 font-bold">.CSV</span> formats</p>
+          <div class="mt-4 flex flex-wrap justify-center gap-2 text-[11px] text-slate-400">
+            <span class="bg-slate-800 px-2.5 py-1 rounded-md font-mono">Chest No / ID</span>
+            <span class="bg-slate-800 px-2.5 py-1 rounded-md font-mono">Name</span>
+            <span class="bg-slate-800 px-2.5 py-1 rounded-md font-mono">Madrasa Unit</span>
+            <span class="bg-slate-800 px-2.5 py-1 rounded-md font-mono">Category</span>
+            <span class="bg-slate-800 px-2.5 py-1 rounded-md font-mono">Item Codes (e.g. 101, 102)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MANUAL REGISTER / EDIT CONTESTANT FORM -->
       <form id="participant-form" class="glass-card p-6 sm:p-8 space-y-5">
         <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-          <h3 id="p-form-title" class="text-lg font-black text-white">Register or Edit Contestant</h3>
+          <h3 id="p-form-title" class="text-lg font-black text-white">Register or Edit Individual Contestant</h3>
           <button type="button" id="cancel-p-edit" class="hidden btn-secondary text-xs py-1.5 px-3 text-slate-400"><i class="fa-solid fa-xmark mr-1"></i> Cancel Editing</button>
         </div>
 
@@ -397,10 +497,17 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
         <button id="p-save-btn" class="btn-primary w-full py-3.5 text-slate-950 font-black"><i class="fa-solid fa-user-plus mr-2"></i> Save Contestant Profile</button>
       </form>
 
+      <!-- CONTESTANTS MASTER TABLE -->
       <div class="glass-card overflow-hidden">
-        <div class="p-4 bg-slate-900/80 font-black text-sm text-slate-300 border-b border-slate-800 flex justify-between items-center">
-          <span>Registered Contestants Directory</span>
-          <span id="p-count-badge" class="text-xs font-extrabold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">0 Enrolled</span>
+        <div class="p-4 bg-slate-900/80 font-black text-sm text-slate-300 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3">
+          <div class="flex items-center gap-3">
+            <span>Registered Contestants Directory</span>
+            <span id="p-count-badge" class="text-xs font-extrabold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">0 Enrolled</span>
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <input id="p-search-input" class="input-field py-1.5 text-xs sm:w-64" placeholder="Search by name, ID, madrasa...">
+            <select id="p-filter-cat" class="select-field py-1.5 text-xs sm:w-40 font-bold"></select>
+          </div>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
@@ -444,11 +551,11 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
 
       <div id="qr-card" class="print-card glass-card max-w-md mx-auto p-8 text-center bg-white text-slate-900 border-2 border-amber-400/40">
         <div class="border-b pb-4 mb-4 flex flex-col items-center">
-          <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="h-12 object-contain mb-2">
+          <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="h-12 object-contain mb-2" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e293b/f59e0b?text=WEB';">
           <span class="text-[10px] font-black tracking-widest text-amber-600 uppercase">WISDOM EDUCATION BOARD</span>
-          <img src="SargHor.png" alt="SARAGA Logo" class="h-14 object-contain my-2">
+          <img src="SargHor.png" alt="SARAGA Logo" class="h-14 object-contain my-2" onerror="this.onerror=null; this.src='https://placehold.co/300x150/1e293b/f59e0b?text=SARAGA';">
           <p class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
-            <img src="madrasa.png" alt="Madrasa Logo" class="h-4 w-4"> Al Hikma Holiday Madrasa, Nandi
+            <img src="madrasa.png" alt="Madrasa Logo" class="h-4 w-4" onerror="this.onerror=null; this.src='https://placehold.co/50x50/0f172a/ffffff?text=M';"> Al Hikma Holiday Madrasa, Nandi
           </p>
         </div>
 
@@ -472,9 +579,9 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
 <footer class="mt-auto bg-slate-950 text-slate-500 text-xs py-8 border-t border-slate-900">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
     <div class="flex items-center gap-3">
-      <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="h-7 object-contain brightness-200">
+      <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="h-7 object-contain brightness-200" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e293b/f59e0b?text=WEB';">
       <div class="h-5 w-px bg-slate-800"></div>
-      <img src="madrasa.png" alt="Madrasa" class="h-6 w-6 object-contain">
+      <img src="madrasa.png" alt="Madrasa" class="h-6 w-6 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/50x50/0f172a/ffffff?text=M';">
       <div>
         <div class="font-extrabold text-slate-200 text-xs">SARAGA 2026–27 Digital System</div>
         <div class="text-slate-500 text-[10px]">Wisdom Education Board · Al Hikma Holiday Madrasa, Nandi</div>
@@ -488,10 +595,10 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, collection, doc, getDoc, setDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-const firebaseConfig = {
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
   apiKey: "AIzaSyDCdeOsEw6_IkQaMES-YdCh5R3CWhqILUI",
   authDomain: "result-d1ddc.firebaseapp.com",
   projectId: "result-d1ddc",
@@ -499,6 +606,8 @@ const firebaseConfig = {
   messagingSenderId: "9589250968",
   appId: "1:9589250968:web:cf35482950dcd496bd29ed"
 };
+
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'result-d1ddc';
 
 const INITIAL_ITEMS = [
   {"code": "101", "name": "Word Formation - Arabic", "category": "Kids", "duration": 15, "totalMarks": 100, "markingType": "per_correct_answer", "criteria": [{"id": "c1", "name": "Correct Words (2 marks each)", "maxMarks": 100}]},
@@ -521,10 +630,27 @@ const INITIAL_PARTICIPANTS = [
 const CATEGORIES = ["Kids", "Children", "Sub Junior", "Junior", "Senior", "Teacher"];
 
 let db, auth;
-const state = { items: [], participants: [], judges: [], scores: [], user: null, profile: null, unsubs: [], editingParticipantNo: null };
+const state = { 
+  items: [], 
+  participants: [], 
+  judges: [], 
+  scores: [], 
+  user: null, 
+  unsubs: [], 
+  editingParticipantNo: null,
+  parsedExcelData: [] 
+};
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+
+function getPublicCol(collectionName) {
+  return collection(db, 'artifacts', appId, 'public', 'data', collectionName);
+}
+
+function getPublicDoc(collectionName, docId) {
+  return doc(db, 'artifacts', appId, 'public', 'data', collectionName, docId);
+}
 
 function toast(message, type = "info") {
   const el = document.createElement("div");
@@ -552,6 +678,7 @@ function setView(view) {
   window.scrollTo({ top: 0, behavior: "smooth" });
   if (view === "results") renderResults();
   if (view === "items") renderItems();
+  if (view === "admin") renderAdmin();
 }
 
 function populateCategorySelect(id, all = false) {
@@ -638,7 +765,10 @@ function renderItems() {
 }
 
 function renderResults() {
-  const selected = $("results-item").value;
+  const selectEl = $("results-item");
+  selectEl.innerHTML = `<option value="">All Event Items Leaderboard</option>` + state.items.map(i => `<option value="${esc(i.code)}">[${esc(i.code)}] ${esc(i.name)} (${esc(i.category)})</option>`).join("");
+
+  const selected = selectEl.value;
   const arr = [];
   for (const item of state.items.filter(i => !selected || i.code === selected)) {
     const groups = {};
@@ -658,10 +788,10 @@ function renderResults() {
       </td>
       <td class="p-4">
         <div class="font-extrabold text-white text-base">${esc(r.participant.name)}</div>
-        <div class="text-xs text-slate-400 font-mono">${esc(r.participant.participantNo)}</div>
+        <div class="text-xs text-slate-400 font-mono">${esc(r.participant.participantNo)} · ${esc(r.item.name)}</div>
       </td>
       <td class="p-4 font-semibold text-slate-300">${esc(r.participant.madrasa)}</td>
-      <td class="p-4 text-center font-bold text-slate-400">${r.count} / 3</td>
+      <td class="p-4 text-center font-bold text-slate-400">${r.count} Sheets</td>
       <td class="p-4 text-center font-bold text-slate-200">${r.total.toFixed(2)}</td>
       <td class="p-4 text-center font-black text-emerald-400 text-base">${r.avg.toFixed(2)}</td>
       <td class="p-4 text-center">
@@ -670,327 +800,693 @@ function renderResults() {
         </span>
       </td>
     </tr>
-  `).join("") : `<tr><td colspan="7" class="p-12 text-center text-slate-500 font-semibold">No evaluator scores recorded for this event selection yet.</td></tr>`;
+  `).join("") : `<tr><td colspan="7" class="p-12 text-center text-slate-400 font-bold"><i class="fa-solid fa-trophy text-3xl mb-2 text-slate-600 block"></i> No verified score evaluations published yet.</td></tr>`;
 }
 
 function renderAdmin() {
+  if (!state.user || state.user.isAnonymous) {
+    $("admin-login-card").classList.remove("hidden");
+    $("admin-panel").classList.add("hidden");
+    return;
+  }
+
+  $("admin-login-card").classList.add("hidden");
+  $("admin-panel").classList.remove("hidden");
+  $("admin-email-display").textContent = state.user.email || "admin@saraga.org";
+
+  // Render Admin Items Table
   $("admin-items-body").innerHTML = state.items.map(i => `
-    <tr class="hover:bg-slate-900/40">
-      <td class="p-3.5 font-black text-amber-400">${esc(i.code)}</td>
+    <tr class="hover:bg-slate-900/50">
+      <td class="p-3.5 font-bold text-amber-400">${esc(i.code)}</td>
       <td class="p-3.5 font-bold text-white">${esc(i.name)}</td>
-      <td class="p-3.5 text-center"><span class="bg-slate-800 text-slate-300 font-bold text-xs px-2.5 py-1 rounded-full">${esc(i.category)}</span></td>
-      <td class="p-3.5 text-center font-bold">${(i.criteria || []).length}</td>
-      <td class="p-3.5 text-center font-black text-slate-200">${i.totalMarks}</td>
-      <td class="p-3.5 text-center"><button class="btn-secondary text-xs py-1 px-3 font-bold text-amber-400" data-edit-item="${esc(i.code)}">Edit</button></td>
+      <td class="p-3.5 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-500/10 text-blue-300">${esc(i.category)}</span></td>
+      <td class="p-3.5 text-center font-medium text-slate-400">${(i.criteria || []).length} criteria</td>
+      <td class="p-3.5 text-center font-extrabold text-amber-300">${i.totalMarks} pts</td>
+      <td class="p-3.5 text-center space-x-2">
+        <button class="btn-delete-item text-xs text-rose-400 hover:bg-rose-500/10 p-2 rounded-lg" data-code="${esc(i.code)}"><i class="fa-solid fa-trash"></i></button>
+      </td>
     </tr>
   `).join("");
 
-  $("p-count-badge").textContent = `${state.participants.length} Enrolled`;
+  // Attach item delete listeners
+  document.querySelectorAll(".btn-delete-item").forEach(btn => {
+    btn.onclick = async () => {
+      if (confirm(`Are you sure you want to delete event code ${btn.dataset.code}?`)) {
+        try {
+          busy(true, "Deleting event...");
+          await deleteDoc(getPublicDoc("items", btn.dataset.code));
+          toast("Item deleted successfully", "success");
+        } catch (err) {
+          toast("Delete failed: " + err.message, "error");
+        } finally {
+          busy(false);
+        }
+      }
+    };
+  });
 
-  $("admin-participants-body").innerHTML = state.participants.length ? state.participants.map(p => {
-    const itemBadges = (p.itemCodes && p.itemCodes.length)
-      ? p.itemCodes.map(code => {
-          const item = state.items.find(x => x.code === code);
-          return `<span class="inline-block bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold text-[11px] px-2 py-0.5 rounded-md mr-1 mb-1" title="${esc(item?.name || '')}">Code ${esc(code)}</span>`;
-        }).join("")
-      : `<span class="text-slate-500 italic text-xs">No items linked</span>`;
+  // Filter & Render Admin Contestants Table
+  renderParticipantsTable();
+
+  // Render Admin Judges
+  $("admin-judges-list").innerHTML = state.judges.length ? state.judges.map(j => `
+    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex justify-between items-center">
+      <div>
+        <div class="font-extrabold text-white text-sm">${esc(j.name)}</div>
+        <div class="text-xs text-amber-400 font-mono mt-0.5">ID: ${esc(j.judgeId || j.id)}</div>
+        <div class="text-xs text-slate-400 mt-0.5">${esc(j.email)}</div>
+      </div>
+      <button class="btn-delete-judge text-rose-400 hover:bg-rose-500/10 p-2 rounded-lg text-xs" data-id="${esc(j.id || j.judgeId)}"><i class="fa-solid fa-trash"></i></button>
+    </div>
+  `).join("") : `<div class="col-span-full p-6 text-center text-slate-500 text-xs font-bold">No evaluator accounts onboarded yet.</div>`;
+
+  document.querySelectorAll(".btn-delete-judge").forEach(btn => {
+    btn.onclick = async () => {
+      if (confirm("Delete judge evaluator account?")) {
+        try {
+          await deleteDoc(getPublicDoc("judges", btn.dataset.id));
+          toast("Judge deleted", "success");
+        } catch (err) {
+          toast("Error: " + err.message, "error");
+        }
+      }
+    };
+  });
+
+  // Populate QR Select
+  $("qr-item").innerHTML = `<option value="">Select Competition Event for QR Pass Generation</option>` + state.items.map(i => `<option value="${esc(i.code)}">[Code ${esc(i.code)}] ${esc(i.name)} (${esc(i.category)})</option>`).join("");
+}
+
+function renderParticipantsTable() {
+  const search = ($("p-search-input")?.value || "").trim().toLowerCase();
+  const catFilter = $("p-filter-cat")?.value || "ALL";
+
+  const list = state.participants.filter(p => {
+    const matchCat = catFilter === "ALL" || p.category === catFilter;
+    const matchSearch = !search || `${p.participantNo} ${p.name} ${p.madrasa}`.toLowerCase().includes(search);
+    return matchCat && matchSearch;
+  });
+
+  $("p-count-badge").textContent = `${list.length} Enrolled`;
+
+  $("admin-participants-body").innerHTML = list.length ? list.map(p => {
+    const itemsBadges = (p.itemCodes || []).map(code => {
+      const item = state.items.find(i => i.code === code);
+      return `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20 mr-1 mb-1">${esc(code)}${item ? ' - ' + esc(item.name) : ''}</span>`;
+    }).join("");
 
     return `
-      <tr class="hover:bg-slate-900/40">
+      <tr class="hover:bg-slate-900/50">
         <td class="p-3.5 font-mono font-bold text-amber-400">${esc(p.participantNo)}</td>
         <td class="p-3.5 font-bold text-white">${esc(p.name)}</td>
-        <td class="p-3.5 text-slate-300">${esc(p.madrasa)}</td>
-        <td class="p-3.5 text-center font-bold text-slate-400">${esc(p.category)}</td>
-        <td class="p-3.5">${itemBadges}</td>
-        <td class="p-3.5 text-center">
-          <div class="flex justify-center items-center gap-1.5">
-            <button class="btn-secondary text-xs py-1 px-2.5 text-amber-400 hover:bg-amber-500/20" data-edit-p="${esc(p.participantNo)}"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button class="btn-secondary text-xs py-1 px-2.5 text-rose-400 hover:bg-rose-500/20" data-del-p="${esc(p.participantNo)}"><i class="fa-solid fa-trash"></i></button>
-          </div>
+        <td class="p-3.5 font-semibold text-slate-300">${esc(p.madrasa)}</td>
+        <td class="p-3.5 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-purple-500/10 text-purple-300 border border-purple-500/20">${esc(p.category)}</span></td>
+        <td class="p-3.5 max-w-xs">${itemsBadges || '<span class="text-xs text-slate-500 italic">No events assigned</span>'}</td>
+        <td class="p-3.5 text-center space-x-2">
+          <button class="btn-edit-p text-xs text-amber-400 hover:bg-amber-500/10 p-2 rounded-lg" data-no="${esc(p.participantNo)}"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+          <button class="btn-delete-p text-xs text-rose-400 hover:bg-rose-500/10 p-2 rounded-lg" data-no="${esc(p.participantNo)}"><i class="fa-solid fa-trash"></i></button>
         </td>
       </tr>
     `;
-  }).join("") : `<tr><td colspan="6" class="p-8 text-center text-slate-500">No contestants enrolled yet.</td></tr>`;
+  }).join("") : `<tr><td colspan="6" class="p-8 text-center text-slate-500 text-xs font-bold">No contestants registered matching filters.</td></tr>`;
 
-  $("admin-judges-list").innerHTML = state.judges.map(j => `
-    <div class="rounded-2xl border border-slate-800 p-4 bg-slate-900/50">
-      <div class="font-extrabold text-white text-base">${esc(j.name)}</div>
-      <div class="text-xs font-mono font-bold text-amber-400 mt-1">ID: ${esc(j.id)}</div>
-      <div class="text-xs text-slate-400 mt-0.5 truncate">${esc(j.email || "")}</div>
-    </div>
-  `).join("");
-
-  document.querySelectorAll("[data-edit-item]").forEach(b => b.onclick = () => editItem(b.dataset.editItem));
-  document.querySelectorAll("[data-edit-p]").forEach(b => b.onclick = () => editParticipant(b.dataset.editP));
-  document.querySelectorAll("[data-del-p]").forEach(b => b.onclick = () => deleteParticipant(b.dataset.delP));
-  
-  if (!state.editingParticipantNo) {
-    renderParticipantItemCheckboxes();
-  }
+  // Attach Edit/Delete listeners
+  document.querySelectorAll(".btn-edit-p").forEach(btn => {
+    btn.onclick = () => editParticipant(btn.dataset.no);
+  });
+  document.querySelectorAll(".btn-delete-p").forEach(btn => {
+    btn.onclick = async () => {
+      if (confirm(`Are you sure you want to delete contestant ${btn.dataset.no}?`)) {
+        try {
+          busy(true, "Deleting contestant...");
+          await deleteDoc(getPublicDoc("participants", btn.dataset.no));
+          toast("Contestant deleted", "success");
+        } catch (err) {
+          toast("Delete failed: " + err.message, "error");
+        } finally {
+          busy(false);
+        }
+      }
+    };
+  });
 }
 
-function editItem(code) {
-  const i = state.items.find(x => x.code === code);
-  if (!i) return;
-  $("new-code").value = i.code;
-  $("new-name").value = i.name;
-  $("new-category").value = i.category;
-  $("new-duration").value = i.duration;
-  $("new-marking").value = i.markingType;
-  $("new-total").value = i.totalMarks;
-  $("criteria-builder").innerHTML = "";
-  (i.criteria || []).forEach(c => addCriterion(c.name, c.maxMarks));
-  window.scrollTo({ top: document.getElementById("item-form").offsetTop - 100, behavior: "smooth" });
-}
-
-function editParticipant(id) {
-  const p = state.participants.find(x => x.participantNo === id);
+function editParticipant(participantNo) {
+  const p = state.participants.find(x => x.participantNo === participantNo);
   if (!p) return;
 
-  state.editingParticipantNo = p.participantNo;
+  state.editingParticipantNo = participantNo;
+  $("p-form-title").textContent = `Edit Contestant (${participantNo})`;
+  $("cancel-p-edit").classList.remove("hidden");
+  $("p-save-btn").innerHTML = `<i class="fa-solid fa-floppy-disk mr-2"></i> Update Contestant Profile`;
+
   $("p-no").value = p.participantNo;
-  $("p-no").readOnly = true;
-  $("p-name").value = p.name;
-  $("p-madrasa").value = p.madrasa;
-  $("p-category").value = p.category;
+  $("p-no").disabled = true;
+  $("p-name").value = p.name || "";
+  $("p-madrasa").value = p.madrasa || "";
+  $("p-category").value = p.category || CATEGORIES[0];
 
   renderParticipantItemCheckboxes(p.itemCodes || [], p.category);
-
-  $("p-form-title").textContent = `Edit Contestant (${p.participantNo})`;
-  $("p-save-btn").innerHTML = `<i class="fa-solid fa-floppy-disk mr-2"></i> Update Contestant Profile`;
-  $("cancel-p-edit").classList.remove("hidden");
-
-  window.scrollTo({ top: document.getElementById("participant-form").offsetTop - 100, behavior: "smooth" });
+  $("participant-form").scrollIntoView({ behavior: "smooth" });
 }
 
 function resetParticipantForm() {
   state.editingParticipantNo = null;
-  $("participant-form").reset();
-  $("p-no").readOnly = false;
-  $("p-form-title").textContent = `Register or Edit Contestant`;
-  $("p-save-btn").innerHTML = `<i class="fa-solid fa-user-plus mr-2"></i> Save Contestant Profile`;
+  $("p-form-title").textContent = "Register or Edit Individual Contestant";
   $("cancel-p-edit").classList.add("hidden");
-  renderParticipantItemCheckboxes();
+  $("p-save-btn").innerHTML = `<i class="fa-solid fa-user-plus mr-2"></i> Save Contestant Profile`;
+  $("p-no").disabled = false;
+  $("participant-form").reset();
+  renderParticipantItemCheckboxes([], $("p-category")?.value);
 }
 
-async function deleteParticipant(id) {
-  if (!confirm(`Are you sure you want to delete contestant ${id}?`)) return;
-  try {
-    busy(true, "Deleting Contestant Document…");
-    await deleteDoc(doc(db, "participants", id));
-    toast(`Contestant ${id} deleted successfully.`, "success");
-  } catch (err) {
-    toast(err.message, "error");
-  } finally {
-    busy(false);
-  }
-}
+// EXCEL PROCESSING ENGINE
+function setupExcelImporter() {
+  const dropzone = $("excel-dropzone");
+  const fileInput = $("excel-file-input");
 
-function addCriterion(name = "", max = 25) {
-  const row = document.createElement("div");
-  row.className = "grid grid-cols-[1fr_110px_40px] gap-2 items-center";
-  row.innerHTML = `
-    <input class="input-field crit-name" value="${esc(name)}" placeholder="Criterion Name" required>
-    <input class="input-field crit-max text-center font-bold" value="${max}" type="number" min="0" required>
-    <button type="button" class="btn-secondary text-rose-400 hover:bg-rose-500/20 p-2.5 remove-crit"><i class="fa-solid fa-trash"></i></button>
-  `;
-  row.querySelector(".remove-crit").onclick = () => row.remove();
-  $("criteria-builder").appendChild(row);
-}
+  if (!dropzone || !fileInput) return;
 
-async function saveItem(e) {
-  e.preventDefault();
-  const code = $("new-code").value.trim();
-  if (!code) { toast("Event code is required.", "error"); return; }
-  const criteria = [...document.querySelectorAll("#criteria-builder>div")].map((r, i) => ({
-    id: `c${i + 1}`,
-    name: r.querySelector(".crit-name").value.trim(),
-    maxMarks: Number(r.querySelector(".crit-max").value)
-  }));
-  if (!criteria.length) { toast("Add at least one criterion.", "error"); return; }
-  const payload = {
-    code,
-    name: $("new-name").value.trim(),
-    category: $("new-category").value,
-    duration: Number($("new-duration").value),
-    markingType: $("new-marking").value,
-    totalMarks: Number($("new-total").value),
-    criteria,
-    active: true,
-    updatedAt: serverTimestamp()
-  };
-  try {
-    busy(true, "Saving Item Document…");
-    await setDoc(doc(db, "items", code), payload, { merge: true });
-    toast("Event item document saved to Firebase.", "success");
-    e.target.reset();
-    $("criteria-builder").innerHTML = "";
-    addCriterion("Presentation", 40);
-    addCriterion("Content", 30);
-    addCriterion("Memorization", 30);
-  } catch (err) {
-    toast(err.message, "error");
-  } finally {
-    busy(false);
-  }
-}
+  dropzone.onclick = () => fileInput.click();
 
-async function saveParticipant(e) {
-  e.preventDefault();
-  const id = $("p-no").value.trim();
-  if (!id) return;
-
-  const itemCodes = [...document.querySelectorAll(".p-item-checkbox:checked")].map(cb => cb.value);
-
-  const p = {
-    participantNo: id,
-    name: $("p-name").value.trim(),
-    madrasa: $("p-madrasa").value.trim(),
-    category: $("p-category").value,
-    itemCodes: itemCodes,
-    updatedAt: serverTimestamp()
+  dropzone.ondragover = (e) => {
+    e.preventDefault();
+    dropzone.classList.add("drag-over");
   };
 
-  try {
-    busy(true, "Saving Contestant Profile…");
-    await setDoc(doc(db, "participants", id), p, { merge: true });
-    toast("Contestant profile saved successfully.", "success");
-    resetParticipantForm();
-  } catch (err) {
-    toast(err.message, "error");
-  } finally {
-    busy(false);
-  }
-}
-
-async function saveJudge(e) {
-  e.preventDefault();
-  const id = $("j-id").value.trim();
-  const j = {
-    id,
-    name: $("j-name").value.trim(),
-    email: $("j-email").value.trim().toLowerCase(),
-    role: "judge",
-    updatedAt: serverTimestamp()
+  dropzone.ondragleave = () => {
+    dropzone.classList.remove("drag-over");
   };
-  try {
-    busy(true, "Saving Judge Profile…");
-    await setDoc(doc(db, "judges", id), j, { merge: true });
-    toast("Judge account saved.", "success");
-    e.target.reset();
-  } catch (err) {
-    toast(err.message, "error");
-  } finally {
-    busy(false);
-  }
+
+  dropzone.ondrop = (e) => {
+    e.preventDefault();
+    dropzone.classList.remove("drag-over");
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleExcelFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  fileInput.onchange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      handleExcelFile(e.target.files[0]);
+      fileInput.value = "";
+    }
+  };
+
+  $("btn-download-template").onclick = downloadExcelTemplate;
+  $("btn-export-contestants").onclick = exportContestantsToExcel;
+
+  $("close-excel-modal").onclick = $("cancel-excel-import").onclick = () => {
+    $("excel-modal").classList.add("hidden");
+  };
+
+  $("confirm-excel-import").onclick = executeExcelImport;
 }
 
-function populateAll() {
-  populateCategorySelect("item-category", true);
-  populateCategorySelect("new-category");
-  populateCategorySelect("p-category");
-  $("results-item").innerHTML = `<option value="">All Event Items</option>` + state.items.map(i => `<option value="${esc(i.code)}">${esc(i.code)} · ${esc(i.name)}</option>`).join("");
-  $("qr-item").innerHTML = `<option value="">Select Event for QR Pass…</option>` + state.items.map(i => `<option value="${esc(i.code)}">${esc(i.code)} · ${esc(i.name)}</option>`).join("");
-  renderHome();
-  renderItems();
-  renderAdmin();
-  renderResults();
+function handleExcelFile(file) {
+  const reader = new FileReader();
+  busy(true, "Reading Excel File...");
+
+  reader.onload = (e) => {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const json = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+      if (!json || !json.length) {
+        toast("The uploaded Excel file contains no data rows", "error");
+        busy(false);
+        return;
+      }
+
+      parseAndPreviewExcelRows(json);
+    } catch (err) {
+      console.error(err);
+      toast("Failed to parse Excel file: " + err.message, "error");
+    } finally {
+      busy(false);
+    }
+  };
+
+  reader.readAsArrayBuffer(file);
 }
 
-async function signInAdmin(email, password) {
-  try {
-    busy(true, "Authenticating Coordinator…");
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    const own = await getDoc(doc(db, "users", cred.user.uid));
-    state.user = cred.user;
-    $("admin-login-card").classList.add("hidden");
-    $("admin-panel").classList.remove("hidden");
-    $("admin-name").textContent = own.exists() ? own.data().name : "Coordinator Admin";
-    $("admin-email-display").textContent = cred.user.email;
-    toast("Admin signed in.", "success");
-  } catch (e) {
-    toast(e.message, "error");
-  } finally {
-    busy(false);
-  }
-}
+function parseAndPreviewExcelRows(rows) {
+  const parsed = [];
 
-async function seed() {
-  try {
-    busy(true, "Seeding Firestore Data…");
-    for (const i of INITIAL_ITEMS) await setDoc(doc(db, "items", i.code), { ...i, seededAt: serverTimestamp() }, { merge: true });
-    for (const p of INITIAL_PARTICIPANTS) await setDoc(doc(db, "participants", p.participantNo), { ...p, seededAt: serverTimestamp() }, { merge: true });
-    toast("Standard datasets seeded to cloud Firestore.", "success");
-  } catch (e) {
-    toast(e.message, "error");
-  } finally {
-    busy(false);
-  }
-}
+  rows.forEach((row, idx) => {
+    // Smart Header Finder Logic
+    let pNo = "", name = "", madrasa = "", category = "", itemsRaw = "";
 
-$("seed-btn").onclick = seed;
-$("item-search").oninput = renderItems;
-$("item-category").onchange = renderItems;
-$("results-item").onchange = renderResults;
-$("admin-login-form").onsubmit = e => { e.preventDefault(); signInAdmin($("admin-email").value.trim(), $("admin-password").value); };
-$("admin-logout").onclick = async () => { await signOut(auth); $("admin-login-card").classList.remove("hidden"); $("admin-panel").classList.add("hidden"); toast("Signed out.", "info"); };
-$("item-form").onsubmit = saveItem;
-$("participant-form").onsubmit = saveParticipant;
-$("p-category").onchange = () => renderParticipantItemCheckboxes();
-$("cancel-p-edit").onclick = resetParticipantForm;
-$("judge-form").onsubmit = saveJudge;
-$("add-criterion").onclick = () => addCriterion();
-$("print-qr").onclick = () => window.print();
+    for (const [key, val] of Object.entries(row)) {
+      const k = key.trim().toLowerCase();
+      const v = String(val).trim();
 
-document.querySelectorAll(".nav-btn").forEach(b => b.onclick = () => setView(b.dataset.view));
-$("mobile-menu-toggle").onclick = () => $("mobile-menu").classList.toggle("hidden");
+      if (k.includes("chest") || k.includes("id") || k.includes("participant") || k.includes("no") || k.includes("code") || k === "sl") {
+        if (!pNo) pNo = v;
+      } else if (k.includes("name") || k.includes("student") || k.includes("contestant")) {
+        if (!name) name = v;
+      } else if (k.includes("madrasa") || k.includes("unit") || k.includes("school")) {
+        if (!madrasa) madrasa = v;
+      } else if (k.includes("cat") || k.includes("division") || k.includes("class")) {
+        if (!category) category = v;
+      } else if (k.includes("item") || k.includes("event") || k.includes("code")) {
+        itemsRaw += (itemsRaw ? "," : "") + v;
+      }
+    }
 
-document.querySelectorAll(".admin-tab").forEach(b => b.onclick = () => {
-  document.querySelectorAll(".admin-tab-panel").forEach(p => p.classList.add("hidden"));
-  $(`admin-${b.dataset.tab}-tab`).classList.remove("hidden");
-  document.querySelectorAll(".admin-tab").forEach(x => x.className = "admin-tab btn-secondary text-xs px-4 py-2.5");
-  b.className = "admin-tab btn-primary text-xs px-4 py-2.5 text-slate-950 font-black";
-});
+    // Auto-assign ID if missing
+    if (!pNo && name) {
+      pNo = `P${String(state.participants.length + idx + 1).padStart(3, "0")}`;
+    }
 
-$("make-qr").onclick = () => {
-  const i = state.items.find(x => x.code === $("qr-item").value);
-  if (!i) { toast("Select an event item.", "error"); return; }
-  $("qr-code-label").textContent = `EVENT CODE: ${i.code}`;
-  $("qr-name").textContent = i.name;
-  $("qr-cat").textContent = `${i.category} Division · ${i.duration} Minutes`;
-  $("qr-box").innerHTML = "";
-  const origin = location.origin + location.pathname.replace('work.html','');
-  const url = `${origin}judge.html?item=${encodeURIComponent(i.code)}`;
-  new QRCode($("qr-box"), {
-    text: url,
-    width: 200,
-    height: 200,
-    colorDark: "#0f172a",
-    colorLight: "#ffffff",
-    correctLevel: QRCode.CorrectLevel.H
+    // Process Item Codes array (comma / space separated)
+    let itemCodes = [];
+    if (itemsRaw) {
+      itemCodes = itemsRaw.split(/[\s,;]+/).map(x => x.trim()).filter(Boolean);
+    }
+
+    if (name) {
+      parsed.push({
+        participantNo: pNo,
+        name: name,
+        madrasa: madrasa || "Nandi Unit",
+        category: CATEGORIES.includes(category) ? category : "Kids",
+        itemCodes: itemCodes,
+        valid: true
+      });
+    }
   });
-};
 
-try {
-  const app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  auth = getAuth(app);
-  onAuthStateChanged(auth, u => { if(u) state.user = u; });
+  if (!parsed.length) {
+    toast("Could not locate Contestant Name columns in Excel file", "error");
+    return;
+  }
 
-  state.unsubs.push(
-    onSnapshot(collection(db, "items"), s => { state.items = s.docs.map(d => d.data()); populateAll(); }),
-    onSnapshot(collection(db, "participants"), s => { state.participants = s.docs.map(d => d.data()); populateAll(); }),
-    onSnapshot(collection(db, "judges"), s => { state.judges = s.docs.map(d => d.data()); populateAll(); }),
-    onSnapshot(collection(db, "scores"), s => { state.scores = s.docs.map(d => d.data()); populateAll(); })
-  );
-} catch (e) {
-  toast("Firebase connection warning.", "error");
+  state.parsedExcelData = parsed;
+
+  $("excel-total-count").textContent = parsed.length;
+  $("excel-valid-count").textContent = parsed.filter(p => p.valid).length;
+
+  $("excel-preview-body").innerHTML = parsed.map((p, i) => `
+    <tr class="hover:bg-slate-900/60">
+      <td class="p-3 font-mono text-slate-500">${i + 1}</td>
+      <td class="p-3 font-bold text-amber-400 font-mono">${esc(p.participantNo)}</td>
+      <td class="p-3 font-extrabold text-white">${esc(p.name)}</td>
+      <td class="p-3 text-slate-300">${esc(p.madrasa)}</td>
+      <td class="p-3"><span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-bold text-[10px]">${esc(p.category)}</span></td>
+      <td class="p-3">${p.itemCodes.length ? p.itemCodes.map(c => `<span class="inline-block px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 font-mono text-[10px] mr-1">${esc(c)}</span>`).join("") : '<span class="text-slate-500 italic">None</span>'}</td>
+      <td class="p-3 text-center"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold text-[10px]">Ready</span></td>
+    </tr>
+  `).join("");
+
+  $("excel-modal").classList.remove("hidden");
 }
 
-addCriterion("Presentation", 40);
-addCriterion("Content", 30);
-addCriterion("Memorization", 30);
-setView("home");
+async function executeExcelImport() {
+  if (!state.parsedExcelData.length) return;
+
+  const overwrite = $("excel-overwrite").checked;
+  busy(true, "Importing Excel Contestants to Firestore...");
+
+  let successCount = 0;
+  let skippedCount = 0;
+
+  try {
+    for (const p of state.parsedExcelData) {
+      const docRef = getPublicDoc("participants", p.participantNo);
+
+      if (!overwrite) {
+        const existing = await getDoc(docRef);
+        if (existing.exists()) {
+          skippedCount++;
+          continue;
+        }
+      }
+
+      await setDoc(docRef, {
+        participantNo: p.participantNo,
+        name: p.name,
+        madrasa: p.madrasa,
+        category: p.category,
+        itemCodes: p.itemCodes || [],
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      successCount++;
+    }
+
+    toast(`Successfully imported ${successCount} contestants! ${skippedCount ? `(${skippedCount} skipped)` : ''}`, "success");
+    $("excel-modal").classList.add("hidden");
+  } catch (err) {
+    console.error(err);
+    toast("Import Error: " + err.message, "error");
+  } finally {
+    busy(false);
+  }
+}
+
+function downloadExcelTemplate() {
+  const templateData = [
+    { "Chest No": "P001", "Name": "Muhamed Ameen", "Madrasa Unit": "Nandi Unit", "Category": "Kids", "Item Codes": "101, 102, 103" },
+    { "Chest No": "P002", "Name": "Fathima Raniya", "Madrasa Unit": "Nandi Unit", "Category": "Kids", "Item Codes": "101, 104, 105" },
+    { "Chest No": "P101", "Name": "Zayan Ahmed", "Madrasa Unit": "Nandi Unit", "Category": "Children", "Item Codes": "201, 203" }
+  ];
+
+  const ws = XLSX.utils.json_to_sheet(templateData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Contestants_Template");
+  XLSX.writeFile(wb, "SARAGA_Contestants_Import_Template.xlsx");
+}
+
+function exportContestantsToExcel() {
+  if (!state.participants.length) {
+    toast("No contestants registered to export", "error");
+    return;
+  }
+
+  const exportData = state.participants.map(p => ({
+    "Chest No": p.participantNo,
+    "Full Name": p.name,
+    "Madrasa Unit": p.madrasa,
+    "Category": p.category,
+    "Participating Item Codes": (p.itemCodes || []).join(", ")
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Registered_Contestants");
+  XLSX.writeFile(wb, `SARAGA_2026-27_Contestants_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+function setupCriteriaBuilder() {
+  const container = $("criteria-builder");
+  const addBtn = $("add-criterion");
+
+  if (!container || !addBtn) return;
+
+  function renderRow(id = `c${Date.now()}`, name = "", maxMarks = 25) {
+    const div = document.createElement("div");
+    div.className = "flex gap-2 items-center criterion-row";
+    div.innerHTML = `
+      <input class="input-field py-2 text-xs c-name" placeholder="Criterion Name" value="${esc(name)}" required>
+      <input class="input-field py-2 text-xs font-bold w-28 c-max" type="number" min="1" placeholder="Marks" value="${maxMarks}" required>
+      <button type="button" class="btn-secondary py-2 px-3 text-rose-400 hover:bg-rose-500/10 text-xs text-remove-c"><i class="fa-solid fa-trash"></i></button>
+    `;
+    div.querySelector(".text-remove-c").onclick = () => {
+      if (container.children.length > 1) div.remove();
+      else toast("At least one criterion is required", "error");
+    };
+    container.appendChild(div);
+  }
+
+  addBtn.onclick = () => renderRow();
+
+  // Initial default rows
+  if (!container.children.length) {
+    renderRow("c1", "Memorization & Pronunciation", 50);
+    renderRow("c2", "Tajweed / Melody", 30);
+    renderRow("c3", "Presentation", 20);
+  }
+}
+
+async function seedInitialData() {
+  busy(true, "Seeding Standard Event & Contestant Documents…");
+  try {
+    for (const item of INITIAL_ITEMS) {
+      await setDoc(getPublicDoc("items", item.code), { ...item, updatedAt: serverTimestamp() });
+    }
+    for (const p of INITIAL_PARTICIPANTS) {
+      await setDoc(getPublicDoc("participants", p.participantNo), { ...p, updatedAt: serverTimestamp() });
+    }
+    toast("Database successfully seeded!", "success");
+  } catch (err) {
+    toast("Seeding Error: " + err.message, "error");
+  } finally {
+    busy(false);
+  }
+}
+
+function initRealtimeListeners() {
+  state.unsubs.forEach(unsub => unsub());
+  state.unsubs = [];
+
+  // 1. Items Listener
+  state.unsubs.push(
+    onSnapshot(getPublicCol("items"), snapshot => {
+      state.items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      state.items.sort((a, b) => a.code.localeCompare(b.code));
+      renderHome();
+      renderItems();
+      renderAdmin();
+      renderParticipantItemCheckboxes([], $("p-category")?.value);
+    }, err => console.error("Items listener error:", err))
+  );
+
+  // 2. Participants Listener
+  state.unsubs.push(
+    onSnapshot(getPublicCol("participants"), snapshot => {
+      state.participants = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      state.participants.sort((a, b) => a.participantNo.localeCompare(b.participantNo));
+      renderHome();
+      renderParticipantsTable();
+    }, err => console.error("Participants listener error:", err))
+  );
+
+  // 3. Judges Listener
+  state.unsubs.push(
+    onSnapshot(getPublicCol("judges"), snapshot => {
+      state.judges = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderHome();
+      renderAdmin();
+    }, err => console.error("Judges listener error:", err))
+  );
+
+  // 4. Scores Listener
+  state.unsubs.push(
+    onSnapshot(getPublicCol("scores"), snapshot => {
+      state.scores = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      renderHome();
+      renderResults();
+    }, err => console.error("Scores listener error:", err))
+  );
+}
+
+// App Initialization
+window.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+
+    populateCategorySelect("new-category");
+    populateCategorySelect("p-category");
+    populateCategorySelect("p-filter-cat", true);
+    populateCategorySelect("item-category", true);
+
+    setupCriteriaBuilder();
+    setupExcelImporter();
+
+    // Attach Category Change Listener to update item checkboxes
+    $("p-category").onchange = (e) => {
+      renderParticipantItemCheckboxes([], e.target.value);
+    };
+
+    // Attach Navigation Listener
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+      btn.onclick = () => setView(btn.dataset.view);
+    });
+
+    $("mobile-menu-toggle").onclick = () => {
+      $("mobile-menu").classList.toggle("hidden");
+    };
+
+    $("seed-btn").onclick = seedInitialData;
+
+    // Search and filter listeners
+    $("item-search").oninput = renderItems;
+    $("item-category").onchange = renderItems;
+    $("results-item").onchange = renderResults;
+    $("p-search-input").oninput = renderParticipantsTable;
+    $("p-filter-cat").onchange = renderParticipantsTable;
+
+    // Admin Tabs Switching
+    document.querySelectorAll(".admin-tab").forEach(tab => {
+      tab.onclick = () => {
+        document.querySelectorAll(".admin-tab").forEach(t => {
+          t.classList.remove("btn-primary");
+          t.classList.add("btn-secondary");
+        });
+        tab.classList.remove("btn-secondary");
+        tab.classList.add("btn-primary");
+
+        document.querySelectorAll(".admin-tab-panel").forEach(p => p.classList.add("hidden"));
+        $(`admin-${tab.dataset.tab}-tab`).classList.remove("hidden");
+      };
+    });
+
+    // Item Save Form
+    $("item-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const code = $("new-code").value.trim();
+      const name = $("new-name").value.trim();
+      const category = $("new-category").value;
+      const duration = Number($("new-duration").value);
+      const markingType = $("new-marking").value;
+      const totalMarks = Number($("new-total").value);
+
+      const criteria = [];
+      document.querySelectorAll(".criterion-row").forEach((row, i) => {
+        criteria.push({
+          id: `c${i + 1}`,
+          name: row.querySelector(".c-name").value.trim(),
+          maxMarks: Number(row.querySelector(".c-max").value)
+        });
+      });
+
+      try {
+        busy(true, "Saving Event Item...");
+        await setDoc(getPublicDoc("items", code), {
+          code, name, category, duration, markingType, totalMarks, criteria, updatedAt: serverTimestamp()
+        }, { merge: true });
+        toast("Event Item saved successfully!", "success");
+        $("item-form").reset();
+      } catch (err) {
+        toast("Save failed: " + err.message, "error");
+      } finally {
+        busy(false);
+      }
+    };
+
+    // Contestant Manual Form Submission
+    $("participant-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const participantNo = $("p-no").value.trim();
+      const name = $("p-name").value.trim();
+      const madrasa = $("p-madrasa").value.trim();
+      const category = $("p-category").value;
+
+      // Extract checked item codes
+      const itemCodes = [];
+      document.querySelectorAll(".p-item-checkbox:checked").forEach(cb => itemCodes.push(cb.value));
+
+      try {
+        busy(true, "Saving Contestant Profile...");
+        await setDoc(getPublicDoc("participants", participantNo), {
+          participantNo, name, madrasa, category, itemCodes, updatedAt: serverTimestamp()
+        }, { merge: true });
+        toast("Contestant profile saved successfully!", "success");
+        resetParticipantForm();
+      } catch (err) {
+        toast("Save failed: " + err.message, "error");
+      } finally {
+        busy(false);
+      }
+    };
+
+    $("cancel-p-edit").onclick = resetParticipantForm;
+
+    // Judge Form Submission
+    $("judge-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const judgeId = $("j-id").value.trim();
+      const name = $("j-name").value.trim();
+      const email = $("j-email").value.trim();
+
+      try {
+        busy(true, "Onboarding Evaluator Account...");
+        await setDoc(getPublicDoc("judges", judgeId), {
+          judgeId, name, email, createdAt: serverTimestamp()
+        }, { merge: true });
+        toast("Judge evaluator onboarded!", "success");
+        $("judge-form").reset();
+      } catch (err) {
+        toast("Failed: " + err.message, "error");
+      } finally {
+        busy(false);
+      }
+    };
+
+    // QR Code Builder
+    $("make-qr").onclick = () => {
+      const code = $("qr-item").value;
+      const item = state.items.find(i => i.code === code);
+      if (!item) {
+        toast("Please select an event item", "error");
+        return;
+      }
+
+      $("qr-code-label").textContent = `ITEM CODE ${item.code}`;
+      $("qr-name").textContent = item.name;
+      $("qr-cat").textContent = `Division Category: ${item.category} · Duration: ${item.duration} Min`;
+
+      const qrBox = $("qr-box");
+      qrBox.innerHTML = "";
+      const url = `${window.location.origin}/judge.html?item=${encodeURIComponent(item.code)}`;
+
+      new QRCode(qrBox, {
+        text: url,
+        width: 180,
+        height: 180,
+        colorDark: "#0f172a",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    };
+
+    $("print-qr").onclick = () => window.print();
+
+    // Admin Auth Listener
+    $("admin-login-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const email = $("admin-email").value;
+      const password = $("admin-password").value;
+      try {
+        busy(true, "Authenticating Coordinator...");
+        await signInWithEmailAndPassword(auth, email, password);
+        toast("Welcome back Coordinator!", "success");
+      } catch (err) {
+        toast("Login Failed: " + err.message, "error");
+      } finally {
+        busy(false);
+      }
+    };
+
+    $("admin-logout").onclick = async () => {
+      try {
+        await signOut(auth);
+        toast("Signed out session", "info");
+      } catch (err) {
+        toast("Logout failed: " + err.message, "error");
+      }
+    };
+
+    // Auth State
+    onAuthStateChanged(auth, async (u) => {
+      if (u) {
+        state.user = u;
+        initRealtimeListeners();
+      } else {
+        try {
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+          } else {
+            await signInAnonymously(auth);
+          }
+        } catch (err) {
+          console.error("Auth init error:", err);
+        }
+      }
+      renderAdmin();
+    });
+
+  } catch (err) {
+    console.error("Initialization Failed:", err);
+  }
+});
 </script>
 </body>
 </html>
