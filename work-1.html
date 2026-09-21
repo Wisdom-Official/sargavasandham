@@ -50,6 +50,8 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#f8fafc;color:#0f
 .btn-primary:hover{filter:brightness(1.05)}
 .btn-secondary{background:#f1f5f9;color:#334155;border:1px solid #cbd5e1}
 .btn-secondary:hover{background:#e2e8f0}
+.btn-amber{background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%);color:#ffffff;box-shadow:0 4px 15px rgba(245,158,11,0.3)}
+.btn-amber:hover{filter:brightness(1.05)}
 .input-box{width:100%;border:1px solid #cbd5e1;border-radius:1rem;padding:0.875rem 1.25rem;outline:0;background:#ffffff;color:#0f172a;font-size:1rem;transition:all 0.2s ease}
 .input-box:focus{border-color:#ec4899;box-shadow:0 0 0 4px rgba(236,72,153,0.15)}
 .toast-anim{animation:slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)}
@@ -58,6 +60,8 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#f8fafc;color:#0f
 .stepper-btn:active{background:#ec4899;color:#fff;transform:scale(0.92)}
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+.pulse-lock{animation:pulseLock 2s infinite}
+@keyframes pulseLock{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 </style>
 </head>
 
@@ -67,7 +71,7 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#f8fafc;color:#0f
   <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
     <div class="flex items-center gap-3">
       <div class="h-10 w-auto p-1 flex items-center justify-center shrink-0">
-        <img src="SargHor.png" alt="സർഗ വസന്തം 2026-27" class="max-h-8 w-auto object-contain">
+        <img src="SargHor.png" alt="സർഗ വസന്തം 2026-27" class="max-h-8 w-auto object-contain" onerror="this.src='https://placehold.co/180x40/f1f5f9/ec4899?text=Sarga+Vasantham'">
       </div>
       <div class="hidden sm:block border-l border-slate-200 pl-3">
         <h1 class="text-xs font-black uppercase tracking-wider text-slate-500">Judge Terminal</h1>
@@ -76,8 +80,8 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#f8fafc;color:#0f
 
     <div class="flex items-center gap-2.5">
       <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
-        <img src="Wisdom Education Board Logo.png" alt="Wisdom Education Board Logo.png" class="h-5 w-5 object-contain">
-        <img src="madrasa.png" alt="madrasa.png" class="h-5 w-5 object-contain hidden md:block">
+        <img src="Wisdom Education Board Logo.png" alt="Wisdom Education Board Logo" class="h-5 w-5 object-contain" onerror="this.src='https://placehold.co/20x20/7c3aed/ffffff?text=W'">
+        <img src="madrasa.png" alt="madrasa.png" class="h-5 w-5 object-contain hidden md:block" onerror="this.src='https://placehold.co/20x20/ec4899/ffffff?text=M'">
       </div>
       <button id="auth-status-btn" class="touch-btn btn-secondary text-xs py-2 px-3.5">
         <i class="fa-solid fa-user-check text-pink-600"></i> <span id="judge-status-label">Sign In</span>
@@ -88,6 +92,7 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#f8fafc;color:#0f
 
 <div id="toast" class="fixed bottom-6 right-4 left-4 sm:left-auto z-50 w-auto sm:w-96 space-y-2 pointer-events-none"></div>
 
+<!-- Loading Overlay -->
 <div id="loading" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4">
   <div class="glass-card p-8 text-center max-w-xs w-full shadow-2xl">
     <div class="w-14 h-14 rounded-2xl bg-pink-100 text-pink-600 mx-auto flex items-center justify-center text-xl mb-3 border border-pink-200 animate-spin">
@@ -104,6 +109,44 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#f8fafc;color:#0f
     <h3 class="text-lg font-black text-slate-900 text-center mb-1"><i class="fa-solid fa-qrcode text-pink-600 mr-2"></i> Scan Event QR Code</h3>
     <p class="text-xs text-slate-500 text-center mb-4">Point your camera at the competition item pass</p>
     <div id="reader" class="rounded-2xl overflow-hidden border border-slate-200 bg-black min-h-[250px]"></div>
+  </div>
+</div>
+
+<!-- Controller Access Password Modal -->
+<div id="controller-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div class="glass-card p-6 sm:p-8 max-w-md w-full relative shadow-2xl bg-white space-y-5">
+    <button id="close-controller-modal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 p-2 text-lg">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <div class="text-center space-y-2">
+      <div class="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 mx-auto flex items-center justify-center text-2xl pulse-lock">
+        <i class="fa-solid fa-key"></i>
+      </div>
+      <h3 class="text-xl font-black text-slate-900">Controller Security Passcode</h3>
+      <p class="text-xs text-slate-500">Enter controller password to unlock item selection & direct code access.</p>
+    </div>
+
+    <form id="controller-pass-form" class="space-y-4">
+      <div>
+        <label class="text-xs font-extrabold text-slate-600 uppercase tracking-wider block mb-1.5">Controller Password</label>
+        <div class="relative">
+          <input id="controller-pass-input" type="password" required class="input-box pr-10" placeholder="••••••••" autocomplete="current-password">
+          <button type="button" id="toggle-pass-visibility" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1.5 text-sm">
+            <i class="fa-solid fa-eye" id="pass-eye-icon"></i>
+          </button>
+        </div>
+      </div>
+      <div id="controller-error-msg" class="hidden text-xs font-extrabold text-rose-600 bg-rose-50 border border-rose-200 p-3 rounded-xl flex items-center gap-2">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>Invalid Controller Password! Please try again.</span>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" id="cancel-controller-modal" class="touch-btn btn-secondary w-1/2 py-3">Cancel</button>
+        <button type="submit" class="touch-btn btn-amber w-1/2 py-3 font-extrabold">
+          <i class="fa-solid fa-unlock mr-1"></i> Unlock
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -158,14 +201,26 @@ body{font-family:'Inter',system-ui,sans-serif;background-color:#f8fafc;color:#0f
           <h2 class="text-lg font-black text-slate-900 flex items-center gap-2">
             <i class="fa-solid fa-compass text-pink-600"></i> Event Selection
           </h2>
-          <p class="text-xs text-slate-500 mt-0.5">Choose competition item or scan QR code pass</p>
+          <p class="text-xs text-slate-500 mt-0.5">Scan event QR code pass or tap lock icon for controller access</p>
         </div>
-        <button id="open-scan-btn" class="touch-btn btn-secondary text-xs py-2.5 px-4 self-start sm:self-auto border-pink-200 text-pink-700 bg-pink-50/50 hover:bg-pink-50">
-          <i class="fa-solid fa-camera text-pink-600"></i> Scan QR Code Pass
-        </button>
+        
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+          <!-- QR Scanner Button -->
+          <button id="open-scan-btn" class="touch-btn btn-secondary text-xs py-2.5 px-3.5 border-pink-200 text-pink-700 bg-pink-50/50 hover:bg-pink-50" title="Scan QR Code Pass">
+            <i class="fa-solid fa-camera text-pink-600"></i>
+            <span class="hidden sm:inline">Scan QR Code Pass</span>
+            <span class="sm:hidden">Scan QR</span>
+          </button>
+
+          <!-- Controller Lock/Unlock Icon Button -->
+          <button id="toggle-controller-btn" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-600 flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95" title="Controller Access Lock/Unlock">
+            <i id="controller-btn-icon" class="fa-solid fa-lock text-slate-500 text-base"></i>
+          </button>
+        </div>
       </div>
 
-      <div class="grid md:grid-cols-12 gap-4 items-end">
+      <!-- DYNAMICALLY UNLOCKED CONTROLS: Choose Competition Item & Direct Event Code -->
+      <div id="controller-controls-container" class="hidden grid md:grid-cols-12 gap-4 items-end bg-slate-50/80 p-4 sm:p-5 rounded-2xl border border-slate-200/80">
         <div class="md:col-span-8 space-y-1.5">
           <label class="text-xs font-extrabold text-slate-600 uppercase tracking-wider block">Choose Competition Item</label>
           <div class="relative">
@@ -287,7 +342,19 @@ const firebaseConfig = {
 };
 
 let db, auth;
-const state = { items: [], participants: [], judges: [], scores: [], user: null, profile: null, currentItem: null, html5Qr: null };
+const state = { 
+  items: [], 
+  participants: [], 
+  judges: [], 
+  scores: [], 
+  user: null, 
+  profile: null, 
+  currentItem: null, 
+  html5Qr: null,
+  isControllerUnlocked: false
+};
+
+const CONTROLLER_PASSWORD = "controler@sarga";
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
@@ -342,6 +409,68 @@ function updateWorkspaceUI() {
     $("judge-auth-card").classList.remove("hidden");
     $("judge-workspace").classList.add("hidden");
     $("judge-status-label").textContent = "Sign In";
+  }
+}
+
+// Controller Passcode Lock/Unlock UI Logic
+function toggleControllerAccessUI(unlocked) {
+  state.isControllerUnlocked = unlocked;
+  const btn = $("toggle-controller-btn");
+  const icon = $("controller-btn-icon");
+
+  if (unlocked) {
+    $("controller-controls-container").classList.remove("hidden");
+    if (btn && icon) {
+      btn.className = "w-10 h-10 rounded-xl bg-amber-500 hover:bg-amber-600 text-white flex items-center justify-center transition-all cursor-pointer shadow-md active:scale-95 border border-amber-600";
+      icon.className = "fa-solid fa-unlock text-white text-base";
+      btn.title = "Controller Unlocked - Tap to Lock Access";
+    }
+  } else {
+    $("controller-controls-container").classList.add("hidden");
+    if (btn && icon) {
+      btn.className = "w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-95 border border-slate-300";
+      icon.className = "fa-solid fa-lock text-slate-500 text-base";
+      btn.title = "Tap to unlock Controller Access";
+    }
+  }
+}
+
+function handleControllerToggle() {
+  if (state.isControllerUnlocked) {
+    toggleControllerAccessUI(false);
+    toast("Controller access locked.", "info");
+  } else {
+    openControllerModal();
+  }
+}
+
+function openControllerModal() {
+  if (state.isControllerUnlocked) {
+    toast("Controller access is already unlocked.", "info");
+    return;
+  }
+  $("controller-pass-input").value = "";
+  $("controller-error-msg").classList.add("hidden");
+  $("controller-modal").classList.remove("hidden");
+  $("controller-modal").classList.add("flex");
+  setTimeout(() => $("controller-pass-input").focus(), 100);
+}
+
+function closeControllerModal() {
+  $("controller-modal").classList.add("hidden");
+  $("controller-modal").classList.remove("flex");
+}
+
+function handleControllerUnlock(e) {
+  e.preventDefault();
+  const enteredPass = $("controller-pass-input").value;
+  if (enteredPass === CONTROLLER_PASSWORD) {
+    closeControllerModal();
+    toggleControllerAccessUI(true);
+    toast("Controller mode activated! Manual event controls unlocked.", "success");
+  } else {
+    $("controller-error-msg").classList.remove("hidden");
+    $("controller-pass-input").focus();
   }
 }
 
@@ -560,6 +689,25 @@ $("participant-select").onchange = checkExistingScore;
 $("score-form").onsubmit = submitScoreSheet;
 $("open-scan-btn").onclick = startScanner;
 $("close-qr").onclick = stopScanner;
+
+// Controller Password Modal Bindings
+$("toggle-controller-btn").onclick = handleControllerToggle;
+$("close-controller-modal").onclick = closeControllerModal;
+$("cancel-controller-modal").onclick = closeControllerModal;
+$("controller-pass-form").onsubmit = handleControllerUnlock;
+
+// Password eye toggle
+$("toggle-pass-visibility").onclick = () => {
+  const inp = $("controller-pass-input");
+  const icon = $("pass-eye-icon");
+  if (inp.type === "password") {
+    inp.type = "text";
+    icon.className = "fa-solid fa-eye-slash";
+  } else {
+    inp.type = "password";
+    icon.className = "fa-solid fa-eye";
+  }
+};
 
 try {
   const app = initializeApp(firebaseConfig);
