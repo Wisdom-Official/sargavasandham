@@ -1,1492 +1,1136 @@
 
-<!doctype html>
-<html lang="en" class="h-full scroll-smooth">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0f172a">
-<title>SARAGA 2026–27 | Digital Scoring & Admin Hub</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-tailwind.config={
-  darkMode:'class',
-  theme:{
-    extend:{
-      colors:{
-        brand:{
-          50:'#f0fdf4',
-          100:'#dcfce7',
-          800:'#1e293b',
-          900:'#0f172a',
-          950:'#020617',
-          gold:'#d97706',
-          gold2:'#f59e0b',
-          teal:'#0d9488',
-          accent:'#ec4899'
-        }
-      },
-      fontFamily:{
-        sans:['Inter','system-ui','-apple-system','sans-serif']
-      },
-      boxShadow:{
-        'glass':'0 8px 32px 0 rgba(15, 23, 42, 0.12)',
-        'glow':'0 0 25px -2px rgba(217, 119, 6, 0.35)'
-      }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SARAGA Arts Fest - Digital Scoring & Management Hub</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Inter & Noto Sans Malayalam -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- XLSX Library for Excel Import/Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans Malayalam', sans-serif;
     }
-  }
-};
-</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<!-- QR Code Library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<!-- SheetJS XLSX Library for Parsing & Generating Excel Files -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-<style>
-*{box-sizing:border-box}
-body{font-family:'Inter',system-ui,sans-serif;background-color:#0b1329;color:#f8fafc;min-height:100vh;display:flex;flex-direction:column}
-.glass-card{background:rgba(15, 23, 42, 0.75);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);border-radius:1.5rem;box-shadow:0 12px 40px -8px rgba(0,0,0,0.4)}
-.card-hover{transition:all 0.25s cubic-bezier(0.4, 0, 0.2, 1)}
-.card-hover:hover{transform:translateY(-3px);border-color:rgba(217,119,6,0.4);box-shadow:0 20px 40px -10px rgba(217,119,6,0.15)}
-.btn-primary{background:linear-gradient(135deg, #d97706 0%, #f59e0b 100%);color:#0f172a;font-weight:800;border-radius:1rem;padding:0.75rem 1.5rem;transition:all 0.2s ease;box-shadow:0 4px 20px rgba(217,119,6,0.3)}
-.btn-primary:hover{transform:scale(1.02);filter:brightness(1.1)}
-.btn-secondary{background:rgba(255,255,255,0.06);color:#f1f5f9;border:1px solid rgba(255,255,255,0.12);border-radius:1rem;padding:0.75rem 1.25rem;font-weight:700;transition:all 0.2s ease}
-.btn-secondary:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.25)}
-.btn-emerald{background:linear-gradient(135deg, #059669 0%, #10b981 100%);color:#ffffff;font-weight:800;border-radius:1rem;padding:0.75rem 1.5rem;transition:all 0.2s ease;box-shadow:0 4px 20px rgba(16,185,129,0.3)}
-.btn-emerald:hover{transform:scale(1.02);filter:brightness(1.1)}
-.input-field,.select-field{width:100%;border:1px solid rgba(255,255,255,0.12);border-radius:1rem;padding:0.875rem 1.25rem;outline:0;background:rgba(15,23,42,0.6);color:#fff;font-size:0.9rem;transition:all 0.2s ease}
-.input-field:focus,.select-field:focus{border-color:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,0.2)}
-.nav-active{background:linear-gradient(135deg, #d97706 0%, #f59e0b 100%)!important;color:#0f172a!important;font-weight:900!important;box-shadow:0 4px 16px rgba(217,119,6,0.4)}
-.toast-anim{animation:slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1)}
-@keyframes slideDown{from{opacity:0;transform:translateY(-16px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
-::-webkit-scrollbar{width:8px;height:8px}
-::-webkit-scrollbar-track{background:#0f172a}
-::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
-::-webkit-scrollbar-thumb:hover{background:#475569}
-.drag-over{border-color:#f59e0b !important;background:rgba(245,158,11,0.1) !important}
-@media print{
-  body *{visibility:hidden!important}
-  .print-card,.print-card *{visibility:visible!important}
-  .print-card{position:absolute;left:0;top:0;width:100%;background:#fff!important;color:#000!important}
-}
-</style>
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
 </head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased">
 
-<body class="bg-slate-950 text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950">
+  <!-- Main Container -->
+  <div class="flex h-screen overflow-hidden">
 
-<header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-xl border-b border-slate-800/80 shadow-2xl">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6">
-    <div class="flex items-center justify-between h-20 gap-4">
-      
-      <!-- Logo Branding -->
-      <div class="flex items-center gap-3.5 cursor-pointer" onclick="setView('home')">
-        <div class="h-12 w-12 rounded-2xl bg-white p-1.5 flex items-center justify-center shadow-lg border border-amber-400/40 shrink-0">
-          <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="max-h-full max-w-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e293b/f59e0b?text=WEB';">
-        </div>
-        <div class="h-9 w-px bg-slate-800 hidden sm:block"></div>
-        <div class="flex flex-col justify-center">
-          <span class="text-[10px] font-black uppercase tracking-widest text-amber-400">WISDOM EDUCATION BOARD</span>
-          <h1 class="text-base sm:text-xl font-black tracking-tight text-white flex items-center gap-2">
-            SARAGA <span class="text-amber-400 font-extrabold text-xs sm:text-sm">2026–27</span>
-          </h1>
-          <p class="text-[11px] text-slate-400 flex items-center gap-1.5 font-medium">
-            <img src="madrasa.png" alt="Madrasa Logo" class="w-3.5 h-3.5 object-contain inline" onerror="this.onerror=null; this.src='https://placehold.co/50x50/0f172a/ffffff?text=M';"> Al Hikma Holiday Madrasa, Nandi
-          </p>
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 shadow-xl transition-all duration-300">
+      <!-- Logo Header -->
+      <div class="p-5 bg-slate-950 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/30">
+            S
+          </div>
+          <div>
+            <h1 class="font-bold text-white text-lg leading-none">SARAGA</h1>
+            <p class="text-xs text-indigo-400 font-medium mt-1">Arts Fest Manager</p>
+          </div>
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
-      <nav class="hidden md:flex items-center gap-1.5 bg-slate-950/80 p-1.5 rounded-2xl border border-slate-800">
-        <button class="nav-btn btn-secondary text-xs px-4 py-2" data-view="home"><i class="fa-solid fa-house text-amber-400 mr-1.5"></i> Home</button>
-        <button class="nav-btn btn-secondary text-xs px-4 py-2" data-view="items"><i class="fa-solid fa-list-check text-amber-400 mr-1.5"></i> Items</button>
-        <a href="judge.html" target="_blank" class="btn-primary text-xs px-4 py-2 flex items-center gap-1.5"><i class="fa-solid fa-gavel"></i> Judge Terminal <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
-        <button class="nav-btn btn-secondary text-xs px-4 py-2" data-view="results"><i class="fa-solid fa-trophy text-amber-400 mr-1.5"></i> Live Leaderboard</button>
-        <button class="nav-btn btn-secondary text-xs px-4 py-2" data-view="admin"><i class="fa-solid fa-user-shield text-amber-400 mr-1.5"></i> Control Suite</button>
+      <!-- Nav Links -->
+      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors bg-indigo-600 text-white">
+          <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+          <span>Dashboard</span>
+        </button>
+
+        <button onclick="switchTab('contestants')" id="nav-contestants" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-users w-5 text-center"></i>
+          <span>Contestants</span>
+        </button>
+
+        <button onclick="switchTab('items')" id="nav-items" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-list-check w-5 text-center"></i>
+          <span>Items / Events</span>
+        </button>
+
+        <button onclick="switchTab('scoring')" id="nav-scoring" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-pen-to-square w-5 text-center"></i>
+          <span>Score Entry</span>
+        </button>
+
+        <button onclick="switchTab('results')" id="nav-results" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-trophy w-5 text-center"></i>
+          <span>Results & Leaderboard</span>
+        </button>
+
+        <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <i class="fa-solid fa-sliders w-5 text-center"></i>
+          <span>Data & Settings</span>
+        </button>
       </nav>
 
-      <!-- Mobile Menu Button -->
-      <button id="mobile-menu-toggle" class="md:hidden text-slate-300 p-2.5 rounded-xl hover:bg-slate-800">
-        <i class="fa-solid fa-bars text-xl"></i>
-      </button>
-    </div>
-  </div>
-
-  <!-- Mobile Drawer -->
-  <div id="mobile-menu" class="hidden md:hidden border-t border-slate-800 bg-slate-900 px-4 py-3 space-y-2">
-    <button class="nav-btn w-full btn-secondary text-left py-3 text-sm" data-view="home"><i class="fa-solid fa-house text-amber-400 w-6"></i> Dashboard Home</button>
-    <button class="nav-btn w-full btn-secondary text-left py-3 text-sm" data-view="items"><i class="fa-solid fa-list-check text-amber-400 w-6"></i> Competition Events</button>
-    <a href="judge.html" class="w-full btn-primary text-center py-3 text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-gavel"></i> Open Dedicated Judge Terminal</a>
-    <button class="nav-btn w-full btn-secondary text-left py-3 text-sm" data-view="results"><i class="fa-solid fa-trophy text-amber-400 w-6"></i> Live Leaderboard</button>
-    <button class="nav-btn w-full btn-secondary text-left py-3 text-sm" data-view="admin"><i class="fa-solid fa-user-shield text-amber-400 w-6"></i> Admin Control Suite</button>
-  </div>
-</header>
-
-<div id="toast" class="fixed top-24 right-4 z-50 w-[min(92vw,400px)] space-y-2 pointer-events-none"></div>
-
-<div id="loading" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
-  <div class="glass-card p-8 text-center max-w-xs w-full">
-    <div class="w-16 h-16 rounded-2xl bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center text-2xl mb-4 border border-amber-500/30 animate-pulse">
-      <i class="fa-solid fa-circle-notch fa-spin"></i>
-    </div>
-    <p id="loading-text" class="text-sm font-extrabold text-white">Syncing Realtime Engine…</p>
-    <p class="text-xs text-slate-400 mt-1 font-medium">Wisdom Education Cloud Services</p>
-  </div>
-</div>
-
-<!-- EXCEL PREVIEW MODAL -->
-<div id="excel-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
-  <div class="glass-card max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-amber-500/40">
-    <div class="p-6 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl font-bold border border-emerald-500/30">
-          <i class="fa-solid fa-file-excel"></i>
-        </div>
-        <div>
-          <h3 class="text-lg font-black text-white">Excel Contestants Import Preview</h3>
-          <p class="text-xs text-slate-400">വിവരങ്ങൾ പരിശോധിച്ച ശേഷം "Confirm & Import" ക്ലിക്ക് ചെയ്യുക</p>
+      <!-- User / Footer Info -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/50 text-xs text-slate-400">
+        <div class="flex items-center justify-between">
+          <span>Status: <span class="text-emerald-400 font-semibold">Ready</span></span>
+          <span class="text-slate-500">v2.5</span>
         </div>
       </div>
-      <button id="close-excel-modal" class="text-slate-400 hover:text-white p-2 text-xl"><i class="fa-solid fa-xmark"></i></button>
-    </div>
+    </aside>
 
-    <div class="p-4 bg-slate-900/60 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
-      <div class="flex items-center gap-4">
-        <span class="text-slate-300 font-bold">ആകെ കണ്ടസ്റ്റന്റ്സ്: <span id="excel-total-count" class="text-amber-400 font-extrabold text-sm">0</span></span>
-        <span class="text-emerald-400 font-bold"><i class="fa-solid fa-circle-check mr-1"></i> റെഡി: <span id="excel-valid-count">0</span></span>
-      </div>
-      <div class="flex items-center gap-2">
-        <label class="inline-flex items-center gap-2 text-slate-300 cursor-pointer">
-          <input type="checkbox" id="excel-overwrite" class="accent-amber-500 rounded h-4 w-4" checked>
-          <span>നിലവിലുള്ള ഐഡികൾ പുതുക്കുക (Overwrite existing)</span>
-        </label>
-      </div>
-    </div>
+    <!-- Content Area -->
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-50 overflow-y-auto custom-scrollbar">
 
-    <div class="flex-1 overflow-auto p-4">
-      <table class="w-full text-left text-xs">
-        <thead class="bg-slate-950 text-amber-400 uppercase font-black sticky top-0 border-b border-slate-800">
-          <tr>
-            <th class="p-3">#</th>
-            <th class="p-3">ID / Chest No</th>
-            <th class="p-3">Name</th>
-            <th class="p-3">Madrasa Unit</th>
-            <th class="p-3">Category</th>
-            <th class="p-3">Item Codes</th>
-            <th class="p-3 text-center">Status</th>
-          </tr>
-        </thead>
-        <tbody id="excel-preview-body" class="divide-y divide-slate-800/80 font-medium"></tbody>
-      </table>
-    </div>
-
-    <div class="p-5 bg-slate-900 border-t border-slate-800 flex flex-col sm:flex-row gap-3 justify-end">
-      <button id="cancel-excel-import" class="btn-secondary text-xs px-5 py-2.5">Cancel</button>
-      <button id="confirm-excel-import" class="btn-emerald text-xs px-6 py-2.5 font-black flex items-center justify-center gap-2">
-        <i class="fa-solid fa-cloud-arrow-up"></i> Confirm & Upload All to System
-      </button>
-    </div>
-  </div>
-</div>
-
-<main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-grow w-full">
-
-<!-- SECTION: HOME -->
-<section id="view-home" class="view space-y-8">
-  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-brand-900 to-slate-950 p-8 sm:p-12 border border-slate-800 shadow-2xl">
-    <div class="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl pointer-events-none"></div>
-    <div class="relative z-10 grid lg:grid-cols-12 gap-8 items-center">
-      <div class="lg:col-span-7 space-y-6">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold">
-          <i class="fa-solid fa-sparkles text-amber-400"></i> Arts & Cultural Festival Digital Suite
+      <!-- Top Header -->
+      <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-sm sticky top-0 z-10">
+        <div class="flex items-center space-x-3">
+          <h2 id="page-title" class="text-xl font-bold text-slate-800">Dashboard</h2>
         </div>
-        <h2 class="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
-          SARAGA <span class="text-amber-400">2026–27</span> Digital Judging Engine
-        </h2>
-        <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-          Al Hikma Holiday Madrasa, Nandi. Cloud tabulations, criteria-based evaluation sheets, QR automation, bulk Excel imports, and live rank publishing.
-        </p>
-        <div class="pt-2 flex flex-wrap gap-3">
-          <a href="judge.html" class="btn-primary flex items-center gap-2 font-black text-sm">
-            <i class="fa-solid fa-gavel"></i> Launch Judge Terminal
-          </a>
-          <button class="btn-secondary text-sm" data-view="items"><i class="fa-solid fa-compass text-amber-400 mr-2"></i> Browse Events Directory</button>
-          <button id="seed-btn" class="btn-secondary text-xs border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10"><i class="fa-solid fa-database mr-1"></i> Seed Standard Data</button>
+        <div class="flex items-center space-x-3">
+          <button onclick="triggerExcelImport()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold flex items-center space-x-2 transition shadow-sm">
+            <i class="fa-solid fa-file-excel"></i>
+            <span>Import Excel</span>
+          </button>
+          <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)" />
         </div>
-      </div>
-      <div class="lg:col-span-5 flex justify-center">
-        <div class="glass-card p-8 max-w-md w-full text-center hover:scale-105 transition duration-300">
-          <img src="SargHor.png" alt="SARAGA Logo" class="max-h-40 mx-auto object-contain filter drop-shadow-lg" onerror="this.onerror=null; this.src='https://placehold.co/300x150/1e293b/f59e0b?text=SARAGA+2026-27';">
-          <div class="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-            <span class="font-bold text-slate-300">Wisdom Education Board</span>
-            <span>Nandi Unit</span>
+      </header>
+
+      <!-- Main Body Container -->
+      <div class="p-6 space-y-6 flex-1">
+
+        <!-- DASHBOARD VIEW -->
+        <section id="view-dashboard" class="tab-view space-y-6">
+          <!-- Summary Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Contestants</p>
+                <h3 id="dash-total-contestants" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+              </div>
+              <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl">
+                <i class="fa-solid fa-user-graduate"></i>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Items</p>
+                <h3 id="dash-total-items" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+              </div>
+              <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-xl">
+                <i class="fa-solid fa-icons"></i>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Madrasa Units</p>
+                <h3 id="dash-total-units" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+              </div>
+              <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
+                <i class="fa-solid fa-building-columns"></i>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Evaluated Items</p>
+                <h3 id="dash-total-evaluated" class="text-3xl font-extrabold text-slate-800 mt-1">0</h3>
+              </div>
+              <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+            </div>
           </div>
+
+          <!-- Unit Points Leaderboard Overview -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center space-x-2">
+              <i class="fa-solid fa-ranking-star text-indigo-600"></i>
+              <span>Madrasa Unit Standings</span>
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead>
+                  <tr class="border-b border-slate-200 bg-slate-50 text-slate-600">
+                    <th class="py-3 px-4 rounded-l-lg font-semibold">Rank</th>
+                    <th class="py-3 px-4 font-semibold">Madrasa Unit</th>
+                    <th class="py-3 px-4 font-semibold text-center">1st Places</th>
+                    <th class="py-3 px-4 font-semibold text-center">2nd Places</th>
+                    <th class="py-3 px-4 font-semibold text-center">3rd Places</th>
+                    <th class="py-3 px-4 font-semibold text-right rounded-r-lg">Total Points</th>
+                  </tr>
+                </thead>
+                <tbody id="dash-unit-standings" class="divide-y divide-slate-100">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- CONTESTANTS VIEW -->
+        <section id="view-contestants" class="tab-view space-y-6 hidden">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="relative w-full sm:w-80">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+              <input type="text" id="contestant-search" oninput="renderContestants()" placeholder="Search by name, chest no, unit..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
+              <select id="contestant-filter-category" onchange="renderContestants()" class="px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="">All Categories</option>
+                <option value="Kids">Kids</option>
+                <option value="Sub Primary">Sub Primary</option>
+                <option value="Primary">Primary</option>
+                <option value="Junior">Junior</option>
+                <option value="Senior">Senior</option>
+              </select>
+              <button onclick="openAddContestantModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold flex items-center space-x-2 transition shadow-sm">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Add Contestant</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Contestants Table -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                    <th class="py-3.5 px-4">Chest No</th>
+                    <th class="py-3.5 px-4">Full Name</th>
+                    <th class="py-3.5 px-4">Madrasa Unit</th>
+                    <th class="py-3.5 px-4">Category</th>
+                    <th class="py-3.5 px-4">Selected Items</th>
+                    <th class="py-3.5 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="contestants-list-tbody" class="divide-y divide-slate-100">
+                  <!-- Dynamic Contestants -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ITEMS VIEW -->
+        <section id="view-items" class="tab-view space-y-6 hidden">
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="relative w-full sm:w-80">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+              <input type="text" id="item-search" oninput="renderItems()" placeholder="Search item code or name..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <button onclick="openAddItemModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold flex items-center space-x-2 transition shadow-sm">
+              <i class="fa-solid fa-plus"></i>
+              <span>Add New Item</span>
+            </button>
+          </div>
+
+          <!-- Items Grid -->
+          <div id="items-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Dynamic Item Cards -->
+          </div>
+        </section>
+
+        <!-- SCORING VIEW -->
+        <section id="view-scoring" class="tab-view space-y-6 hidden">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <h3 class="text-base font-bold text-slate-800">Select Item & Judge Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Select Item / Event</label>
+                <select id="score-item-select" onchange="loadScoreEntrySheet()" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option value="">-- Choose Item --</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Judge Name / Code</label>
+                <input type="text" id="score-judge-name" value="Judge 1" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              </div>
+              <div class="flex items-end">
+                <button onclick="saveItemScores()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm transition shadow-sm flex items-center justify-center space-x-2">
+                  <i class="fa-solid fa-floppy-disk"></i>
+                  <span>Save All Marks</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scoring Sheet Table -->
+          <div id="scoring-sheet-container" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hidden">
+            <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+              <div>
+                <h4 id="score-sheet-title" class="font-bold text-slate-800 text-lg">Item Name</h4>
+                <p id="score-sheet-subtitle" class="text-xs text-slate-500">Category & Code</p>
+              </div>
+              <span class="text-xs px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full font-semibold">Live Evaluation</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead>
+                  <tr id="score-sheet-thead" class="bg-slate-100 border-b border-slate-200 text-slate-700 font-semibold">
+                    <th class="py-3 px-4">Chest No</th>
+                    <th class="py-3 px-4">Contestant Name</th>
+                    <th class="py-3 px-4">Unit</th>
+                    <!-- Dynamic Criteria Headers -->
+                    <th class="py-3 px-4 text-center">Total</th>
+                    <th class="py-3 px-4 text-center">Grade</th>
+                  </tr>
+                </thead>
+                <tbody id="score-sheet-tbody" class="divide-y divide-slate-100">
+                  <!-- Dynamic Scoring rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- RESULTS VIEW -->
+        <section id="view-results" class="tab-view space-y-6 hidden">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+              <select id="results-item-filter" onchange="renderResults()" class="px-3 py-2 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="">All Evaluated Items</option>
+              </select>
+            </div>
+            <button onclick="exportResultsExcel()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-sm font-semibold flex items-center space-x-2 transition shadow-sm">
+              <i class="fa-solid fa-download"></i>
+              <span>Export Results</span>
+            </button>
+          </div>
+
+          <!-- Results Table -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
+                    <th class="py-3.5 px-4">Position</th>
+                    <th class="py-3.5 px-4">Item Code & Name</th>
+                    <th class="py-3.5 px-4">Chest No</th>
+                    <th class="py-3.5 px-4">Contestant Name</th>
+                    <th class="py-3.5 px-4">Madrasa Unit</th>
+                    <th class="py-3.5 px-4 text-center">Marks</th>
+                    <th class="py-3.5 px-4 text-center">Grade</th>
+                    <th class="py-3.5 px-4 text-right">Points Earned</th>
+                  </tr>
+                </thead>
+                <tbody id="results-list-tbody" class="divide-y divide-slate-100">
+                  <!-- Dynamic Results -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- SETTINGS VIEW -->
+        <section id="view-settings" class="tab-view space-y-6 hidden">
+          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 max-w-xl">
+            <h3 class="text-lg font-bold text-slate-800">System Reset & Sample Data</h3>
+            <p class="text-sm text-slate-600">You can clear all local storage or reload standard sample items for testing.</p>
+            <div class="flex items-center space-x-3 pt-2">
+              <button onclick="loadSampleData()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold transition">
+                Load Sample Items & Data
+              </button>
+              <button onclick="resetAllData()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition">
+                Clear All Local Data
+              </button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- EXCEL IMPORT PREVIEW MODAL -->
+  <div id="excel-preview-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+      <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+        <h3 class="font-bold text-slate-800 text-lg flex items-center space-x-2">
+          <i class="fa-solid fa-file-excel text-emerald-600"></i>
+          <span>Confirm Excel Import Preview</span>
+        </h3>
+        <button onclick="closeExcelPreviewModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+
+      <div class="p-5 overflow-y-auto flex-1 custom-scrollbar space-y-4">
+        <div class="text-xs text-slate-600 bg-indigo-50 border border-indigo-100 p-3 rounded-xl">
+          <i class="fa-solid fa-info-circle text-indigo-600 mr-1"></i>
+          Below is the parsed list of contestants and extracted Item Codes from your Excel sheet (`test.xlsx`). Check and confirm to save.
+        </div>
+
+        <div class="overflow-x-auto border border-slate-200 rounded-xl">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
+                <th class="p-2.5">Chest No</th>
+                <th class="p-2.5">Full Name</th>
+                <th class="p-2.5">Madrasa Unit</th>
+                <th class="p-2.5">Category</th>
+                <th class="p-2.5">Parsed Item Codes</th>
+              </tr>
+            </thead>
+            <tbody id="excel-preview-tbody" class="divide-y divide-slate-100">
+              <!-- Dynamically rendered -->
+            </tbody>
+          </table>
         </div>
       </div>
+
+      <div class="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end space-x-3">
+        <button onclick="closeExcelPreviewModal()" class="px-4 py-2 border border-slate-300 hover:bg-slate-100 rounded-xl text-sm font-semibold text-slate-700 transition">
+          Cancel
+        </button>
+        <button onclick="confirmImportExcel()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition shadow-sm">
+          Confirm & Save Contestants
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Metric Widgets -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
-    <div class="glass-card p-6 card-hover border-l-4 border-l-amber-500">
-      <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider">
-        <span>Registered Events</span>
-        <i class="fa-solid fa-layer-group text-amber-400 text-lg"></i>
+  <!-- ADD / EDIT CONTESTANT MODAL -->
+  <div id="contestant-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 id="contestant-modal-title" class="font-bold text-slate-800 text-lg">Add Contestant</h3>
+        <button onclick="closeContestantModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
       </div>
-      <div id="stat-items" class="text-3xl sm:text-4xl font-black text-white mt-3">0</div>
-      <p class="text-[11px] text-slate-400 mt-1">Categorized events</p>
-    </div>
-    <div class="glass-card p-6 card-hover border-l-4 border-l-blue-500">
-      <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider">
-        <span>Participants</span>
-        <i class="fa-solid fa-users text-blue-400 text-lg"></i>
-      </div>
-      <div id="stat-participants" class="text-3xl sm:text-4xl font-black text-white mt-3">0</div>
-      <p class="text-[11px] text-slate-400 mt-1">Enrolled contestants</p>
-    </div>
-    <div class="glass-card p-6 card-hover border-l-4 border-l-purple-500">
-      <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider">
-        <span>Judges Onboarded</span>
-        <i class="fa-solid fa-gavel text-purple-400 text-lg"></i>
-      </div>
-      <div id="stat-judges" class="text-3xl sm:text-4xl font-black text-white mt-3">0</div>
-      <p class="text-[11px] text-slate-400 mt-1">Evaluator accounts</p>
-    </div>
-    <div class="glass-card p-6 card-hover border-l-4 border-l-emerald-500">
-      <div class="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider">
-        <span>Submitted Scores</span>
-        <i class="fa-solid fa-check-double text-emerald-400 text-lg"></i>
-      </div>
-      <div id="stat-scores" class="text-3xl sm:text-4xl font-black text-white mt-3">0</div>
-      <p class="text-[11px] text-slate-400 mt-1">Synced evaluation sheets</p>
-    </div>
-  </div>
 
-  <!-- Category Directory Grid -->
-  <div class="glass-card p-8 space-y-6">
-    <div class="flex items-center justify-between pb-4 border-b border-slate-800">
-      <div>
-        <h3 class="text-xl font-black text-white">Event Categories</h3>
-        <p class="text-xs text-slate-400 mt-0.5">Filter items by student category bracket</p>
-      </div>
-      <span class="text-xs font-extrabold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">6 Active Divisions</span>
-    </div>
-    <div id="category-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"></div>
-  </div>
-</section>
-
-<!-- SECTION: ITEMS -->
-<section id="view-items" class="view hidden space-y-6">
-  <div class="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-    <div>
-      <h2 class="text-2xl font-black text-white">Competition Items Directory</h2>
-      <p class="text-xs text-slate-400 mt-1">Browse and launch digital scoring for events</p>
-    </div>
-    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-      <div class="relative w-full sm:w-72">
-        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-        <input id="item-search" class="input-field pl-11" placeholder="Search code or event name…">
-      </div>
-      <select id="item-category" class="select-field sm:w-52 font-bold"></select>
-    </div>
-  </div>
-
-  <div id="items-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-</section>
-
-<!-- SECTION: RESULTS LEADERBOARD -->
-<section id="view-results" class="view hidden space-y-6">
-  <div class="glass-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-    <div>
-      <h2 class="text-2xl font-black text-white">Live Scores & Rankings</h2>
-      <p class="text-xs text-slate-400 mt-1">Aggregate score tabulations calculated across evaluator sheets</p>
-    </div>
-    <select id="results-item" class="select-field md:w-80 font-bold"></select>
-  </div>
-
-  <div class="glass-card overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-slate-900/90 text-amber-400 text-xs font-black uppercase tracking-wider border-b border-slate-800">
-          <tr>
-            <th class="p-4 text-center w-16">Rank</th>
-            <th class="p-4">Participant Details</th>
-            <th class="p-4">Madrasa Unit</th>
-            <th class="p-4 text-center">Sheets</th>
-            <th class="p-4 text-center">Gross Sum</th>
-            <th class="p-4 text-center">Final Score</th>
-            <th class="p-4 text-center">Status</th>
-          </tr>
-        </thead>
-        <tbody id="results-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<!-- SECTION: ADMIN SUITE -->
-<section id="view-admin" class="view hidden space-y-6">
-  <div id="admin-login-card" class="glass-card max-w-md mx-auto p-8 border-t-4 border-t-purple-500">
-    <div class="text-center mb-6">
-      <div class="w-16 h-16 rounded-2xl bg-purple-500/20 text-purple-300 mx-auto flex items-center justify-center text-2xl border border-purple-500/30 mb-3">
-        <i class="fa-solid fa-user-shield"></i>
-      </div>
-      <h2 class="text-2xl font-black text-white">Admin Authentication</h2>
-      <p class="text-xs text-slate-400 mt-1">Authorized SARAGA 2026–27 Coordinator Access</p>
-    </div>
-    <form id="admin-login-form" class="space-y-4">
-      <div>
-        <label class="text-xs font-extrabold uppercase tracking-wider text-slate-300 block mb-1">Email Address</label>
-        <input id="admin-email" type="email" required class="input-field" placeholder="admin@saraga.org">
-      </div>
-      <div>
-        <label class="text-xs font-extrabold uppercase tracking-wider text-slate-300 block mb-1">Password</label>
-        <input id="admin-password" type="password" required class="input-field" placeholder="••••••••">
-      </div>
-      <button class="btn-primary w-full py-3.5 text-sm font-black text-slate-950 mt-2">
-        <i class="fa-solid fa-lock text-slate-950 mr-2"></i> Unlock Coordinator Suite
-      </button>
-    </form>
-  </div>
-
-  <div id="admin-panel" class="hidden space-y-6">
-    <div class="glass-card p-6 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-300 flex items-center justify-center text-xl font-black border border-purple-500/30">
-          <i class="fa-solid fa-shield-halved"></i>
+      <form id="contestant-form" onsubmit="saveContestant(event)" class="space-y-4">
+        <input type="hidden" id="modal-contestant-id">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Chest No / ID</label>
+          <input type="text" id="modal-contestant-no" required placeholder="e.g. N1001" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
         <div>
-          <span class="text-[10px] text-purple-400 font-extrabold uppercase tracking-widest bg-purple-500/10 px-2 py-0.5 rounded">SARAGA Coordinator</span>
-          <div id="admin-name" class="text-lg font-black text-white mt-0.5">Administrator</div>
-          <div id="admin-email-display" class="text-xs text-slate-400 font-mono">admin@saraga.org</div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Full Name</label>
+          <input type="text" id="modal-contestant-name" required placeholder="e.g. ABDUL MUHAIMIN" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
-      </div>
-      <button id="admin-logout" class="btn-secondary text-xs text-rose-400 border-rose-500/30 hover:bg-rose-500/10"><i class="fa-solid fa-right-from-bracket mr-1"></i> Sign Out Session</button>
-    </div>
-
-    <!-- Admin Navigation Tabs -->
-    <div class="flex gap-2 overflow-x-auto pb-2">
-      <button class="admin-tab btn-primary text-xs px-4 py-2.5" data-tab="items"><i class="fa-solid fa-list-check mr-1.5"></i> Items</button>
-      <button class="admin-tab btn-secondary text-xs px-4 py-2.5" data-tab="participants"><i class="fa-solid fa-users mr-1.5"></i> Contestants & Excel</button>
-      <button class="admin-tab btn-secondary text-xs px-4 py-2.5" data-tab="judges"><i class="fa-solid fa-gavel mr-1.5"></i> Judges</button>
-      <button class="admin-tab btn-secondary text-xs px-4 py-2.5" data-tab="qr"><i class="fa-solid fa-qrcode mr-1.5"></i> QR Generator</button>
-    </div>
-
-    <!-- TAB: ITEMS -->
-    <div id="admin-items-tab" class="admin-tab-panel space-y-6">
-      <form id="item-form" class="glass-card p-6 sm:p-8 space-y-5">
-        <h3 class="text-lg font-black text-white pb-3 border-b border-slate-800">Add or Edit Competition Event</h3>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div><label class="text-xs font-bold text-slate-300 block mb-1">Item Code</label><input id="new-code" class="input-field font-bold" placeholder="e.g. 101" required></div>
-          <div><label class="text-xs font-bold text-slate-300 block mb-1">Item Title</label><input id="new-name" class="input-field" placeholder="Event Name" required></div>
-          <div><label class="text-xs font-bold text-slate-300 block mb-1">Category</label><select id="new-category" class="select-field font-bold"></select></div>
-          <div><label class="text-xs font-bold text-slate-300 block mb-1">Duration (Min)</label><input id="new-duration" class="input-field" type="number" min="1" placeholder="10" required></div>
-        </div>
-        <div class="grid sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-xs font-bold text-slate-300 block mb-1">Marking Scheme</label>
-            <select id="new-marking" class="select-field font-bold">
-              <option value="fixed">Fixed Criterion Marks</option>
-              <option value="per_correct_answer">Per Correct Answer</option>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Madrasa Unit</label>
+            <input type="text" id="modal-contestant-unit" required placeholder="e.g. Najah" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Category</label>
+            <select id="modal-contestant-category" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+              <option value="Kids">Kids</option>
+              <option value="Sub Primary">Sub Primary</option>
+              <option value="Primary">Primary</option>
+              <option value="Junior">Junior</option>
+              <option value="Senior">Senior</option>
             </select>
           </div>
-          <div><label class="text-xs font-bold text-slate-300 block mb-1">Total Points</label><input id="new-total" class="input-field font-extrabold" type="number" min="1" placeholder="100" required></div>
         </div>
 
-        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
-          <div class="flex justify-between items-center">
-            <h4 class="font-extrabold text-sm text-amber-400">Evaluation Criteria Breakdown</h4>
-            <button type="button" id="add-criterion" class="btn-primary py-1.5 px-3 text-xs"><i class="fa-solid fa-plus mr-1"></i> Add Row</button>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Participating Item Codes (Comma separated or check below)</label>
+          <div id="contestant-items-checkboxes" class="max-h-36 overflow-y-auto border border-slate-200 p-2 rounded-xl text-xs space-y-1.5 custom-scrollbar">
+            <!-- Dynamic checkboxes -->
           </div>
-          <div id="criteria-builder" class="space-y-2"></div>
         </div>
 
-        <button class="btn-primary w-full py-3.5 text-slate-950 font-black"><i class="fa-solid fa-floppy-disk mr-2"></i> Save Event Item Document</button>
+        <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeContestantModal()" class="px-4 py-2 border border-slate-300 hover:bg-slate-100 rounded-xl text-sm font-semibold text-slate-700">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold">Save Contestant</button>
+        </div>
       </form>
-
-      <div class="glass-card overflow-hidden">
-        <div class="p-4 bg-slate-900/80 font-black text-sm text-slate-300 border-b border-slate-800">Master Items Directory</div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-slate-950 text-slate-400 text-xs uppercase font-extrabold border-b border-slate-800">
-              <tr>
-                <th class="p-3.5">Code</th>
-                <th class="p-3.5">Title</th>
-                <th class="p-3.5 text-center">Category</th>
-                <th class="p-3.5 text-center">Criteria</th>
-                <th class="p-3.5 text-center">Max Points</th>
-                <th class="p-3.5 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="admin-items-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
-          </table>
-        </div>
-      </div>
     </div>
+  </div>
 
-    <!-- TAB: PARTICIPANTS / CONTESTANTS + EXCEL IMPORT -->
-    <div id="admin-participants-tab" class="admin-tab-panel hidden space-y-6">
+  <!-- ADD / EDIT ITEM MODAL -->
+  <div id="item-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 id="item-modal-title" class="font-bold text-slate-800 text-lg">Add New Item</h3>
+        <button onclick="closeItemModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
 
-      <!-- EXCEL BULK IMPORT CARD -->
-      <div class="glass-card p-6 sm:p-8 space-y-5 border-l-4 border-l-emerald-500">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-800">
+      <form id="item-form" onsubmit="saveItem(event)" class="space-y-4">
+        <input type="hidden" id="modal-item-id">
+        <div class="grid grid-cols-2 gap-3">
           <div>
-            <h3 class="text-lg font-black text-white flex items-center gap-2">
-              <i class="fa-solid fa-file-excel text-emerald-400"></i>
-              Excel Bulk Import Contestants (എക്സൽ ഇമ്പോർട്ട്)
-            </h3>
-            <p class="text-xs text-slate-400 mt-1">Directly upload Excel files (.xlsx, .xls, .csv) to import all contestants instantly.</p>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Item Code</label>
+            <input type="text" id="modal-item-code" required placeholder="e.g. 101" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
           </div>
-          <div class="flex items-center gap-2">
-            <button id="btn-download-template" class="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10">
-              <i class="fa-solid fa-download"></i> Sample Excel Template
-            </button>
-            <button id="btn-export-contestants" class="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5 border-amber-500/30 text-amber-300 hover:bg-amber-500/10">
-              <i class="fa-solid fa-file-export"></i> Export Registered (.xlsx)
-            </button>
-          </div>
-        </div>
-
-        <!-- Drag & Drop Dropzone -->
-        <div id="excel-dropzone" class="border-2 border-dashed border-slate-700 hover:border-emerald-500/60 bg-slate-900/60 rounded-2xl p-8 text-center transition cursor-pointer relative group">
-          <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="hidden">
-          <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center text-2xl border border-emerald-500/30 mb-3 group-hover:scale-110 transition">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
-          </div>
-          <h4 class="font-extrabold text-white text-sm sm:text-base">Click or Drag & Drop Excel File Here</h4>
-          <p class="text-xs text-slate-400 mt-1">Supports <span class="text-amber-400 font-bold">.XLSX</span>, <span class="text-amber-400 font-bold">.XLS</span>, and <span class="text-amber-400 font-bold">.CSV</span> formats</p>
-          <div class="mt-4 flex flex-wrap justify-center gap-2 text-[11px] text-slate-400">
-            <span class="bg-slate-800 px-2.5 py-1 rounded-md font-mono">Chest No / ID</span>
-            <span class="bg-slate-800 px-2.5 py-1 rounded-md font-mono">Name</span>
-            <span class="bg-slate-800 px-2.5 py-1 rounded-md font-mono">Madrasa Unit</span>
-            <span class="bg-slate-800 px-2.5 py-1 rounded-md font-mono">Category</span>
-            <span class="bg-slate-800 px-2.5 py-1 rounded-md font-mono">Item Codes (e.g. 101, 102)</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- MANUAL REGISTER / EDIT CONTESTANT FORM -->
-      <form id="participant-form" class="glass-card p-6 sm:p-8 space-y-5">
-        <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-          <h3 id="p-form-title" class="text-lg font-black text-white">Register or Edit Individual Contestant</h3>
-          <button type="button" id="cancel-p-edit" class="hidden btn-secondary text-xs py-1.5 px-3 text-slate-400"><i class="fa-solid fa-xmark mr-1"></i> Cancel Editing</button>
-        </div>
-
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div><label class="text-xs font-bold text-slate-300 block mb-1">Contestant No / ID</label><input id="p-no" class="input-field font-bold" placeholder="e.g. P001" required></div>
-          <div><label class="text-xs font-bold text-slate-300 block mb-1">Full Name</label><input id="p-name" class="input-field" placeholder="Full Name" required></div>
-          <div><label class="text-xs font-bold text-slate-300 block mb-1">Madrasa Unit</label><input id="p-madrasa" class="input-field" placeholder="Madrasa Name" required></div>
-          <div><label class="text-xs font-bold text-slate-300 block mb-1">Category</label><select id="p-category" class="select-field font-bold"></select></div>
-        </div>
-
-        <!-- Participated Events / Item Codes Selection -->
-        <div class="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
-          <div class="flex items-center justify-between">
-            <label class="text-xs font-extrabold uppercase tracking-wider text-amber-400 block">
-              <i class="fa-solid fa-list-check mr-1.5"></i> Select Participating Event Items
-            </label>
-            <span class="text-[11px] text-slate-400 font-medium">Check items this contestant will participate in</span>
-          </div>
-          <div id="p-item-codes-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-56 overflow-y-auto p-1">
-            <!-- Dynamic Checkboxes rendered via JavaScript -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Category</label>
+            <select id="modal-item-category" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+              <option value="Kids">Kids</option>
+              <option value="Sub Primary">Sub Primary</option>
+              <option value="Primary">Primary</option>
+              <option value="Junior">Junior</option>
+              <option value="Senior">Senior</option>
+            </select>
           </div>
         </div>
 
-        <button id="p-save-btn" class="btn-primary w-full py-3.5 text-slate-950 font-black"><i class="fa-solid fa-user-plus mr-2"></i> Save Contestant Profile</button>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Item Name (English / Malayalam)</label>
+          <input type="text" id="modal-item-name" required placeholder="e.g. മെമ്മറി ടെസ്റ്റ്" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Stage / Venue</label>
+            <input type="text" id="modal-item-stage" placeholder="e.g. Stage 1" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Max Score</label>
+            <input type="number" id="modal-item-maxscore" value="100" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeItemModal()" class="px-4 py-2 border border-slate-300 hover:bg-slate-100 rounded-xl text-sm font-semibold text-slate-700">Cancel</button>
+          <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold">Save Item</button>
+        </div>
       </form>
-
-      <!-- CONTESTANTS MASTER TABLE -->
-      <div class="glass-card overflow-hidden">
-        <div class="p-4 bg-slate-900/80 font-black text-sm text-slate-300 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <div class="flex items-center gap-3">
-            <span>Registered Contestants Directory</span>
-            <span id="p-count-badge" class="text-xs font-extrabold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">0 Enrolled</span>
-          </div>
-          <div class="flex items-center gap-2 w-full sm:w-auto">
-            <input id="p-search-input" class="input-field py-1.5 text-xs sm:w-64" placeholder="Search by name, ID, madrasa...">
-            <select id="p-filter-cat" class="select-field py-1.5 text-xs sm:w-40 font-bold"></select>
-          </div>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-slate-950 text-slate-400 text-xs uppercase font-extrabold border-b border-slate-800">
-              <tr>
-                <th class="p-3.5">ID</th>
-                <th class="p-3.5">Name</th>
-                <th class="p-3.5">Madrasa</th>
-                <th class="p-3.5 text-center">Category</th>
-                <th class="p-3.5">Participating Items</th>
-                <th class="p-3.5 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="admin-participants-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB: JUDGES -->
-    <div id="admin-judges-tab" class="admin-tab-panel hidden space-y-6">
-      <form id="judge-form" class="glass-card p-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div><label class="text-xs font-bold text-slate-300 block mb-1">Judge ID</label><input id="j-id" class="input-field font-bold" placeholder="J001" required></div>
-        <div><label class="text-xs font-bold text-slate-300 block mb-1">Judge Name</label><input id="j-name" class="input-field" placeholder="Full Name" required></div>
-        <div><label class="text-xs font-bold text-slate-300 block mb-1">Authentication Email</label><input id="j-email" class="input-field" type="email" placeholder="judge@saraga.org" required></div>
-        <button class="btn-primary sm:col-span-2 lg:col-span-3 py-3 text-slate-950 font-black mt-2"><i class="fa-solid fa-user-check mr-2"></i> Create Evaluator Account</button>
-      </form>
-
-      <div class="glass-card p-6">
-        <h4 class="font-extrabold text-sm mb-4 text-slate-300">Onboarded Evaluators</h4>
-        <div id="admin-judges-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-      </div>
-    </div>
-
-    <!-- TAB: QR GENERATOR -->
-    <div id="admin-qr-tab" class="admin-tab-panel hidden space-y-6">
-      <div class="glass-card p-6 flex flex-col sm:flex-row gap-4 items-center">
-        <select id="qr-item" class="select-field font-bold"></select>
-        <button id="make-qr" class="btn-primary sm:w-56 py-3 font-extrabold text-slate-950 shrink-0"><i class="fa-solid fa-qrcode mr-2"></i> Build QR Card</button>
-      </div>
-
-      <div id="qr-card" class="print-card glass-card max-w-md mx-auto p-8 text-center bg-white text-slate-900 border-2 border-amber-400/40">
-        <div class="border-b pb-4 mb-4 flex flex-col items-center">
-          <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="h-12 object-contain mb-2" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e293b/f59e0b?text=WEB';">
-          <span class="text-[10px] font-black tracking-widest text-amber-600 uppercase">WISDOM EDUCATION BOARD</span>
-          <img src="SargHor.png" alt="SARAGA Logo" class="h-14 object-contain my-2" onerror="this.onerror=null; this.src='https://placehold.co/300x150/1e293b/f59e0b?text=SARAGA';">
-          <p class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
-            <img src="madrasa.png" alt="Madrasa Logo" class="h-4 w-4" onerror="this.onerror=null; this.src='https://placehold.co/50x50/0f172a/ffffff?text=M';"> Al Hikma Holiday Madrasa, Nandi
-          </p>
-        </div>
-
-        <div class="my-4">
-          <span id="qr-code-label" class="text-xs font-black bg-amber-100 text-amber-800 px-3 py-1 rounded-full uppercase tracking-wider"></span>
-          <h3 id="qr-name" class="text-2xl font-black text-slate-900 mt-2">Select Competition Item</h3>
-          <p id="qr-cat" class="text-xs font-bold text-slate-500 mt-1"></p>
-        </div>
-
-        <div id="qr-box" class="flex justify-center my-6 p-4 bg-slate-50 rounded-2xl border"></div>
-        <p class="text-[10px] font-black tracking-widest text-slate-400 uppercase">Scan to Open Dedicated Digital Judging Terminal</p>
-
-        <button id="print-qr" class="btn-primary mt-6 w-full py-3 text-slate-950 font-black"><i class="fa-solid fa-print mr-2"></i> Print Event QR Pass</button>
-      </div>
     </div>
   </div>
-</section>
 
-</main>
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    // System Data State
+    const CATEGORIES = ["Kids", "Sub Primary", "Primary", "Junior", "Senior"];
+    let state = {
+      items: [],
+      participants: [],
+      scores: {} // itemCode -> { participantId: { marks: number, judge: string } }
+    };
 
-<footer class="mt-auto bg-slate-950 text-slate-500 text-xs py-8 border-t border-slate-900">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-    <div class="flex items-center gap-3">
-      <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="h-7 object-contain brightness-200" onerror="this.onerror=null; this.src='https://placehold.co/100x100/1e293b/f59e0b?text=WEB';">
-      <div class="h-5 w-px bg-slate-800"></div>
-      <img src="madrasa.png" alt="Madrasa" class="h-6 w-6 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/50x50/0f172a/ffffff?text=M';">
-      <div>
-        <div class="font-extrabold text-slate-200 text-xs">SARAGA 2026–27 Digital System</div>
-        <div class="text-slate-500 text-[10px]">Wisdom Education Board · Al Hikma Holiday Madrasa, Nandi</div>
-      </div>
-    </div>
-    <div class="text-slate-500 font-mono text-[11px]">
-      Powered by Firebase Firestore Realtime Engine
-    </div>
-  </div>
-</footer>
+    let tempExcelParsedRows = [];
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, doc, getDoc, setDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    // Initialize Application
+    window.addEventListener('DOMContentLoaded', () => {
+      loadStateFromStorage();
+      if (state.items.length === 0) {
+        initDefaultItems();
+      }
+      renderAllViews();
+    });
 
-const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-  apiKey: "AIzaSyDCdeOsEw6_IkQaMES-YdCh5R3CWhqILUI",
-  authDomain: "result-d1ddc.firebaseapp.com",
-  projectId: "result-d1ddc",
-  storageBucket: "result-d1ddc.firebasestorage.app",
-  messagingSenderId: "9589250968",
-  appId: "1:9589250968:web:cf35482950dcd496bd29ed"
-};
-
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'result-d1ddc';
-
-const INITIAL_ITEMS = [
-  {"code": "101", "name": "Word Formation - Arabic", "category": "Kids", "duration": 15, "totalMarks": 100, "markingType": "per_correct_answer", "criteria": [{"id": "c1", "name": "Correct Words (2 marks each)", "maxMarks": 100}]},
-  {"code": "102", "name": "Memory Test", "category": "Kids", "duration": 13, "totalMarks": 100, "markingType": "per_correct_answer", "criteria": [{"id": "c1", "name": "Correct Words (5 marks each)", "maxMarks": 100}]},
-  {"code": "103", "name": "Coloring (Crayon)", "category": "Kids", "duration": 30, "totalMarks": 100, "markingType": "fixed", "criteria": [{"id": "c1", "name": "Neatness & Clarity", "maxMarks": 30}, {"id": "c2", "name": "Color Suitability", "maxMarks": 30}, {"id": "c3", "name": "Creativity", "maxMarks": 30}, {"id": "c4", "name": "Completion", "maxMarks": 10}]},
-  {"code": "104", "name": "Hifz (Fatiha, Duha to Nas)", "category": "Kids", "duration": 5, "totalMarks": 100, "markingType": "fixed", "criteria": [{"id": "c1", "name": "Memorization", "maxMarks": 50}, {"id": "c2", "name": "Tajweed", "maxMarks": 20}, {"id": "c3", "name": "Voice & Melody", "maxMarks": 20}, {"id": "c4", "name": "Attention", "maxMarks": 10}]},
-  {"code": "105", "name": "Action Song - Malayalam", "category": "Kids", "duration": 5, "totalMarks": 100, "markingType": "fixed", "criteria": [{"id": "c1", "name": "Actions & Expression", "maxMarks": 40}, {"id": "c2", "name": "Rhythm & Voice", "maxMarks": 30}, {"id": "c3", "name": "Content", "maxMarks": 20}, {"id": "c4", "name": "Memorization", "maxMarks": 10}]},
-  {"code": "108", "name": "Islamic Song - Malayalam", "category": "Kids", "duration": 5, "totalMarks": 100, "markingType": "fixed", "criteria": [{"id": "c1", "name": "Pitch & Rhythm", "maxMarks": 30}, {"id": "c2", "name": "Voice Quality", "maxMarks": 30}, {"id": "c3", "name": "Content", "maxMarks": 20}, {"id": "c4", "name": "Presentation", "maxMarks": 20}]},
-  {"code": "201", "name": "Handwriting - Arabic", "category": "Children", "duration": 15, "totalMarks": 100, "markingType": "fixed", "criteria": [{"id": "c1", "name": "Letter Form & Beauty", "maxMarks": 40}, {"id": "c2", "name": "Clarity & Neatness", "maxMarks": 30}, {"id": "c3", "name": "Completion", "maxMarks": 20}, {"id": "c4", "name": "Proportion", "maxMarks": 10}]},
-  {"code": "203", "name": "Speech - Malayalam", "category": "Children", "duration": 5, "totalMarks": 100, "markingType": "fixed", "criteria": [{"id": "c1", "name": "Style & Modulation", "maxMarks": 30}, {"id": "c2", "name": "Topic Relevance", "maxMarks": 25}, {"id": "c3", "name": "Language Accuracy", "maxMarks": 25}, {"id": "c4", "name": "Clarity", "maxMarks": 20}]}
-];
-
-const INITIAL_PARTICIPANTS = [
-  {"participantNo": "P001", "name": "Muhammad Adil", "madrasa": "Nandi Madrasa", "category": "Kids", "itemCodes": ["101", "102", "103"]},
-  {"participantNo": "P002", "name": "Fathima Nasrin", "madrasa": "Nandi Madrasa", "category": "Kids", "itemCodes": ["101", "104", "105"]},
-  {"participantNo": "P003", "name": "Abdullah Yaseen", "madrasa": "Nandi Madrasa", "category": "Kids", "itemCodes": ["102", "108"]},
-  {"participantNo": "P101", "name": "Ahmed Rayan", "madrasa": "Nandi Madrasa", "category": "Children", "itemCodes": ["201", "203"]}
-];
-
-const CATEGORIES = ["Kids", "Children", "Sub Junior", "Junior", "Senior", "Teacher"];
-
-let db, auth;
-const state = { 
-  items: [], 
-  participants: [], 
-  judges: [], 
-  scores: [], 
-  user: null, 
-  unsubs: [], 
-  editingParticipantNo: null,
-  parsedExcelData: [] 
-};
-
-const $ = id => document.getElementById(id);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
-
-function getPublicCol(collectionName) {
-  return collection(db, 'artifacts', appId, 'public', 'data', collectionName);
-}
-
-function getPublicDoc(collectionName, docId) {
-  return doc(db, 'artifacts', appId, 'public', 'data', collectionName, docId);
-}
-
-function toast(message, type = "info") {
-  const el = document.createElement("div");
-  el.className = "toast-anim pointer-events-auto rounded-2xl border p-4 text-xs font-bold shadow-2xl flex items-center gap-3 " +
-    (type === "success" ? "bg-emerald-950 text-emerald-200 border-emerald-500/40" :
-     type === "error" ? "bg-rose-950 text-rose-200 border-rose-500/40" :
-     "bg-slate-900 text-slate-100 border-slate-700");
-  el.innerHTML = `<i class="fa-solid ${type === "success" ? "fa-circle-check text-emerald-400 text-lg" : type === "error" ? "fa-circle-exclamation text-rose-400 text-lg" : "fa-circle-info text-amber-400 text-lg"}"></i><span>${esc(message)}</span>`;
-  $("toast").appendChild(el);
-  setTimeout(() => el.remove(), 3800);
-}
-
-function busy(on, text = "Syncing Engine…") {
-  $("loading-text").textContent = text;
-  $("loading").classList.toggle("hidden", !on);
-  $("loading").classList.toggle("flex", on);
-}
-
-function setView(view) {
-  document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
-  $(`view-${view}`).classList.remove("hidden");
-  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("nav-active"));
-  document.querySelectorAll(`[data-view="${view}"]`).forEach(b => b.classList.add("nav-active"));
-  $("mobile-menu").classList.add("hidden");
-  window.scrollTo({ top: 0, behavior: "smooth" });
-  if (view === "results") renderResults();
-  if (view === "items") renderItems();
-  if (view === "admin") renderAdmin();
-}
-
-function populateCategorySelect(id, all = false) {
-  const s = $(id);
-  if (!s) return;
-  const curr = s.value;
-  s.innerHTML = (all ? `<option value="ALL">All Categories</option>` : "") + CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join("");
-  if ([...s.options].some(o => o.value === curr)) s.value = curr;
-}
-
-function renderParticipantItemCheckboxes(selectedCodes = [], filterCategory = null) {
-  const container = $("p-item-codes-container");
-  if (!container) return;
-
-  const category = filterCategory || $("p-category")?.value;
-  const availableItems = category ? state.items.filter(i => i.category === category) : state.items;
-
-  if (!availableItems.length) {
-    container.innerHTML = `<div class="col-span-full text-xs text-slate-500 italic p-3 text-center">No competition items created for category "${esc(category || 'All')}". Create items first.</div>`;
-    return;
-  }
-
-  container.innerHTML = availableItems.map(i => {
-    const isChecked = selectedCodes.includes(i.code);
-    return `
-      <label class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-900 border ${isChecked ? 'border-amber-400/80 bg-amber-500/10' : 'border-slate-800'} hover:border-amber-400/50 cursor-pointer transition">
-        <input type="checkbox" value="${esc(i.code)}" class="p-item-checkbox accent-amber-500 h-4 w-4 rounded" ${isChecked ? "checked" : ""}>
-        <div class="truncate">
-          <div class="text-xs font-black text-amber-400">Code ${esc(i.code)}</div>
-          <div class="text-[11px] font-semibold text-slate-200 truncate">${esc(i.name)}</div>
-        </div>
-      </label>
-    `;
-  }).join("");
-}
-
-function renderHome() {
-  $("stat-items").textContent = state.items.length;
-  $("stat-participants").textContent = state.participants.length;
-  $("stat-judges").textContent = state.judges.length;
-  $("stat-scores").textContent = state.scores.length;
-
-  $("category-grid").innerHTML = CATEGORIES.map(c => {
-    const n = state.items.filter(i => i.category === c).length;
-    return `<button class="glass-card p-4 text-left hover:border-amber-400/50 hover:bg-slate-900 transition group" data-cat="${esc(c)}">
-      <div class="font-extrabold text-white group-hover:text-amber-400 transition">${esc(c)}</div>
-      <div class="text-xs text-slate-400 mt-1 font-medium">${n} events listed</div>
-    </button>`;
-  }).join("");
-
-  document.querySelectorAll("[data-cat]").forEach(b => b.onclick = () => {
-    setView("items");
-    $("item-category").value = b.dataset.cat;
-    renderItems();
-  });
-}
-
-function renderItems() {
-  const q = ($("item-search").value || "").trim().toLowerCase();
-  const cat = $("item-category").value;
-  const arr = state.items.filter(i => (cat === "ALL" || i.category === cat) && (`${i.code} ${i.name}`.toLowerCase().includes(q)));
-
-  $("items-grid").innerHTML = arr.length ? arr.map(i => `
-    <article class="glass-card p-6 card-hover flex flex-col justify-between">
-      <div>
-        <div class="flex justify-between items-start gap-3">
-          <span class="text-xs font-black bg-slate-900 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-lg">CODE ${esc(i.code)}</span>
-          <span class="text-xs font-extrabold bg-blue-500/10 text-blue-300 border border-blue-500/30 px-3 py-1 rounded-full">${esc(i.category)}</span>
-        </div>
-        <h3 class="font-black text-xl text-white mt-4 leading-snug">${esc(i.name)}</h3>
-        <div class="flex items-center gap-4 border-y border-slate-800/80 my-4 py-3 text-xs font-bold text-slate-300">
-          <span><i class="fa-regular fa-clock text-amber-400 mr-1.5"></i> ${i.duration} Minutes</span>
-          <span><i class="fa-solid fa-award text-amber-400 mr-1.5"></i> ${i.totalMarks} Points</span>
-        </div>
-        <div class="space-y-2 mb-4">
-          ${(i.criteria || []).map(c => `<div class="flex justify-between text-xs"><span class="text-slate-400">${esc(c.name)}</span><strong class="font-extrabold text-slate-200">${c.maxMarks} pts</strong></div>`).join("")}
-        </div>
-      </div>
-      <a href="judge.html?item=${encodeURIComponent(i.code)}" target="_blank" class="btn-primary w-full text-center text-xs py-3 flex items-center justify-center gap-2 mt-2">
-        <i class="fa-solid fa-gavel"></i> Open in Judge Terminal
-      </a>
-    </article>
-  `).join("") : `<div class="glass-card col-span-full p-12 text-center text-slate-400"><i class="fa-solid fa-folder-open text-4xl mb-3 text-slate-500"></i><p class="font-extrabold text-slate-300">No events found matching current criteria.</p></div>`;
-}
-
-function renderResults() {
-  const selectEl = $("results-item");
-  selectEl.innerHTML = `<option value="">All Event Items Leaderboard</option>` + state.items.map(i => `<option value="${esc(i.code)}">[${esc(i.code)}] ${esc(i.name)} (${esc(i.category)})</option>`).join("");
-
-  const selected = selectEl.value;
-  const arr = [];
-  for (const item of state.items.filter(i => !selected || i.code === selected)) {
-    const groups = {};
-    state.scores.filter(s => s.itemCode === item.code).forEach(s => (groups[s.participantId] ??= []).push(s));
-    for (const [pid, scores] of Object.entries(groups)) {
-      const p = state.participants.find(x => x.participantNo === pid);
-      const total = scores.reduce((a, s) => a + Number(s.total || 0), 0);
-      arr.push({ item, participant: p || { participantNo: pid, name: pid, madrasa: "—" }, count: scores.length, total, avg: total / scores.length });
+    // Local Storage Helpers
+    function saveStateToStorage() {
+      localStorage.setItem('saraga_state_v2', JSON.stringify(state));
     }
-  }
-  arr.sort((a, b) => b.avg - a.avg || a.participant.name.localeCompare(b.participant.name));
 
-  $("results-body").innerHTML = arr.length ? arr.map((r, n) => `
-    <tr class="hover:bg-slate-900/50 transition">
-      <td class="p-4 text-center font-black text-base text-white">
-        <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl ${n === 0 ? 'bg-amber-500 text-slate-950 font-black' : n === 1 ? 'bg-slate-300 text-slate-950 font-bold' : n === 2 ? 'bg-amber-700/40 text-amber-200 border border-amber-500/30 font-bold' : 'bg-slate-800 text-slate-400'}">${n + 1}</span>
-      </td>
-      <td class="p-4">
-        <div class="font-extrabold text-white text-base">${esc(r.participant.name)}</div>
-        <div class="text-xs text-slate-400 font-mono">${esc(r.participant.participantNo)} · ${esc(r.item.name)}</div>
-      </td>
-      <td class="p-4 font-semibold text-slate-300">${esc(r.participant.madrasa)}</td>
-      <td class="p-4 text-center font-bold text-slate-400">${r.count} Sheets</td>
-      <td class="p-4 text-center font-bold text-slate-200">${r.total.toFixed(2)}</td>
-      <td class="p-4 text-center font-black text-emerald-400 text-base">${r.avg.toFixed(2)}</td>
-      <td class="p-4 text-center">
-        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${r.count >= 3 ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : "bg-amber-500/20 text-amber-300 border border-amber-500/30"}">
-          ${r.count >= 3 ? "Verified" : "Pending Sheets"}
-        </span>
-      </td>
-    </tr>
-  `).join("") : `<tr><td colspan="7" class="p-12 text-center text-slate-400 font-bold"><i class="fa-solid fa-trophy text-3xl mb-2 text-slate-600 block"></i> No verified score evaluations published yet.</td></tr>`;
-}
-
-function renderAdmin() {
-  if (!state.user || state.user.isAnonymous) {
-    $("admin-login-card").classList.remove("hidden");
-    $("admin-panel").classList.add("hidden");
-    return;
-  }
-
-  $("admin-login-card").classList.add("hidden");
-  $("admin-panel").classList.remove("hidden");
-  $("admin-email-display").textContent = state.user.email || "admin@saraga.org";
-
-  // Render Admin Items Table
-  $("admin-items-body").innerHTML = state.items.map(i => `
-    <tr class="hover:bg-slate-900/50">
-      <td class="p-3.5 font-bold text-amber-400">${esc(i.code)}</td>
-      <td class="p-3.5 font-bold text-white">${esc(i.name)}</td>
-      <td class="p-3.5 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-500/10 text-blue-300">${esc(i.category)}</span></td>
-      <td class="p-3.5 text-center font-medium text-slate-400">${(i.criteria || []).length} criteria</td>
-      <td class="p-3.5 text-center font-extrabold text-amber-300">${i.totalMarks} pts</td>
-      <td class="p-3.5 text-center space-x-2">
-        <button class="btn-delete-item text-xs text-rose-400 hover:bg-rose-500/10 p-2 rounded-lg" data-code="${esc(i.code)}"><i class="fa-solid fa-trash"></i></button>
-      </td>
-    </tr>
-  `).join("");
-
-  // Attach item delete listeners
-  document.querySelectorAll(".btn-delete-item").forEach(btn => {
-    btn.onclick = async () => {
-      if (confirm(`Are you sure you want to delete event code ${btn.dataset.code}?`)) {
+    function loadStateFromStorage() {
+      const stored = localStorage.getItem('saraga_state_v2');
+      if (stored) {
         try {
-          busy(true, "Deleting event...");
-          await deleteDoc(getPublicDoc("items", btn.dataset.code));
-          toast("Item deleted successfully", "success");
-        } catch (err) {
-          toast("Delete failed: " + err.message, "error");
-        } finally {
-          busy(false);
+          state = JSON.parse(stored);
+        } catch (e) {
+          console.error("Failed to parse storage", e);
         }
       }
-    };
-  });
-
-  // Filter & Render Admin Contestants Table
-  renderParticipantsTable();
-
-  // Render Admin Judges
-  $("admin-judges-list").innerHTML = state.judges.length ? state.judges.map(j => `
-    <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex justify-between items-center">
-      <div>
-        <div class="font-extrabold text-white text-sm">${esc(j.name)}</div>
-        <div class="text-xs text-amber-400 font-mono mt-0.5">ID: ${esc(j.judgeId || j.id)}</div>
-        <div class="text-xs text-slate-400 mt-0.5">${esc(j.email)}</div>
-      </div>
-      <button class="btn-delete-judge text-rose-400 hover:bg-rose-500/10 p-2 rounded-lg text-xs" data-id="${esc(j.id || j.judgeId)}"><i class="fa-solid fa-trash"></i></button>
-    </div>
-  `).join("") : `<div class="col-span-full p-6 text-center text-slate-500 text-xs font-bold">No evaluator accounts onboarded yet.</div>`;
-
-  document.querySelectorAll(".btn-delete-judge").forEach(btn => {
-    btn.onclick = async () => {
-      if (confirm("Delete judge evaluator account?")) {
-        try {
-          await deleteDoc(getPublicDoc("judges", btn.dataset.id));
-          toast("Judge deleted", "success");
-        } catch (err) {
-          toast("Error: " + err.message, "error");
-        }
-      }
-    };
-  });
-
-  // Populate QR Select
-  $("qr-item").innerHTML = `<option value="">Select Competition Event for QR Pass Generation</option>` + state.items.map(i => `<option value="${esc(i.code)}">[Code ${esc(i.code)}] ${esc(i.name)} (${esc(i.category)})</option>`).join("");
-}
-
-function renderParticipantsTable() {
-  const search = ($("p-search-input")?.value || "").trim().toLowerCase();
-  const catFilter = $("p-filter-cat")?.value || "ALL";
-
-  const list = state.participants.filter(p => {
-    const matchCat = catFilter === "ALL" || p.category === catFilter;
-    const matchSearch = !search || `${p.participantNo} ${p.name} ${p.madrasa}`.toLowerCase().includes(search);
-    return matchCat && matchSearch;
-  });
-
-  $("p-count-badge").textContent = `${list.length} Enrolled`;
-
-  $("admin-participants-body").innerHTML = list.length ? list.map(p => {
-    const itemsBadges = (p.itemCodes || []).map(code => {
-      const item = state.items.find(i => i.code === code);
-      return `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20 mr-1 mb-1">${esc(code)}${item ? ' - ' + esc(item.name) : ''}</span>`;
-    }).join("");
-
-    return `
-      <tr class="hover:bg-slate-900/50">
-        <td class="p-3.5 font-mono font-bold text-amber-400">${esc(p.participantNo)}</td>
-        <td class="p-3.5 font-bold text-white">${esc(p.name)}</td>
-        <td class="p-3.5 font-semibold text-slate-300">${esc(p.madrasa)}</td>
-        <td class="p-3.5 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-purple-500/10 text-purple-300 border border-purple-500/20">${esc(p.category)}</span></td>
-        <td class="p-3.5 max-w-xs">${itemsBadges || '<span class="text-xs text-slate-500 italic">No events assigned</span>'}</td>
-        <td class="p-3.5 text-center space-x-2">
-          <button class="btn-edit-p text-xs text-amber-400 hover:bg-amber-500/10 p-2 rounded-lg" data-no="${esc(p.participantNo)}"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
-          <button class="btn-delete-p text-xs text-rose-400 hover:bg-rose-500/10 p-2 rounded-lg" data-no="${esc(p.participantNo)}"><i class="fa-solid fa-trash"></i></button>
-        </td>
-      </tr>
-    `;
-  }).join("") : `<tr><td colspan="6" class="p-8 text-center text-slate-500 text-xs font-bold">No contestants registered matching filters.</td></tr>`;
-
-  // Attach Edit/Delete listeners
-  document.querySelectorAll(".btn-edit-p").forEach(btn => {
-    btn.onclick = () => editParticipant(btn.dataset.no);
-  });
-  document.querySelectorAll(".btn-delete-p").forEach(btn => {
-    btn.onclick = async () => {
-      if (confirm(`Are you sure you want to delete contestant ${btn.dataset.no}?`)) {
-        try {
-          busy(true, "Deleting contestant...");
-          await deleteDoc(getPublicDoc("participants", btn.dataset.no));
-          toast("Contestant deleted", "success");
-        } catch (err) {
-          toast("Delete failed: " + err.message, "error");
-        } finally {
-          busy(false);
-        }
-      }
-    };
-  });
-}
-
-function editParticipant(participantNo) {
-  const p = state.participants.find(x => x.participantNo === participantNo);
-  if (!p) return;
-
-  state.editingParticipantNo = participantNo;
-  $("p-form-title").textContent = `Edit Contestant (${participantNo})`;
-  $("cancel-p-edit").classList.remove("hidden");
-  $("p-save-btn").innerHTML = `<i class="fa-solid fa-floppy-disk mr-2"></i> Update Contestant Profile`;
-
-  $("p-no").value = p.participantNo;
-  $("p-no").disabled = true;
-  $("p-name").value = p.name || "";
-  $("p-madrasa").value = p.madrasa || "";
-  $("p-category").value = p.category || CATEGORIES[0];
-
-  renderParticipantItemCheckboxes(p.itemCodes || [], p.category);
-  $("participant-form").scrollIntoView({ behavior: "smooth" });
-}
-
-function resetParticipantForm() {
-  state.editingParticipantNo = null;
-  $("p-form-title").textContent = "Register or Edit Individual Contestant";
-  $("cancel-p-edit").classList.add("hidden");
-  $("p-save-btn").innerHTML = `<i class="fa-solid fa-user-plus mr-2"></i> Save Contestant Profile`;
-  $("p-no").disabled = false;
-  $("participant-form").reset();
-  renderParticipantItemCheckboxes([], $("p-category")?.value);
-}
-
-// EXCEL PROCESSING ENGINE
-function setupExcelImporter() {
-  const dropzone = $("excel-dropzone");
-  const fileInput = $("excel-file-input");
-
-  if (!dropzone || !fileInput) return;
-
-  dropzone.onclick = () => fileInput.click();
-
-  dropzone.ondragover = (e) => {
-    e.preventDefault();
-    dropzone.classList.add("drag-over");
-  };
-
-  dropzone.ondragleave = () => {
-    dropzone.classList.remove("drag-over");
-  };
-
-  dropzone.ondrop = (e) => {
-    e.preventDefault();
-    dropzone.classList.remove("drag-over");
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleExcelFile(e.dataTransfer.files[0]);
-    }
-  };
-
-  fileInput.onchange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      handleExcelFile(e.target.files[0]);
-      fileInput.value = "";
-    }
-  };
-
-  $("btn-download-template").onclick = downloadExcelTemplate;
-  $("btn-export-contestants").onclick = exportContestantsToExcel;
-
-  $("close-excel-modal").onclick = $("cancel-excel-import").onclick = () => {
-    $("excel-modal").classList.add("hidden");
-  };
-
-  $("confirm-excel-import").onclick = executeExcelImport;
-}
-
-function handleExcelFile(file) {
-  const reader = new FileReader();
-  busy(true, "Reading Excel File...");
-
-  reader.onload = (e) => {
-    try {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
-      
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-      const json = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-
-      if (!json || !json.length) {
-        toast("The uploaded Excel file contains no data rows", "error");
-        busy(false);
-        return;
-      }
-
-      parseAndPreviewExcelRows(json);
-    } catch (err) {
-      console.error(err);
-      toast("Failed to parse Excel file: " + err.message, "error");
-    } finally {
-      busy(false);
-    }
-  };
-
-  reader.readAsArrayBuffer(file);
-}
-
-function parseAndPreviewExcelRows(rows) {
-  const parsed = [];
-
-  rows.forEach((row, idx) => {
-    // Smart Header Finder Logic
-    let pNo = "", name = "", madrasa = "", category = "", itemsRaw = "";
-
-    for (const [key, val] of Object.entries(row)) {
-      const k = key.trim().toLowerCase();
-      const v = String(val).trim();
-
-      if (k.includes("chest") || k.includes("id") || k.includes("participant") || k.includes("no") || k.includes("code") || k === "sl") {
-        if (!pNo) pNo = v;
-      } else if (k.includes("name") || k.includes("student") || k.includes("contestant")) {
-        if (!name) name = v;
-      } else if (k.includes("madrasa") || k.includes("unit") || k.includes("school")) {
-        if (!madrasa) madrasa = v;
-      } else if (k.includes("cat") || k.includes("division") || k.includes("class")) {
-        if (!category) category = v;
-      } else if (k.includes("item") || k.includes("event") || k.includes("code")) {
-        itemsRaw += (itemsRaw ? "," : "") + v;
-      }
     }
 
-    // Auto-assign ID if missing
-    if (!pNo && name) {
-      pNo = `P${String(state.participants.length + idx + 1).padStart(3, "0")}`;
+    function initDefaultItems() {
+      state.items = [
+        { code: "101", name: "മെമ്മറി ടെസ്റ്റ്", category: "Kids", stage: "Stage 1", maxScore: 100 },
+        { code: "102", name: "പദപയറ്റ്", category: "Kids", stage: "Stage 2", maxScore: 100 },
+        { code: "103", name: "ചിത്രരചന", category: "Sub Primary", stage: "Hall B", maxScore: 100 },
+        { code: "201", name: "ഖുർആൻ പാരായണം", category: "Primary", stage: "Main Stage", maxScore: 100 }
+      ];
+      saveStateToStorage();
     }
 
-    // Process Item Codes array (comma / space separated)
-    let itemCodes = [];
-    if (itemsRaw) {
-      itemCodes = itemsRaw.split(/[\s,;]+/).map(x => x.trim()).filter(Boolean);
-    }
-
-    if (name) {
-      parsed.push({
-        participantNo: pNo,
-        name: name,
-        madrasa: madrasa || "Nandi Unit",
-        category: CATEGORIES.includes(category) ? category : "Kids",
-        itemCodes: itemCodes,
-        valid: true
+    // Navigation Switcher
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('hover:bg-slate-800', 'hover:text-white');
       });
-    }
-  });
 
-  if (!parsed.length) {
-    toast("Could not locate Contestant Name columns in Excel file", "error");
-    return;
-  }
+      const activeView = document.getElementById(`view-${tabName}`);
+      const activeNav = document.getElementById(`nav-${tabName}`);
 
-  state.parsedExcelData = parsed;
-
-  $("excel-total-count").textContent = parsed.length;
-  $("excel-valid-count").textContent = parsed.filter(p => p.valid).length;
-
-  $("excel-preview-body").innerHTML = parsed.map((p, i) => `
-    <tr class="hover:bg-slate-900/60">
-      <td class="p-3 font-mono text-slate-500">${i + 1}</td>
-      <td class="p-3 font-bold text-amber-400 font-mono">${esc(p.participantNo)}</td>
-      <td class="p-3 font-extrabold text-white">${esc(p.name)}</td>
-      <td class="p-3 text-slate-300">${esc(p.madrasa)}</td>
-      <td class="p-3"><span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-bold text-[10px]">${esc(p.category)}</span></td>
-      <td class="p-3">${p.itemCodes.length ? p.itemCodes.map(c => `<span class="inline-block px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 font-mono text-[10px] mr-1">${esc(c)}</span>`).join("") : '<span class="text-slate-500 italic">None</span>'}</td>
-      <td class="p-3 text-center"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold text-[10px]">Ready</span></td>
-    </tr>
-  `).join("");
-
-  $("excel-modal").classList.remove("hidden");
-}
-
-async function executeExcelImport() {
-  if (!state.parsedExcelData.length) return;
-
-  const overwrite = $("excel-overwrite").checked;
-  busy(true, "Importing Excel Contestants to Firestore...");
-
-  let successCount = 0;
-  let skippedCount = 0;
-
-  try {
-    for (const p of state.parsedExcelData) {
-      const docRef = getPublicDoc("participants", p.participantNo);
-
-      if (!overwrite) {
-        const existing = await getDoc(docRef);
-        if (existing.exists()) {
-          skippedCount++;
-          continue;
-        }
+      if (activeView) activeView.classList.remove('hidden');
+      if (activeNav) {
+        activeNav.classList.add('bg-indigo-600', 'text-white');
+        activeNav.classList.remove('hover:bg-slate-800', 'hover:text-white');
       }
 
-      await setDoc(docRef, {
-        participantNo: p.participantNo,
-        name: p.name,
-        madrasa: p.madrasa,
-        category: p.category,
-        itemCodes: p.itemCodes || [],
-        updatedAt: serverTimestamp()
-      }, { merge: true });
+      document.getElementById('page-title').innerText = 
+        tabName === 'dashboard' ? 'Dashboard Overview' :
+        tabName === 'contestants' ? 'Contestants Directory' :
+        tabName === 'items' ? 'Items & Events Setup' :
+        tabName === 'scoring' ? 'Score Evaluation Sheet' :
+        tabName === 'results' ? 'Results & Leaderboard' : 'System Settings';
 
-      successCount++;
+      renderAllViews();
     }
 
-    toast(`Successfully imported ${successCount} contestants! ${skippedCount ? `(${skippedCount} skipped)` : ''}`, "success");
-    $("excel-modal").classList.add("hidden");
-  } catch (err) {
-    console.error(err);
-    toast("Import Error: " + err.message, "error");
-  } finally {
-    busy(false);
-  }
-}
-
-function downloadExcelTemplate() {
-  const templateData = [
-    { "Chest No": "P001", "Name": "Muhamed Ameen", "Madrasa Unit": "Nandi Unit", "Category": "Kids", "Item Codes": "101, 102, 103" },
-    { "Chest No": "P002", "Name": "Fathima Raniya", "Madrasa Unit": "Nandi Unit", "Category": "Kids", "Item Codes": "101, 104, 105" },
-    { "Chest No": "P101", "Name": "Zayan Ahmed", "Madrasa Unit": "Nandi Unit", "Category": "Children", "Item Codes": "201, 203" }
-  ];
-
-  const ws = XLSX.utils.json_to_sheet(templateData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Contestants_Template");
-  XLSX.writeFile(wb, "SARAGA_Contestants_Import_Template.xlsx");
-}
-
-function exportContestantsToExcel() {
-  if (!state.participants.length) {
-    toast("No contestants registered to export", "error");
-    return;
-  }
-
-  const exportData = state.participants.map(p => ({
-    "Chest No": p.participantNo,
-    "Full Name": p.name,
-    "Madrasa Unit": p.madrasa,
-    "Category": p.category,
-    "Participating Item Codes": (p.itemCodes || []).join(", ")
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(exportData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Registered_Contestants");
-  XLSX.writeFile(wb, `SARAGA_2026-27_Contestants_${new Date().toISOString().slice(0,10)}.xlsx`);
-}
-
-function setupCriteriaBuilder() {
-  const container = $("criteria-builder");
-  const addBtn = $("add-criterion");
-
-  if (!container || !addBtn) return;
-
-  function renderRow(id = `c${Date.now()}`, name = "", maxMarks = 25) {
-    const div = document.createElement("div");
-    div.className = "flex gap-2 items-center criterion-row";
-    div.innerHTML = `
-      <input class="input-field py-2 text-xs c-name" placeholder="Criterion Name" value="${esc(name)}" required>
-      <input class="input-field py-2 text-xs font-bold w-28 c-max" type="number" min="1" placeholder="Marks" value="${maxMarks}" required>
-      <button type="button" class="btn-secondary py-2 px-3 text-rose-400 hover:bg-rose-500/10 text-xs text-remove-c"><i class="fa-solid fa-trash"></i></button>
-    `;
-    div.querySelector(".text-remove-c").onclick = () => {
-      if (container.children.length > 1) div.remove();
-      else toast("At least one criterion is required", "error");
-    };
-    container.appendChild(div);
-  }
-
-  addBtn.onclick = () => renderRow();
-
-  // Initial default rows
-  if (!container.children.length) {
-    renderRow("c1", "Memorization & Pronunciation", 50);
-    renderRow("c2", "Tajweed / Melody", 30);
-    renderRow("c3", "Presentation", 20);
-  }
-}
-
-async function seedInitialData() {
-  busy(true, "Seeding Standard Event & Contestant Documents…");
-  try {
-    for (const item of INITIAL_ITEMS) {
-      await setDoc(getPublicDoc("items", item.code), { ...item, updatedAt: serverTimestamp() });
-    }
-    for (const p of INITIAL_PARTICIPANTS) {
-      await setDoc(getPublicDoc("participants", p.participantNo), { ...p, updatedAt: serverTimestamp() });
-    }
-    toast("Database successfully seeded!", "success");
-  } catch (err) {
-    toast("Seeding Error: " + err.message, "error");
-  } finally {
-    busy(false);
-  }
-}
-
-function initRealtimeListeners() {
-  state.unsubs.forEach(unsub => unsub());
-  state.unsubs = [];
-
-  // 1. Items Listener
-  state.unsubs.push(
-    onSnapshot(getPublicCol("items"), snapshot => {
-      state.items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      state.items.sort((a, b) => a.code.localeCompare(b.code));
-      renderHome();
+    // Main Render Pipeline
+    function renderAllViews() {
+      renderDashboard();
+      renderContestants();
       renderItems();
-      renderAdmin();
-      renderParticipantItemCheckboxes([], $("p-category")?.value);
-    }, err => console.error("Items listener error:", err))
-  );
-
-  // 2. Participants Listener
-  state.unsubs.push(
-    onSnapshot(getPublicCol("participants"), snapshot => {
-      state.participants = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      state.participants.sort((a, b) => a.participantNo.localeCompare(b.participantNo));
-      renderHome();
-      renderParticipantsTable();
-    }, err => console.error("Participants listener error:", err))
-  );
-
-  // 3. Judges Listener
-  state.unsubs.push(
-    onSnapshot(getPublicCol("judges"), snapshot => {
-      state.judges = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      renderHome();
-      renderAdmin();
-    }, err => console.error("Judges listener error:", err))
-  );
-
-  // 4. Scores Listener
-  state.unsubs.push(
-    onSnapshot(getPublicCol("scores"), snapshot => {
-      state.scores = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      renderHome();
+      populateScoringDropdowns();
       renderResults();
-    }, err => console.error("Scores listener error:", err))
-  );
-}
+    }
 
-// App Initialization
-window.addEventListener("DOMContentLoaded", async () => {
-  try {
-    const app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
+    // Render Dashboard
+    function renderDashboard() {
+      document.getElementById('dash-total-contestants').innerText = state.participants.length;
+      document.getElementById('dash-total-items').innerText = state.items.length;
 
-    populateCategorySelect("new-category");
-    populateCategorySelect("p-category");
-    populateCategorySelect("p-filter-cat", true);
-    populateCategorySelect("item-category", true);
+      const units = new Set(state.participants.map(p => p.madrasa).filter(Boolean));
+      document.getElementById('dash-total-units').innerText = units.size;
 
-    setupCriteriaBuilder();
-    setupExcelImporter();
+      const evaluatedCount = Object.keys(state.scores).length;
+      document.getElementById('dash-total-evaluated').innerText = evaluatedCount;
 
-    // Attach Category Change Listener to update item checkboxes
-    $("p-category").onchange = (e) => {
-      renderParticipantItemCheckboxes([], e.target.value);
-    };
+      // Unit Rankings logic
+      const unitScores = {};
+      units.forEach(u => unitScores[u] = { unit: u, firsts: 0, seconds: 0, thirds: 0, points: 0 });
 
-    // Attach Navigation Listener
-    document.querySelectorAll(".nav-btn").forEach(btn => {
-      btn.onclick = () => setView(btn.dataset.view);
-    });
+      Object.entries(state.scores).forEach(([itemCode, pMap]) => {
+        const sorted = Object.entries(pMap)
+          .map(([pid, data]) => ({ pid, marks: data.marks, participant: state.participants.find(p => p.participantNo === pid) }))
+          .filter(x => x.participant)
+          .sort((a, b) => b.marks - a.marks);
 
-    $("mobile-menu-toggle").onclick = () => {
-      $("mobile-menu").classList.toggle("hidden");
-    };
+        sorted.forEach((item, idx) => {
+          const u = item.participant.madrasa;
+          if (!unitScores[u]) unitScores[u] = { unit: u, firsts: 0, seconds: 0, thirds: 0, points: 0 };
 
-    $("seed-btn").onclick = seedInitialData;
-
-    // Search and filter listeners
-    $("item-search").oninput = renderItems;
-    $("item-category").onchange = renderItems;
-    $("results-item").onchange = renderResults;
-    $("p-search-input").oninput = renderParticipantsTable;
-    $("p-filter-cat").onchange = renderParticipantsTable;
-
-    // Admin Tabs Switching
-    document.querySelectorAll(".admin-tab").forEach(tab => {
-      tab.onclick = () => {
-        document.querySelectorAll(".admin-tab").forEach(t => {
-          t.classList.remove("btn-primary");
-          t.classList.add("btn-secondary");
-        });
-        tab.classList.remove("btn-secondary");
-        tab.classList.add("btn-primary");
-
-        document.querySelectorAll(".admin-tab-panel").forEach(p => p.classList.add("hidden"));
-        $(`admin-${tab.dataset.tab}-tab`).classList.remove("hidden");
-      };
-    });
-
-    // Item Save Form
-    $("item-form").onsubmit = async (e) => {
-      e.preventDefault();
-      const code = $("new-code").value.trim();
-      const name = $("new-name").value.trim();
-      const category = $("new-category").value;
-      const duration = Number($("new-duration").value);
-      const markingType = $("new-marking").value;
-      const totalMarks = Number($("new-total").value);
-
-      const criteria = [];
-      document.querySelectorAll(".criterion-row").forEach((row, i) => {
-        criteria.push({
-          id: `c${i + 1}`,
-          name: row.querySelector(".c-name").value.trim(),
-          maxMarks: Number(row.querySelector(".c-max").value)
+          if (idx === 0) { unitScores[u].firsts++; unitScores[u].points += 10; }
+          else if (idx === 1) { unitScores[u].seconds++; unitScores[u].points += 7; }
+          else if (idx === 2) { unitScores[u].thirds++; unitScores[u].points += 5; }
         });
       });
 
-      try {
-        busy(true, "Saving Event Item...");
-        await setDoc(getPublicDoc("items", code), {
-          code, name, category, duration, markingType, totalMarks, criteria, updatedAt: serverTimestamp()
-        }, { merge: true });
-        toast("Event Item saved successfully!", "success");
-        $("item-form").reset();
-      } catch (err) {
-        toast("Save failed: " + err.message, "error");
-      } finally {
-        busy(false);
-      }
-    };
+      const sortedUnits = Object.values(unitScores).sort((a, b) => b.points - a.points);
+      const tbody = document.getElementById('dash-unit-standings');
 
-    // Contestant Manual Form Submission
-    $("participant-form").onsubmit = async (e) => {
-      e.preventDefault();
-      const participantNo = $("p-no").value.trim();
-      const name = $("p-name").value.trim();
-      const madrasa = $("p-madrasa").value.trim();
-      const category = $("p-category").value;
-
-      // Extract checked item codes
-      const itemCodes = [];
-      document.querySelectorAll(".p-item-checkbox:checked").forEach(cb => itemCodes.push(cb.value));
-
-      try {
-        busy(true, "Saving Contestant Profile...");
-        await setDoc(getPublicDoc("participants", participantNo), {
-          participantNo, name, madrasa, category, itemCodes, updatedAt: serverTimestamp()
-        }, { merge: true });
-        toast("Contestant profile saved successfully!", "success");
-        resetParticipantForm();
-      } catch (err) {
-        toast("Save failed: " + err.message, "error");
-      } finally {
-        busy(false);
-      }
-    };
-
-    $("cancel-p-edit").onclick = resetParticipantForm;
-
-    // Judge Form Submission
-    $("judge-form").onsubmit = async (e) => {
-      e.preventDefault();
-      const judgeId = $("j-id").value.trim();
-      const name = $("j-name").value.trim();
-      const email = $("j-email").value.trim();
-
-      try {
-        busy(true, "Onboarding Evaluator Account...");
-        await setDoc(getPublicDoc("judges", judgeId), {
-          judgeId, name, email, createdAt: serverTimestamp()
-        }, { merge: true });
-        toast("Judge evaluator onboarded!", "success");
-        $("judge-form").reset();
-      } catch (err) {
-        toast("Failed: " + err.message, "error");
-      } finally {
-        busy(false);
-      }
-    };
-
-    // QR Code Builder
-    $("make-qr").onclick = () => {
-      const code = $("qr-item").value;
-      const item = state.items.find(i => i.code === code);
-      if (!item) {
-        toast("Please select an event item", "error");
+      if (sortedUnits.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-slate-400">No score entries recorded yet.</td></tr>`;
         return;
       }
 
-      $("qr-code-label").textContent = `ITEM CODE ${item.code}`;
-      $("qr-name").textContent = item.name;
-      $("qr-cat").textContent = `Division Category: ${item.category} · Duration: ${item.duration} Min`;
+      tbody.innerHTML = sortedUnits.map((u, i) => `
+        <tr class="hover:bg-slate-50">
+          <td class="py-3 px-4 font-bold text-slate-700">#${i + 1}</td>
+          <td class="py-3 px-4 font-semibold text-indigo-700">${u.unit}</td>
+          <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-bold">${u.firsts}</span></td>
+          <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 bg-slate-100 text-slate-800 rounded font-bold">${u.seconds}</span></td>
+          <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 bg-orange-100 text-orange-800 rounded font-bold">${u.thirds}</span></td>
+          <td class="py-3 px-4 text-right font-extrabold text-slate-900">${u.points} pts</td>
+        </tr>
+      `).join('');
+    }
 
-      const qrBox = $("qr-box");
-      qrBox.innerHTML = "";
-      const url = `${window.location.origin}/judge.html?item=${encodeURIComponent(item.code)}`;
+    // Render Contestants Table
+    function renderContestants() {
+      const query = document.getElementById('contestant-search')?.value.toLowerCase() || '';
+      const catFilter = document.getElementById('contestant-filter-category')?.value || '';
 
-      new QRCode(qrBox, {
-        text: url,
-        width: 180,
-        height: 180,
-        colorDark: "#0f172a",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
+      const filtered = state.participants.filter(p => {
+        const matchSearch = p.name.toLowerCase().includes(query) || p.participantNo.toLowerCase().includes(query) || p.madrasa.toLowerCase().includes(query);
+        const matchCat = catFilter ? p.category === catFilter : true;
+        return matchSearch && matchCat;
       });
-    };
 
-    $("print-qr").onclick = () => window.print();
-
-    // Admin Auth Listener
-    $("admin-login-form").onsubmit = async (e) => {
-      e.preventDefault();
-      const email = $("admin-email").value;
-      const password = $("admin-password").value;
-      try {
-        busy(true, "Authenticating Coordinator...");
-        await signInWithEmailAndPassword(auth, email, password);
-        toast("Welcome back Coordinator!", "success");
-      } catch (err) {
-        toast("Login Failed: " + err.message, "error");
-      } finally {
-        busy(false);
+      const tbody = document.getElementById('contestants-list-tbody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400">No contestants found matching your criteria.</td></tr>`;
+        return;
       }
-    };
 
-    $("admin-logout").onclick = async () => {
-      try {
-        await signOut(auth);
-        toast("Signed out session", "info");
-      } catch (err) {
-        toast("Logout failed: " + err.message, "error");
+      tbody.innerHTML = filtered.map(p => `
+        <tr class="hover:bg-slate-50 border-b border-slate-100">
+          <td class="py-3 px-4 font-bold text-indigo-600">${p.participantNo}</td>
+          <td class="py-3 px-4 font-semibold text-slate-800">${p.name}</td>
+          <td class="py-3 px-4 text-slate-600">${p.madrasa}</td>
+          <td class="py-3 px-4"><span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-medium">${p.category}</span></td>
+          <td class="py-3 px-4">
+            <div class="flex flex-wrap gap-1">
+              ${(p.itemCodes || []).map(code => {
+                const item = state.items.find(i => i.code === String(code));
+                return `<span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-xs font-semibold" title="${item ? item.name : ''}">${code}</span>`;
+              }).join('') || '<span class="text-slate-400 text-xs">None</span>'}
+            </div>
+          </td>
+          <td class="py-3 px-4 text-right space-x-2">
+            <button onclick="deleteContestant('${p.participantNo}')" class="text-red-500 hover:text-red-700 text-xs font-medium"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Render Items List
+    function renderItems() {
+      const query = document.getElementById('item-search')?.value.toLowerCase() || '';
+      const filtered = state.items.filter(i => i.name.toLowerCase().includes(query) || i.code.toLowerCase().includes(query));
+
+      const container = document.getElementById('items-grid-container');
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full py-8 text-center text-slate-400">No items registered yet. Click "Add New Item" to create one.</div>`;
+        return;
       }
-    };
 
-    // Auth State
-    onAuthStateChanged(auth, async (u) => {
-      if (u) {
-        state.user = u;
-        initRealtimeListeners();
+      container.innerHTML = filtered.map(item => `
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between hover:border-indigo-300 transition">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="px-2.5 py-1 bg-indigo-600 text-white rounded-lg text-xs font-bold">Code #${item.code}</span>
+              <span class="text-xs font-semibold text-slate-500">${item.category}</span>
+            </div>
+            <h4 class="font-bold text-slate-800 text-base mb-1">${item.name}</h4>
+            <p class="text-xs text-slate-500 flex items-center space-x-2">
+              <span><i class="fa-solid fa-location-dot text-slate-400 mr-1"></i>${item.stage || 'General'}</span>
+              <span>•</span>
+              <span>Max Score: ${item.maxScore || 100}</span>
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
+            <span class="text-slate-500 font-medium">Contestants: ${state.participants.filter(p => (p.itemCodes || []).includes(item.code)).length}</span>
+            <button onclick="deleteItem('${item.code}')" class="text-red-500 hover:text-red-700 font-medium"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Scoring Dropdown Populator
+    function populateScoringDropdowns() {
+      const select = document.getElementById('score-item-select');
+      const resultsSelect = document.getElementById('results-item-filter');
+
+      const optionsHtml = '<option value="">-- Choose Item --</option>' + 
+        state.items.map(i => `<option value="${i.code}">[${i.code}] ${i.name} (${i.category})</option>`).join('');
+
+      if (select) select.innerHTML = optionsHtml;
+      if (resultsSelect) resultsSelect.innerHTML = '<option value="">All Evaluated Items</option>' + 
+        state.items.map(i => `<option value="${i.code}">[${i.code}] ${i.name}</option>`).join('');
+    }
+
+    // Load Scoring Sheet
+    function loadScoreEntrySheet() {
+      const code = document.getElementById('score-item-select').value;
+      const container = document.getElementById('scoring-sheet-container');
+
+      if (!code) {
+        container.classList.add('hidden');
+        return;
+      }
+
+      const item = state.items.find(i => i.code === code);
+      if (!item) return;
+
+      document.getElementById('score-sheet-title').innerText = `${item.name}`;
+      document.getElementById('score-sheet-subtitle').innerText = `Item Code: ${item.code} | Category: ${item.category}`;
+
+      // Filter enrolled contestants
+      const enrolled = state.participants.filter(p => (p.itemCodes || []).includes(code));
+      const tbody = document.getElementById('score-sheet-tbody');
+
+      if (enrolled.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">No contestants enrolled in this item. Add item code #${code} to contestants first.</td></tr>`;
       } else {
-        try {
-          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-            await signInWithCustomToken(auth, __initial_auth_token);
-          } else {
-            await signInAnonymously(auth);
-          }
-        } catch (err) {
-          console.error("Auth init error:", err);
-        }
-      }
-      renderAdmin();
-    });
+        const itemScores = state.scores[code] || {};
 
-  } catch (err) {
-    console.error("Initialization Failed:", err);
-  }
-});
-</script>
+        tbody.innerHTML = enrolled.map(p => {
+          const prevScore = itemScores[p.participantNo]?.marks || '';
+          return `
+            <tr class="hover:bg-slate-50 border-b border-slate-100">
+              <td class="py-3 px-4 font-bold text-indigo-600">${p.participantNo}</td>
+              <td class="py-3 px-4 font-semibold text-slate-800">${p.name}</td>
+              <td class="py-3 px-4 text-slate-600 text-xs">${p.madrasa}</td>
+              <td class="py-3 px-4 text-center">
+                <input type="number" min="0" max="${item.maxScore || 100}" value="${prevScore}" data-pid="${p.participantNo}" class="score-input w-24 px-3 py-1.5 border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none">
+              </td>
+              <td class="py-3 px-4 text-center">
+                <span class="text-xs font-semibold px-2 py-1 bg-slate-100 rounded text-slate-600">Auto Grade</span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      container.classList.remove('hidden');
+    }
+
+    // Save Item Scores
+    function saveItemScores() {
+      const code = document.getElementById('score-item-select').value;
+      const judge = document.getElementById('score-judge-name').value || 'Judge 1';
+
+      if (!code) {
+        alert('Please select an item first');
+        return;
+      }
+
+      if (!state.scores[code]) state.scores[code] = {};
+
+      const inputs = document.querySelectorAll('.score-input');
+      inputs.forEach(input => {
+        const pid = input.getAttribute('data-pid');
+        const val = parseFloat(input.value);
+        if (!isNaN(val)) {
+          state.scores[code][pid] = { marks: val, judge: judge };
+        }
+      });
+
+      saveStateToStorage();
+      alert('Scores saved successfully!');
+      renderDashboard();
+      renderResults();
+    }
+
+    // Render Results Table
+    function renderResults() {
+      const filterCode = document.getElementById('results-item-filter')?.value || '';
+      const tbody = document.getElementById('results-list-tbody');
+
+      let allResults = [];
+
+      Object.entries(state.scores).forEach(([code, pScores]) => {
+        if (filterCode && code !== filterCode) return;
+
+        const item = state.items.find(i => i.code === code);
+        const sorted = Object.entries(pScores)
+          .map(([pid, data]) => ({ pid, marks: data.marks, participant: state.participants.find(p => p.participantNo === pid) }))
+          .filter(x => x.participant)
+          .sort((a, b) => b.marks - a.marks);
+
+        sorted.forEach((res, pos) => {
+          let grade = 'C';
+          if (res.marks >= 80) grade = 'A';
+          else if (res.marks >= 70) grade = 'B';
+
+          let points = pos === 0 ? 10 : pos === 1 ? 7 : pos === 2 ? 5 : 0;
+
+          allResults.push({
+            position: pos + 1,
+            itemCode: code,
+            itemName: item ? item.name : 'Item ' + code,
+            participantNo: res.participant.participantNo,
+            name: res.participant.name,
+            madrasa: res.participant.madrasa,
+            marks: res.marks,
+            grade: grade,
+            points: points
+          });
+        });
+      });
+
+      if (allResults.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">No evaluated results available yet. Enter scores in the "Score Entry" section.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = allResults.map(r => `
+        <tr class="hover:bg-slate-50 border-b border-slate-100">
+          <td class="py-3 px-4 font-bold">
+            ${r.position === 1 ? '<span class="text-amber-500"><i class="fa-solid fa-trophy mr-1"></i>1st</span>' :
+              r.position === 2 ? '<span class="text-slate-400"><i class="fa-solid fa-medal mr-1"></i>2nd</span>' :
+              r.position === 3 ? '<span class="text-amber-700"><i class="fa-solid fa-award mr-1"></i>3rd</span>' : `#${r.position}`}
+          </td>
+          <td class="py-3 px-4 font-semibold text-slate-800">[${r.itemCode}] ${r.itemName}</td>
+          <td class="py-3 px-4 font-bold text-indigo-600">${r.participantNo}</td>
+          <td class="py-3 px-4 font-semibold text-slate-800">${r.name}</td>
+          <td class="py-3 px-4 text-slate-600">${r.madrasa}</td>
+          <td class="py-3 px-4 text-center font-bold text-slate-800">${r.marks}</td>
+          <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded font-bold text-xs ${r.grade === 'A' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'}">${r.grade}</span></td>
+          <td class="py-3 px-4 text-right font-extrabold text-indigo-600">+${r.points} pts</td>
+        </tr>
+      `).join('');
+    }
+
+    // EXCEL IMPORT ENGINE (ROBUST PARSING FIX)
+    function triggerExcelImport() {
+      document.getElementById('excel-file-input').click();
+    }
+
+    function handleExcelUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheet];
+          const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+          parseAndPreviewExcelRows(jsonRows);
+        } catch (err) {
+          alert('Error reading Excel file: ' + err.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+      e.target.value = ''; // Reset input
+    }
+
+    function parseAndPreviewExcelRows(rows) {
+      tempExcelParsedRows = [];
+
+      rows.forEach((row, idx) => {
+        let pNo = "", name = "", madrasa = "", category = "", itemsRaw = "";
+
+        // Header detection prioritizing "item" first so "Item Codes" is never caught by participant ID / code logic
+        for (const [key, val] of Object.entries(row)) {
+          if (val === null || val === undefined) continue;
+          const k = key.trim().toLowerCase();
+          const v = String(val).trim();
+          if (!v) continue;
+
+          if (k.includes("item") || k.includes("event")) {
+            itemsRaw += (itemsRaw ? "," : "") + v;
+          } else if (k.includes("chest") || k.includes("id") || k.includes("participant") || k.includes("no") || k === "sl" || (k.includes("code") && !k.includes("item"))) {
+            if (!pNo) pNo = v;
+          } else if (k.includes("name") || k.includes("student") || k.includes("contestant") || k.includes("full")) {
+            if (!name) name = v;
+          } else if (k.includes("madrasa") || k.includes("unit") || k.includes("school")) {
+            if (!madrasa) madrasa = v;
+          } else if (k.includes("cat") || k.includes("division") || k.includes("class")) {
+            if (!category) category = v;
+          }
+        }
+
+        if (!pNo && name) {
+          pNo = `P${String(state.participants.length + idx + 1).padStart(3, "0")}`;
+        }
+
+        // Extractor: Extracts all number sequences (e.g. 101, 102) from strings like "102- പദപയറ്റ്" or "101, 102"
+        let itemCodes = [];
+        if (itemsRaw) {
+          const matches = String(itemsRaw).match(/\d+/g);
+          if (matches) {
+            itemCodes = [...new Set(matches)];
+          }
+        }
+
+        if (name) {
+          tempExcelParsedRows.push({
+            participantNo: pNo,
+            name: name,
+            madrasa: madrasa || "Najah Unit",
+            category: CATEGORIES.includes(category) ? category : (category || "Kids"),
+            itemCodes: itemCodes
+          });
+        }
+      });
+
+      if (tempExcelParsedRows.length === 0) {
+        alert("Could not identify contestant data columns in Excel file.");
+        return;
+      }
+
+      showExcelPreviewModal(tempExcelParsedRows);
+    }
+
+    function showExcelPreviewModal(rows) {
+      const tbody = document.getElementById('excel-preview-tbody');
+      tbody.innerHTML = rows.map(r => `
+        <tr class="hover:bg-slate-50 border-b border-slate-100">
+          <td class="p-2.5 font-bold text-indigo-600">${r.participantNo}</td>
+          <td class="p-2.5 font-semibold text-slate-800">${r.name}</td>
+          <td class="p-2.5 text-slate-600">${r.madrasa}</td>
+          <td class="p-2.5">${r.category}</td>
+          <td class="p-2.5">
+            <div class="flex flex-wrap gap-1">
+              ${r.itemCodes.map(c => `<span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold">${c}</span>`).join('') || '<span class="text-slate-400">None</span>'}
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      document.getElementById('excel-preview-modal').classList.remove('hidden');
+    }
+
+    function closeExcelPreviewModal() {
+      document.getElementById('excel-preview-modal').classList.add('hidden');
+    }
+
+    function confirmImportExcel() {
+      if (tempExcelParsedRows.length > 0) {
+        // Merge or append to state
+        tempExcelParsedRows.forEach(newP => {
+          const idx = state.participants.findIndex(p => p.participantNo === newP.participantNo);
+          if (idx >= 0) {
+            state.participants[idx] = newP;
+          } else {
+            state.participants.push(newP);
+          }
+        });
+
+        saveStateToStorage();
+        closeExcelPreviewModal();
+        alert(`Successfully imported ${tempExcelParsedRows.length} contestants!`);
+        renderAllViews();
+      }
+    }
+
+    // Modal Helpers
+    function openAddContestantModal() {
+      document.getElementById('contestant-form').reset();
+      document.getElementById('modal-contestant-id').value = '';
+
+      const container = document.getElementById('contestant-items-checkboxes');
+      container.innerHTML = state.items.map(i => `
+        <label class="flex items-center space-x-2 cursor-pointer hover:bg-slate-50 p-1 rounded">
+          <input type="checkbox" name="item_checkbox" value="${i.code}" class="rounded text-indigo-600 focus:ring-indigo-500">
+          <span class="text-slate-700 font-medium">[${i.code}] ${i.name} (${i.category})</span>
+        </label>
+      `).join('');
+
+      document.getElementById('contestant-modal').classList.remove('hidden');
+    }
+
+    function closeContestantModal() {
+      document.getElementById('contestant-modal').classList.add('hidden');
+    }
+
+    function saveContestant(e) {
+      e.preventDefault();
+      const pNo = document.getElementById('modal-contestant-no').value.trim();
+      const name = document.getElementById('modal-contestant-name').value.trim();
+      const unit = document.getElementById('modal-contestant-unit').value.trim();
+      const cat = document.getElementById('modal-contestant-category').value;
+
+      const checkedBoxes = document.querySelectorAll('input[name="item_checkbox"]:checked');
+      const itemCodes = Array.from(checkedBoxes).map(cb => cb.value);
+
+      const existingIdx = state.participants.findIndex(p => p.participantNo === pNo);
+      const newObj = { participantNo: pNo, name: name, madrasa: unit, category: cat, itemCodes: itemCodes };
+
+      if (existingIdx >= 0) {
+        state.participants[existingIdx] = newObj;
+      } else {
+        state.participants.push(newObj);
+      }
+
+      saveStateToStorage();
+      closeContestantModal();
+      renderAllViews();
+    }
+
+    function deleteContestant(pNo) {
+      if (confirm(`Are you sure you want to delete contestant #${pNo}?`)) {
+        state.participants = state.participants.filter(p => p.participantNo !== pNo);
+        saveStateToStorage();
+        renderAllViews();
+      }
+    }
+
+    function openAddItemModal() {
+      document.getElementById('item-form').reset();
+      document.getElementById('item-modal').classList.remove('hidden');
+    }
+
+    function closeItemModal() {
+      document.getElementById('item-modal').classList.add('hidden');
+    }
+
+    function saveItem(e) {
+      e.preventDefault();
+      const code = document.getElementById('modal-item-code').value.trim();
+      const name = document.getElementById('modal-item-name').value.trim();
+      const cat = document.getElementById('modal-item-category').value;
+      const stage = document.getElementById('modal-item-stage').value.trim();
+      const maxScore = parseFloat(document.getElementById('modal-item-maxscore').value) || 100;
+
+      const existingIdx = state.items.findIndex(i => i.code === code);
+      const newObj = { code, name, category: cat, stage, maxScore };
+
+      if (existingIdx >= 0) {
+        state.items[existingIdx] = newObj;
+      } else {
+        state.items.push(newObj);
+      }
+
+      saveStateToStorage();
+      closeItemModal();
+      renderAllViews();
+    }
+
+    function deleteItem(code) {
+      if (confirm(`Are you sure you want to delete item #${code}?`)) {
+        state.items = state.items.filter(i => i.code !== code);
+        delete state.scores[code];
+        saveStateToStorage();
+        renderAllViews();
+      }
+    }
+
+    function loadSampleData() {
+      initDefaultItems();
+      alert('Sample items reloaded!');
+      renderAllViews();
+    }
+
+    function resetAllData() {
+      if (confirm("Are you sure you want to clear ALL data? This action cannot be undone.")) {
+        localStorage.removeItem('saraga_state_v2');
+        state = { items: [], participants: [], scores: {} };
+        renderAllViews();
+        alert("All system data has been reset.");
+      }
+    }
+
+    function exportResultsExcel() {
+      let rows = [];
+      Object.entries(state.scores).forEach(([code, pScores]) => {
+        const item = state.items.find(i => i.code === code);
+        Object.entries(pScores).forEach(([pid, data]) => {
+          const p = state.participants.find(x => x.participantNo === pid);
+          if (p) {
+            rows.push({
+              "Item Code": code,
+              "Item Name": item ? item.name : "",
+              "Chest No": p.participantNo,
+              "Contestant Name": p.name,
+              "Madrasa Unit": p.madrasa,
+              "Category": p.category,
+              "Marks": data.marks,
+              "Judge": data.judge
+            });
+          }
+        });
+      });
+
+      if (rows.length === 0) {
+        alert("No results available to export.");
+        return;
+      }
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Results");
+      XLSX.writeFile(wb, "SARAGA_Arts_Fest_Results.xlsx");
+    }
+  </script>
 </body>
 </html>
