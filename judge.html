@@ -1,0 +1,394 @@
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sargavasantham 2026-2027 | Judge Portal</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandRed: '#E53E3E',
+            brandBlue: '#2B6CB0',
+            madrasaGold: '#D69E2E',
+            judgePurple: '#6D28D9'
+          },
+          fontFamily: {
+            outfit: ['Outfit', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+    }
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    .modal-anim {
+      animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes modalPop {
+      0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getFirestore, doc, collection, setDoc, getDocs, onSnapshot, addDoc, query, where } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLyKNAbhjVj5yBKWjT4_t0DrPRxnuH86U",
+      authDomain: "event-1b1b1.firebaseapp.com",
+      projectId: "event-1b1b1",
+      storageBucket: "event-1b1b1.firebasestorage.app",
+      messagingSenderId: "825845170211",
+      appId: "1:825845170211:web:f9b3fcf5771b2bf0abf196"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.db = db;
+    window.firestoreModule = { doc, collection, setDoc, getDocs, onSnapshot, addDoc, query, where };
+  </script>
+</head>
+<body class="text-slate-800 pb-16 antialiased selection:bg-purple-600 selection:text-white">
+
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center font-black text-lg shadow-sm">
+          <i class="fa-solid fa-gavel"></i>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-black font-outfit text-white leading-tight">JUDGE EVALUATION PORTAL</h1>
+          <p class="text-[11px] text-purple-300 font-medium">Sargavasantham Talent Fest 2026-2027</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] bg-purple-900/80 border border-purple-500/40 text-purple-200 font-bold px-3 py-1 rounded-full flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Stage Evaluation Active
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-3 sm:px-6 py-6 space-y-6">
+
+    <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+      <h2 class="text-base font-black font-outfit text-slate-900 flex items-center gap-2">
+        <i class="fa-solid fa-sliders text-purple-600"></i> Event & Stage Setup
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1">Judge Name / ID</label>
+          <input type="text" id="judgeNameInput" placeholder="e.g. Judge 1 (Fahad Usthad)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-600">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1">Stage Number</label>
+          <select id="stageSelect" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-600">
+            <option value="Stage 1">Stage 1 (Main Hall)</option>
+            <option value="Stage 2">Stage 2 (Auditorium)</option>
+            <option value="Stage 3">Stage 3 (Classroom A)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1">Category</label>
+          <select id="categorySelect" onchange="onCategoryOrItemChange()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-600">
+            <option value="KIDS">KIDS</option>
+            <option value="CHILDREN">CHILDREN</option>
+            <option value="SUB JUNIOR">SUB JUNIOR</option>
+            <option value="JUNIOR">JUNIOR</option>
+            <option value="SENIOR">SENIOR</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-500 mb-1">Item Name</label>
+          <input type="text" id="itemNameInput" placeholder="e.g. Qirat, Speech, Song..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-600">
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        <div>
+          <h2 class="text-lg font-black font-outfit text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-clipboard-check text-purple-600"></i> Participant Evaluation Sheet
+          </h2>
+          <p class="text-xs text-slate-500 font-medium">Enter Chest Number, Criteria Marks & Comments. Total maximum score is 100.</p>
+        </div>
+
+        <button onclick="addParticipantRow()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all active:scale-95">
+          <i class="fa-solid fa-plus"></i> Add Participant
+        </button>
+      </div>
+
+      <!-- Criteria Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[700px]">
+          <thead>
+            <tr class="bg-slate-50 text-[11px] font-black uppercase tracking-wider text-slate-500 border-b border-slate-200">
+              <th class="p-3">Chest No</th>
+              <th class="p-3 text-center">Pitch & Melody (25)</th>
+              <th class="p-3 text-center">Diction & Pronun (25)</th>
+              <th class="p-3 text-center">Expression & Rhythm (25)</th>
+              <th class="p-3 text-center">Overall Stage (25)</th>
+              <th class="p-3 text-center">Total (100)</th>
+              <th class="p-3 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="participantRowsContainer" class="divide-y divide-slate-100 text-xs">
+            <!-- Dynamic rows rendered here -->
+          </tbody>
+        </table>
+      </div>
+
+      <div id="emptyRowMsg" class="text-center py-8 text-slate-400 font-semibold text-xs border-2 border-dashed border-slate-100 rounded-2xl">
+        No participants added yet. Click "+ Add Participant" above to start scoring.
+      </div>
+
+      <!-- Submit Evaluation Sheet Button -->
+      <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="text-xs text-slate-500 font-medium flex items-center gap-2">
+          <i class="fa-solid fa-circle-info text-amber-500"></i>
+          <span>Scores will be transmitted directly to the Admin Tabulation Hub.</span>
+        </div>
+        <button onclick="submitJudgeSheet()" class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black text-xs rounded-2xl shadow-md transition-all active:scale-98 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Submit Evaluation Sheet
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+      <h3 class="text-base font-black font-outfit text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-3">
+        <i class="fa-solid fa-clock-rotate-left text-purple-600"></i> Recent Judge Submissions Log
+      </h3>
+      <div id="evaluationsLog" class="space-y-2">
+        <p class="text-xs text-slate-400 italic font-medium py-4 text-center">Loading submitted sheets...</p>
+      </div>
+    </div>
+
+  </main>
+
+  <div id="customModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="modal-anim bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border border-slate-100">
+      <div id="modalIconContainer" class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 mx-auto flex items-center justify-center text-xl font-bold">
+        <i id="modalIcon" class="fa-solid fa-circle-check"></i>
+      </div>
+      <div>
+        <h3 id="modalTitle" class="text-lg font-black font-outfit text-slate-900">Notification</h3>
+        <p id="modalMessage" class="text-xs text-slate-500 font-medium mt-1">Operation completed successfully.</p>
+      </div>
+      <button onclick="closeModal()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all">
+        OK, Got it
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let participants = [];
+
+    window.addEventListener('load', () => {
+      addParticipantRow(); // Add initial blank row
+      setTimeout(listenSubmittedEvaluations, 500);
+    });
+
+    function addParticipantRow() {
+      const id = 'p_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+      participants.push({
+        id: id,
+        chestNo: '',
+        c1: 0, // Pitch 25
+        c2: 0, // Diction 25
+        c3: 0, // Expression 25
+        c4: 0, // Overall 25
+        total: 0
+      });
+      renderParticipantRows();
+    }
+
+    function removeParticipantRow(id) {
+      participants = participants.filter(p => p.id !== id);
+      renderParticipantRows();
+    }
+
+    function renderParticipantRows() {
+      const container = document.getElementById('participantRowsContainer');
+      const emptyMsg = document.getElementById('emptyRowMsg');
+
+      if (participants.length === 0) {
+        container.innerHTML = '';
+        emptyMsg.classList.remove('hidden');
+        return;
+      }
+      emptyMsg.classList.add('hidden');
+
+      container.innerHTML = participants.map((p, index) => {
+        return `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="p-2">
+              <input type="text" value="${p.chestNo}" oninput="updateParticipantData('${p.id}', 'chestNo', this.value)" placeholder="e.g. C-101" class="w-24 px-2.5 py-1.5 bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-purple-600">
+            </td>
+            <td class="p-2 text-center">
+              <input type="number" min="0" max="25" value="${p.c1 || ''}" oninput="updateParticipantMarks('${p.id}', 'c1', this.value)" placeholder="0-25" class="w-16 px-2 py-1.5 text-center bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-purple-600">
+            </td>
+            <td class="p-2 text-center">
+              <input type="number" min="0" max="25" value="${p.c2 || ''}" oninput="updateParticipantMarks('${p.id}', 'c2', this.value)" placeholder="0-25" class="w-16 px-2 py-1.5 text-center bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-purple-600">
+            </td>
+            <td class="p-2 text-center">
+              <input type="number" min="0" max="25" value="${p.c3 || ''}" oninput="updateParticipantMarks('${p.id}', 'c3', this.value)" placeholder="0-25" class="w-16 px-2 py-1.5 text-center bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-purple-600">
+            </td>
+            <td class="p-2 text-center">
+              <input type="number" min="0" max="25" value="${p.c4 || ''}" oninput="updateParticipantMarks('${p.id}', 'c4', this.value)" placeholder="0-25" class="w-16 px-2 py-1.5 text-center bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-purple-600">
+            </td>
+            <td class="p-2 text-center font-black text-sm text-purple-700 bg-purple-50/50 rounded-lg">
+              ${p.total}
+            </td>
+            <td class="p-2 text-center">
+              <button onclick="removeParticipantRow('${p.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 transition-colors">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updateParticipantData(id, key, val) {
+      const p = participants.find(item => item.id === id);
+      if (p) {
+        p[key] = val;
+      }
+    }
+
+    function updateParticipantMarks(id, key, val) {
+      const p = participants.find(item => item.id === id);
+      if (p) {
+        let num = parseFloat(val) || 0;
+        if (num < 0) num = 0;
+        if (num > 25) num = 25;
+        p[key] = num;
+        p.total = (p.c1 || 0) + (p.c2 || 0) + (p.c3 || 0) + (p.c4 || 0);
+        renderParticipantRows();
+      }
+    }
+
+    function onCategoryOrItemChange() {
+      // Callback placeholder
+    }
+
+    async function submitJudgeSheet() {
+      const judgeName = document.getElementById('judgeNameInput').value.trim();
+      const stage = document.getElementById('stageSelect').value;
+      const category = document.getElementById('categorySelect').value;
+      const itemName = document.getElementById('itemNameInput').value.trim();
+
+      if (!judgeName) {
+        showModal('Required Field', 'Please enter your Judge Name or ID before submitting.', 'fa-triangle-exclamation', 'bg-amber-100 text-amber-600');
+        return;
+      }
+      if (!itemName) {
+        showModal('Required Field', 'Please enter Item Name (e.g. Qirat, Story Telling).', 'fa-triangle-exclamation', 'bg-amber-100 text-amber-600');
+        return;
+      }
+
+      const validParticipants = participants.filter(p => p.chestNo && p.chestNo.trim() !== '');
+      if (validParticipants.length === 0) {
+        showModal('No Chest Numbers', 'Please enter at least one valid participant chest number.', 'fa-circle-exclamation', 'bg-rose-100 text-rose-600');
+        return;
+      }
+
+      try {
+        const { collection, addDoc } = window.firestoreModule;
+        const evalPayload = {
+          judgeName: judgeName,
+          stage: stage,
+          category: category,
+          item: itemName,
+          participants: validParticipants,
+          timestamp: new Date().toISOString()
+        };
+
+        await addDoc(collection(window.db, "sargavasantham_evaluations"), evalPayload);
+
+        showModal('Success!', `Evaluation sheet for "${itemName} (${category})" submitted successfully to Admin!`, 'fa-circle-check', 'bg-emerald-100 text-emerald-600');
+
+        // Reset
+        participants = [];
+        addParticipantRow();
+      } catch (e) {
+        console.error(e);
+        showModal('Submission Error', 'Failed to save evaluation sheet to database. Please retry.', 'fa-triangle-exclamation', 'bg-rose-100 text-rose-600');
+      }
+    }
+
+    function listenSubmittedEvaluations() {
+      if (!window.db || !window.firestoreModule) return;
+      const { collection, onSnapshot } = window.firestoreModule;
+
+      onSnapshot(collection(window.db, "sargavasantham_evaluations"), (snapshot) => {
+        const logsContainer = document.getElementById('evaluationsLog');
+        if (snapshot.empty) {
+          logsContainer.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-3">No evaluations submitted yet.</p>`;
+          return;
+        }
+
+        let html = '';
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          html += `
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="space-y-0.5">
+                <span class="font-extrabold text-slate-900">${data.item || 'Item'} (${data.category || ''})</span>
+                <p class="text-[10px] text-slate-500">Judge: <strong class="text-purple-700">${data.judgeName}</strong> • ${data.stage || ''}</p>
+              </div>
+              <span class="px-2.5 py-1 bg-purple-100 text-purple-700 font-bold rounded-lg text-[10px]">
+                ${(data.participants || []).length} Candidates Evaluated
+              </span>
+            </div>
+          `;
+        });
+        logsContainer.innerHTML = html;
+      });
+    }
+
+    function showModal(title, msg, iconClass, iconBgClass) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalMessage').textContent = msg;
+      const iconEl = document.getElementById('modalIcon');
+      iconEl.className = 'fa-solid ' + iconClass;
+      document.getElementById('modalIconContainer').className = 'w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-xl font-bold ' + iconBgClass;
+      document.getElementById('customModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('customModal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
