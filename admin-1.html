@@ -1,0 +1,735 @@
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sargavasantham 2026-2027 | Admin & Work Control Hub</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brandRed: { DEFAULT: '#E53E3E', dark: '#C53030' },
+            brandBlue: { DEFAULT: '#2B6CB0', dark: '#2C5282' },
+            madrasaGold: '#D69E2E',
+            adminIndigo: '#4338CA'
+          },
+          fontFamily: {
+            outfit: ['Outfit', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+    }
+    .modal-anim {
+      animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes modalPop {
+      0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .tab-btn.active {
+      background-color: #4338CA;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(67, 56, 202, 0.25);
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getFirestore, doc, collection, setDoc, updateDoc, deleteDoc, getDocs, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBLyKNAbhjVj5yBKWjT4_t0DrPRxnuH86U",
+      authDomain: "event-1b1b1.firebaseapp.com",
+      projectId: "event-1b1b1",
+      storageBucket: "event-1b1b1.firebasestorage.app",
+      messagingSenderId: "825845170211",
+      appId: "1:825845170211:web:f9b3fcf5771b2bf0abf196"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    window.db = db;
+    window.firestoreModule = { doc, collection, setDoc, updateDoc, deleteDoc, getDocs, onSnapshot, addDoc };
+  </script>
+</head>
+<body class="text-slate-800 antialiased selection:bg-indigo-600 selection:text-white pb-20">
+
+  <header class="bg-slate-950 text-white sticky top-0 z-40 border-b border-slate-800 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-lg shadow-sm">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-black font-outfit text-white leading-tight">ADMIN & STAGE WORK CONTROL HUB</h1>
+          <p class="text-[11px] text-slate-400 font-medium">Al Hikma Holiday Madrasa, Nandi • Sargavasantham 2026-27</p>
+        </div>
+      </div>
+
+      <!-- Live Score Counter Badges -->
+      <div class="flex items-center gap-2">
+        <div class="bg-rose-950/80 border border-rose-600/40 px-3 py-1 rounded-xl text-right">
+          <span class="text-[9px] text-rose-400 font-bold block">NAJAH (A)</span>
+          <span id="headerScoreA" class="text-xs font-black text-white">0 PTS</span>
+        </div>
+        <div class="bg-blue-950/80 border border-blue-600/40 px-3 py-1 rounded-xl text-right">
+          <span class="text-[9px] text-blue-400 font-bold block">FALAH (B)</span>
+          <span id="headerScoreB" class="text-xs font-black text-white">0 PTS</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 py-6 space-y-6">
+
+    <div class="bg-slate-200/80 p-1.5 rounded-2xl flex flex-wrap gap-1.5 text-xs font-bold text-slate-700">
+      <button onclick="switchTab('workTab')" id="tabBtn_workTab" class="tab-btn active flex-1 py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+        <i class="fa-solid fa-award"></i> Stage Work & Result Publish
+      </button>
+      <button onclick="switchTab('upcomingTab')" id="tabBtn_upcomingTab" class="tab-btn flex-1 py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+        <i class="fa-solid fa-calendar-days"></i> Stage Schedule
+      </button>
+      <button onclick="switchTab('studentsTab')" id="tabBtn_studentsTab" class="tab-btn flex-1 py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+        <i class="fa-solid fa-users-gear"></i> Student Roster
+      </button>
+      <button onclick="switchTab('scoresTab')" id="tabBtn_scoresTab" class="tab-btn flex-1 py-2.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+        <i class="fa-solid fa-sliders"></i> Master Score Adjuster
+      </button>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 1: WORK MODULE - STAGE WORK & RESULT PUBLISH -->
+    <!-- ========================================================================= -->
+    <div id="workTab" class="tab-content space-y-6">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Result Input Form -->
+        <div class="lg:col-span-2 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+          <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+            <h2 class="text-base font-black font-outfit text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-bullhorn text-indigo-600"></i> Tabulate & Publish Event Winner
+            </h2>
+            <span class="text-[11px] bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full">
+              Updates Scoreboard Live
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">Category</label>
+              <select id="winCategory" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                <option value="KIDS">KIDS</option>
+                <option value="CHILDREN">CHILDREN</option>
+                <option value="SUB JUNIOR">SUB JUNIOR</option>
+                <option value="JUNIOR">JUNIOR</option>
+                <option value="SENIOR">SENIOR</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">Item Name</label>
+              <input type="text" id="winItem" placeholder="e.g. Qirat, Story Telling" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">Winner Student Name</label>
+              <input type="text" id="winStudentName" placeholder="Student Name" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">Team</label>
+              <select id="winTeam" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                <option value="TEAM A">TEAM A (NAJAH)</option>
+                <option value="TEAM B">TEAM B (FALAH)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">Rank / Place</label>
+              <select id="winRank" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                <option value="1st Place">1st Place (10 Pts)</option>
+                <option value="2nd Place">2nd Place (5 Pts)</option>
+                <option value="3rd Place">3rd Place (3 Pts)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1">Grade (Optional)</label>
+              <select id="winGrade" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                <option value="Grade A">Grade A (+3 Pts)</option>
+                <option value="Grade B">Grade B (+1 Pt)</option>
+                <option value="None">None</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="publishWinnerResult()" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs rounded-2xl shadow-md transition-all active:scale-98 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-paper-plane"></i> Publish Result & Auto-Add Points
+          </button>
+        </div>
+
+        <!-- Live Submitted Judge Evaluations Feed -->
+        <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+          <h3 class="text-sm font-black font-outfit text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+            <i class="fa-solid fa-inbox text-purple-600"></i> Judge Sheets Feed
+          </h3>
+          <div id="evaluationsAdminFeed" class="space-y-2 max-h-80 overflow-y-auto">
+            <p class="text-xs text-slate-400 italic text-center py-4">No judge evaluations received yet.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+        <h3 class="text-base font-black font-outfit text-slate-900 flex items-center justify-between border-b border-slate-100 pb-3">
+          <span class="flex items-center gap-2">
+            <i class="fa-solid fa-trophy text-amber-500"></i> Published Event Winners List
+          </span>
+          <span id="winnerCountBadge" class="text-xs bg-slate-100 text-slate-700 px-3 py-1 rounded-full font-bold">0 Results</span>
+        </h3>
+
+        <div id="publishedWinnersTable" class="space-y-2">
+          <!-- Dynamic Winner items -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 2: STAGE SCHEDULE MANAGER -->
+    <!-- ========================================================================= -->
+    <div id="upcomingTab" class="tab-content hidden space-y-6">
+      
+      <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-base font-black font-outfit text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+          <i class="fa-solid fa-calendar-plus text-indigo-600"></i> Add New Stage Schedule Event
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">Category</label>
+            <select id="schedCat" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+              <option value="KIDS">KIDS</option>
+              <option value="CHILDREN">CHILDREN</option>
+              <option value="SUB JUNIOR">SUB JUNIOR</option>
+              <option value="JUNIOR">JUNIOR</option>
+              <option value="SENIOR">SENIOR</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">Item Name</label>
+            <input type="text" id="schedItem" placeholder="e.g. Action Song, Elocution" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">Stage Location</label>
+            <input type="text" id="schedStage" placeholder="e.g. Stage 1 (Main Hall)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">Time / Status</label>
+            <input type="text" id="schedTime" placeholder="e.g. 10:30 AM (Stage Live)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+          </div>
+        </div>
+
+        <button onclick="addUpcomingEvent()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-2">
+          <i class="fa-solid fa-plus"></i> Add Event to Schedule
+        </button>
+      </div>
+
+      <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+        <h3 class="text-base font-black font-outfit text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-indigo-600"></i> Scheduled Events List
+        </h3>
+        <div id="adminUpcomingList" class="space-y-2">
+          <!-- Dynamic schedule cards -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 3: STUDENT MANAGEMENT -->
+    <!-- ========================================================================= -->
+    <div id="studentsTab" class="tab-content hidden space-y-6">
+      
+      <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+        <h2 class="text-base font-black font-outfit text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+          <i class="fa-solid fa-user-plus text-indigo-600"></i> Register New Student
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">Student Full Name</label>
+            <input type="text" id="studNameInput" placeholder="Full Name" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">Team</label>
+            <select id="studTeamSelect" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+              <option value="TEAM A">TEAM A (NAJAH)</option>
+              <option value="TEAM B">TEAM B (FALAH)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">Category</label>
+            <select id="studCatSelect" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+              <option value="KIDS">KIDS</option>
+              <option value="CHILDREN">CHILDREN</option>
+              <option value="SUB JUNIOR">SUB JUNIOR</option>
+              <option value="JUNIOR">JUNIOR</option>
+              <option value="SENIOR">SENIOR</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1">Participating Items (Comma-separated)</label>
+            <input type="text" id="studItemsInput" placeholder="e.g. Qirat, Story Telling" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+          </div>
+        </div>
+
+        <button onclick="addStudentRecord()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center gap-2">
+          <i class="fa-solid fa-user-check"></i> Add Student
+        </button>
+      </div>
+
+      <div class="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <h3 class="text-base font-black font-outfit text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-address-book text-indigo-600"></i> Registered Student Roster
+          </h3>
+          <input type="text" id="studSearchAdmin" oninput="renderAdminStudents()" placeholder="Filter by name..." class="px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+        </div>
+
+        <div id="adminStudentsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <!-- Dynamic student cards -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- TAB 4: MASTER SCORE ADJUSTER -->
+    <!-- ========================================================================= -->
+    <div id="scoresTab" class="tab-content hidden space-y-6">
+      
+      <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-6 max-w-2xl mx-auto text-center">
+        <h2 class="text-xl font-black font-outfit text-slate-900 flex items-center justify-center gap-2">
+          <i class="fa-solid fa-calculator text-indigo-600"></i> Master Scoreboard Adjustment
+        </h2>
+        <p class="text-xs text-slate-500 font-medium">Directly adjust overall team points for Team Najah and Team Falah.</p>
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- TEAM A OVERRIDE -->
+          <div class="p-4 bg-rose-50 border-2 border-rose-200 rounded-2xl space-y-3">
+            <span class="text-xs font-black text-rose-600 block">TEAM NAJAH (A)</span>
+            <span id="adjustScoreA" class="text-3xl font-black text-slate-900 block">0</span>
+            <div class="flex gap-1.5 justify-center">
+              <button onclick="modifyScore('A', 5)" class="px-3 py-1.5 bg-rose-600 text-white font-bold text-xs rounded-lg">+5</button>
+              <button onclick="modifyScore('A', 1)" class="px-3 py-1.5 bg-rose-600 text-white font-bold text-xs rounded-lg">+1</button>
+              <button onclick="modifyScore('A', -1)" class="px-3 py-1.5 bg-slate-800 text-white font-bold text-xs rounded-lg">-1</button>
+            </div>
+          </div>
+
+          <!-- TEAM B OVERRIDE -->
+          <div class="p-4 bg-blue-50 border-2 border-blue-200 rounded-2xl space-y-3">
+            <span class="text-xs font-black text-blue-600 block">TEAM FALAH (B)</span>
+            <span id="adjustScoreB" class="text-3xl font-black text-slate-900 block">0</span>
+            <div class="flex gap-1.5 justify-center">
+              <button onclick="modifyScore('B', 5)" class="px-3 py-1.5 bg-blue-600 text-white font-bold text-xs rounded-lg">+5</button>
+              <button onclick="modifyScore('B', 1)" class="px-3 py-1.5 bg-blue-600 text-white font-bold text-xs rounded-lg">+1</button>
+              <button onclick="modifyScore('B', -1)" class="px-3 py-1.5 bg-slate-800 text-white font-bold text-xs rounded-lg">-1</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-100 flex justify-center gap-3">
+          <button onclick="saveManualScore()" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs rounded-2xl shadow-md transition-all active:scale-98">
+            <i class="fa-solid fa-floppy-disk"></i> Save Scoreboard State
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <div id="customModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="modal-anim bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl border border-slate-100">
+      <div id="modalIconContainer" class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 mx-auto flex items-center justify-center text-xl font-bold">
+        <i id="modalIcon" class="fa-solid fa-circle-check"></i>
+      </div>
+      <div>
+        <h3 id="modalTitle" class="text-lg font-black font-outfit text-slate-900">Notification</h3>
+        <p id="modalMessage" class="text-xs text-slate-500 font-medium mt-1">Done.</p>
+      </div>
+      <button onclick="closeModal()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all">
+        OK
+      </button>
+    </div>
+  </div>
+
+  <script>
+    let scores = { teamA: 0, teamB: 0 };
+    let winnersList = [];
+    let upcomingList = [];
+    let studentsList = [];
+    let evalList = [];
+
+    window.addEventListener('load', () => {
+      initFirebaseListeners();
+    });
+
+    function initFirebaseListeners() {
+      if (!window.db || !window.firestoreModule) {
+        setTimeout(initFirebaseListeners, 300);
+        return;
+      }
+
+      const { doc, collection, onSnapshot } = window.firestoreModule;
+
+      // 1. Scores
+      onSnapshot(doc(window.db, "sargavasantham", "scores"), (snap) => {
+        if (snap.exists()) {
+          scores = snap.data();
+          updateHeaderScores();
+        }
+      });
+
+      // 2. Winners
+      onSnapshot(collection(window.db, "sargavasantham_winners"), (snap) => {
+        winnersList = [];
+        snap.forEach(d => winnersList.push({ id: d.id, ...d.data() }));
+        renderAdminWinners();
+      });
+
+      // 3. Upcoming Schedule
+      onSnapshot(collection(window.db, "sargavasantham_upcoming"), (snap) => {
+        upcomingList = [];
+        snap.forEach(d => upcomingList.push({ id: d.id, ...d.data() }));
+        renderAdminUpcoming();
+      });
+
+      // 4. Students Roster
+      onSnapshot(collection(window.db, "sargavasantham_students"), (snap) => {
+        studentsList = [];
+        snap.forEach(d => studentsList.push({ id: d.id, ...d.data() }));
+        renderAdminStudents();
+      });
+
+      // 5. Judge Evaluations Feed
+      onSnapshot(collection(window.db, "sargavasantham_evaluations"), (snap) => {
+        evalList = [];
+        snap.forEach(d => evalList.push({ id: d.id, ...d.data() }));
+        renderEvaluationsFeed();
+      });
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(tabId).classList.remove('hidden');
+      document.getElementById('tabBtn_' + tabId).classList.add('active');
+    }
+
+    function updateHeaderScores() {
+      const a = scores.teamA || 0;
+      const b = scores.teamB || 0;
+      document.getElementById('headerScoreA').textContent = a + ' PTS';
+      document.getElementById('headerScoreB').textContent = b + ' PTS';
+      document.getElementById('adjustScoreA').textContent = a;
+      document.getElementById('adjustScoreB').textContent = b;
+    }
+
+    async function publishWinnerResult() {
+      const category = document.getElementById('winCategory').value;
+      const item = document.getElementById('winItem').value.trim();
+      const studentName = document.getElementById('winStudentName').value.trim();
+      const team = document.getElementById('winTeam').value;
+      const rank = document.getElementById('winRank').value;
+      const grade = document.getElementById('winGrade').value;
+
+      if (!item || !studentName) {
+        showModal('Required Fields Missing', 'Please enter both Item Name and Winner Student Name.', 'fa-triangle-exclamation', 'bg-amber-100 text-amber-600');
+        return;
+      }
+
+      // Calculate points
+      let pts = 0;
+      if (rank === '1st Place') pts += 10;
+      else if (rank === '2nd Place') pts += 5;
+      else if (rank === '3rd Place') pts += 3;
+
+      if (grade === 'Grade A') pts += 3;
+      else if (grade === 'Grade B') pts += 1;
+
+      try {
+        const { collection, addDoc, doc, setDoc } = window.firestoreModule;
+
+        // 1. Add to winners collection
+        await addDoc(collection(window.db, "sargavasantham_winners"), {
+          category,
+          item,
+          name: studentName,
+          team,
+          rank,
+          grade: grade === 'None' ? '' : grade,
+          points: pts,
+          timestamp: new Date().toISOString()
+        });
+
+        // 2. Update overall team scores
+        if (team.includes('A')) {
+          scores.teamA = (scores.teamA || 0) + pts;
+        } else {
+          scores.teamB = (scores.teamB || 0) + pts;
+        }
+
+        await setDoc(doc(window.db, "sargavasantham", "scores"), scores);
+
+        showModal('Winner Published!', `${studentName} (${team}) awarded ${pts} points for ${rank}!`, 'fa-circle-check', 'bg-emerald-100 text-emerald-600');
+
+        // Reset inputs
+        document.getElementById('winItem').value = '';
+        document.getElementById('winStudentName').value = '';
+      } catch (e) {
+        console.error(e);
+        showModal('Error', 'Failed to publish result. Try again.', 'fa-circle-xmark', 'bg-rose-100 text-rose-600');
+      }
+    }
+
+    function renderAdminWinners() {
+      const container = document.getElementById('publishedWinnersTable');
+      document.getElementById('winnerCountBadge').textContent = `${winnersList.length} Results`;
+
+      if (winnersList.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-6">No results published yet.</p>`;
+        return;
+      }
+
+      container.innerHTML = winnersList.map(w => {
+        const isTeamA = (w.team || '').includes('A');
+        return `
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="px-2.5 py-1 rounded-xl text-[10px] font-black ${isTeamA ? 'bg-rose-100 text-rose-700' : 'bg-blue-100 text-blue-700'}">
+                ${w.team || 'NA'}
+              </span>
+              <div class="min-w-0">
+                <span class="font-black text-slate-900 block truncate">${w.name || 'Student'}</span>
+                <span class="text-[10px] text-slate-500 font-medium">${w.item} • ${w.category}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-lg border border-amber-200 text-[11px]">
+                ${w.rank} ${w.grade ? '(' + w.grade + ')' : ''}
+              </span>
+              <button onclick="deleteWinner('${w.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 transition-colors">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function deleteWinner(id) {
+      try {
+        const { doc, deleteDoc } = window.firestoreModule;
+        await deleteDoc(doc(window.db, "sargavasantham_winners", id));
+        showModal('Deleted', 'Winner record deleted.', 'fa-circle-check', 'bg-emerald-100 text-emerald-600');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function renderEvaluationsFeed() {
+      const container = document.getElementById('evaluationsAdminFeed');
+      if (evalList.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">No judge sheets received.</p>`;
+        return;
+      }
+
+      container.innerHTML = evalList.map(e => `
+        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1">
+          <div class="flex justify-between items-center font-bold text-slate-900">
+            <span>${e.item} (${e.category})</span>
+            <span class="text-[10px] text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full">${e.judgeName}</span>
+          </div>
+          <div class="text-[10px] text-slate-500">
+            Participants scored: ${(e.participants || []).map(p => p.chestNo + ' (' + p.total + 'pts)').join(', ')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function addUpcomingEvent() {
+      const category = document.getElementById('schedCat').value;
+      const item = document.getElementById('schedItem').value.trim();
+      const stage = document.getElementById('schedStage').value.trim();
+      const time = document.getElementById('schedTime').value.trim();
+
+      if (!item) {
+        showModal('Missing Item Name', 'Please fill in the item name.', 'fa-triangle-exclamation', 'bg-amber-100 text-amber-600');
+        return;
+      }
+
+      try {
+        const { collection, addDoc } = window.firestoreModule;
+        await addDoc(collection(window.db, "sargavasantham_upcoming"), {
+          category,
+          item,
+          stage: stage || 'Stage 1',
+          time: time || 'Scheduled',
+          status: 'Upcoming'
+        });
+
+        document.getElementById('schedItem').value = '';
+        showModal('Scheduled', 'Upcoming stage event added.', 'fa-circle-check', 'bg-emerald-100 text-emerald-600');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function renderAdminUpcoming() {
+      const container = document.getElementById('adminUpcomingList');
+      if (upcomingList.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-6">No scheduled events.</p>`;
+        return;
+      }
+
+      container.innerHTML = upcomingList.map(u => `
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between text-xs">
+          <div>
+            <span class="font-extrabold text-slate-900 block">${u.item} (${u.category})</span>
+            <span class="text-[10px] text-slate-500">${u.stage} • ${u.time}</span>
+          </div>
+          <button onclick="deleteUpcoming('${u.id}')" class="p-1.5 text-slate-400 hover:text-rose-600">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function deleteUpcoming(id) {
+      try {
+        const { doc, deleteDoc } = window.firestoreModule;
+        await deleteDoc(doc(window.db, "sargavasantham_upcoming", id));
+      } catch (e) { console.error(e); }
+    }
+
+    async function addStudentRecord() {
+      const name = document.getElementById('studNameInput').value.trim();
+      const team = document.getElementById('studTeamSelect').value;
+      const category = document.getElementById('studCatSelect').value;
+      const items = document.getElementById('studItemsInput').value.trim();
+
+      if (!name) {
+        showModal('Missing Name', 'Please enter student full name.', 'fa-triangle-exclamation', 'bg-amber-100 text-amber-600');
+        return;
+      }
+
+      try {
+        const { collection, addDoc } = window.firestoreModule;
+        await addDoc(collection(window.db, "sargavasantham_students"), {
+          name, team, category, items, achievements: ''
+        });
+
+        document.getElementById('studNameInput').value = '';
+        document.getElementById('studItemsInput').value = '';
+        showModal('Registered', `${name} registered successfully.`, 'fa-circle-check', 'bg-emerald-100 text-emerald-600');
+      } catch (e) { console.error(e); }
+    }
+
+    function renderAdminStudents() {
+      const container = document.getElementById('adminStudentsContainer');
+      const search = (document.getElementById('studSearchAdmin')?.value || '').toLowerCase().trim();
+
+      const filtered = studentsList.filter(s => (s.name || '').toLowerCase().includes(search));
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<p class="col-span-3 text-xs text-slate-400 italic text-center py-6">No students found.</p>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(s => {
+        const isA = (s.team || '').includes('A');
+        return `
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1 text-xs relative">
+            <button onclick="deleteStudent('${s.id}')" class="absolute top-2 right-2 text-slate-300 hover:text-rose-600 text-xs">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+            <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-md ${isA ? 'bg-rose-100 text-rose-700' : 'bg-blue-100 text-blue-700'}">
+              ${s.team}
+            </span>
+            <h4 class="font-extrabold text-slate-900 leading-tight">${s.name}</h4>
+            <p class="text-[10px] text-slate-500 font-medium">Cat: ${s.category} | Items: ${s.items || 'None'}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function deleteStudent(id) {
+      try {
+        const { doc, deleteDoc } = window.firestoreModule;
+        await deleteDoc(doc(window.db, "sargavasantham_students", id));
+      } catch (e) { console.error(e); }
+    }
+
+    function modifyScore(team, val) {
+      if (team === 'A') scores.teamA = Math.max(0, (scores.teamA || 0) + val);
+      if (team === 'B') scores.teamB = Math.max(0, (scores.teamB || 0) + val);
+      updateHeaderScores();
+    }
+
+    async function saveManualScore() {
+      try {
+        const { doc, setDoc } = window.firestoreModule;
+        await setDoc(doc(window.db, "sargavasantham", "scores"), scores);
+        showModal('Scores Updated!', 'Master scoreboard state saved successfully to database.', 'fa-circle-check', 'bg-emerald-100 text-emerald-600');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function showModal(title, msg, iconClass, iconBgClass) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalMessage').textContent = msg;
+      const iconEl = document.getElementById('modalIcon');
+      iconEl.className = 'fa-solid ' + iconClass;
+      document.getElementById('modalIconContainer').className = 'w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-xl font-bold ' + iconBgClass;
+      document.getElementById('customModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('customModal').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
