@@ -44,9 +44,13 @@
   </script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
-      height: 100vh;
-      height: 100dvh;
+      min-height: 100vh;
+      min-height: 100dvh;
       width: 100vw;
       margin: 0;
       padding: 0;
@@ -56,7 +60,7 @@
       color: #f8fafc;
     }
 
-    /* Dedicated Fullscreen & TV Display Alignment */
+    /* Dedicated Fullscreen & TV Display Layout Alignment */
     :fullscreen, :-webkit-full-screen {
       width: 100vw !important;
       height: 100vh !important;
@@ -68,21 +72,21 @@
       justify-content: space-between !important;
     }
 
-    /* Responsive TV Image Constraints - Prevents oversized graphic bugs */
+    /* Strict Image Sizing for TV Browsers */
     .brand-logo-img {
-      max-height: 2.75rem;
+      max-height: 2.5rem;
+      max-width: 140px;
       width: auto;
       object-fit: contain;
     }
-
     @media (min-width: 640px) {
-      .brand-logo-img { max-height: 3.5rem; }
+      .brand-logo-img { max-height: 3.25rem; max-width: 180px; }
     }
     @media (min-width: 1024px) {
-      .brand-logo-img { max-height: 4rem; }
+      .brand-logo-img { max-height: 4rem; max-width: 220px; }
     }
     @media (min-width: 1920px) {
-      .brand-logo-img { max-height: 5.5rem; }
+      .brand-logo-img { max-height: 5rem; max-width: 280px; }
     }
 
     .banner-title-img {
@@ -92,40 +96,36 @@
       object-fit: contain;
     }
     @media (min-width: 640px) {
-      .banner-title-img { max-height: 3.25rem; }
+      .banner-title-img { max-height: 3.5rem; }
     }
     @media (min-width: 1024px) {
-      .banner-title-img { max-height: 4.25rem; }
+      .banner-title-img { max-height: 4.5rem; }
     }
     @media (min-width: 1920px) {
       .banner-title-img { max-height: 6rem; }
     }
 
-    /* TV/Desktop strict fit handling */
-    @media (min-height: 600px) and (min-width: 768px) {
-      body {
-        overflow: hidden;
-      }
-    }
-
-    /* Transition for Header Toggle */
+    /* Header Collapsible Transition */
     #topHeader {
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+      max-height: 150px;
+      opacity: 1;
     }
     #topHeader.header-hidden {
       max-height: 0px !important;
       opacity: 0 !important;
       padding-top: 0 !important;
       padding-bottom: 0 !important;
-      margin: 0 !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
       border: none !important;
       overflow: hidden !important;
       pointer-events: none !important;
     }
 
-    /* Score Elevation FX - Standardized level positioning */
+    /* Score Card Elevation */
     .team-card {
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
       height: 100%;
     }
     
@@ -137,22 +137,22 @@
 
     .team-lowered {
       transform: scale(0.98);
-      opacity: 0.88;
+      opacity: 0.90;
     }
 
     /* Neon Glow Filters */
     .glow-red {
-      box-shadow: 0 0 45px rgba(229, 62, 62, 0.35), inset 0 0 20px rgba(229, 62, 62, 0.15);
+      box-shadow: 0 0 35px rgba(229, 62, 62, 0.3), inset 0 0 15px rgba(229, 62, 62, 0.1);
     }
 
     .glow-blue {
-      box-shadow: 0 0 45px rgba(43, 108, 176, 0.35), inset 0 0 20px rgba(43, 108, 176, 0.15);
+      box-shadow: 0 0 35px rgba(43, 108, 176, 0.3), inset 0 0 15px rgba(43, 108, 176, 0.1);
     }
 
     /* Floating Crown Badge Animation */
     @keyframes crownFloat {
       0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
-      50% { transform: translateY(-6px) rotate(3deg) scale(1.08); }
+      50% { transform: translateY(-5px) rotate(2deg) scale(1.05); }
     }
     .animate-crown {
       animation: crownFloat 2.5s ease-in-out infinite;
@@ -160,8 +160,8 @@
 
     /* Pulse Beam for Leading Team */
     @keyframes pulseBeam {
-      0%, 100% { opacity: 0.25; transform: scale(1); }
-      50% { opacity: 0.7; transform: scale(1.05); }
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.03); }
     }
     .animate-beam {
       animation: pulseBeam 2s infinite ease-in-out;
@@ -177,7 +177,7 @@
       100% { background-position: -100% 0; }
     }
 
-    /* Auto refresh indicator animation */
+    /* Auto refresh sync dot animation */
     @keyframes syncPulse {
       0% { opacity: 0.3; }
       50% { opacity: 1; }
@@ -193,7 +193,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
     import { getFirestore, doc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
 
-    // Firebase Configuration (Preserved original config)
+    // Firebase Configuration (Unchanged logic & keys)
     const firebaseConfig = {
       apiKey: "AIzaSyBLyKNAbhjVj5yBKWjT4_t0DrPRxnuH86U",
       authDomain: "event-1b1b1.firebaseapp.com",
@@ -209,163 +209,163 @@
     window.firestoreModule = { doc, onSnapshot, getDoc };
   </script>
 </head>
-<body class="h-screen w-screen flex flex-col justify-between p-2 sm:p-4 md:p-6 lg:p-8 selection:bg-amber-500 selection:text-slate-900 overflow-y-auto md:overflow-hidden relative">
+<body class="min-h-screen w-screen flex flex-col justify-between p-2 sm:p-4 md:p-6 lg:p-8 selection:bg-amber-500 selection:text-slate-900 overflow-x-hidden relative">
 
-  <!-- TOP HEADER WITH RESPONSIVE LOGOS -->
-  <header id="topHeader" class="w-full max-w-[1800px] mx-auto flex items-center justify-between py-1.5 sm:py-2 border-b border-slate-800/80 shrink-0 max-h-[120px]">
+  <!-- TOP HEADER WITH LOGOS -->
+  <header id="topHeader" class="w-full max-w-[1920px] mx-auto flex items-center justify-between gap-2 sm:gap-4 py-2 px-3 sm:px-6 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-lg backdrop-blur-md shrink-0 mb-2 sm:mb-4">
     
-    <!-- Left Logos -->
-    <div class="flex items-center space-x-2 sm:space-x-4 shrink-0">
+    <!-- Left Logo Group -->
+    <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
       <img src="madrasa.png" alt="Al Hikma Logo" class="brand-logo-img" onerror="this.src='https://via.placeholder.com/100x60?text=Al+Hikma'">
-      <div class="hidden sm:block h-6 sm:h-8 lg:h-10 w-px bg-slate-800"></div>
+      <div class="hidden sm:block h-6 sm:h-8 w-px bg-slate-800"></div>
       <img src="Wisdom Education Board Logo.png" alt="Wisdom Board" class="brand-logo-img hidden md:block" onerror="this.src='https://via.placeholder.com/140x60?text=Wisdom'">
     </div>
 
-    <!-- Center Festival Title Banner -->
-    <div class="text-center flex-1 px-2 flex justify-center items-center">
-      <img src="SargHor.png" alt="Sargavasantham 2026-27" class="banner-title-img brightness-110 drop-shadow-lg" onerror="this.src='https://via.placeholder.com/300x70?text=Sargavasantham+2026-27'">
+    <!-- Center Banner Image -->
+    <div class="text-center flex-1 px-2 flex justify-center items-center min-w-0">
+      <img src="SargHor.png" alt="Sargavasantham 2026-27" class="banner-title-img brightness-110 drop-shadow-md" onerror="this.src='https://via.placeholder.com/260x60?text=Sargavasantham+2026-27'">
     </div>
 
-    <!-- Right Controls -->
-    <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-      <!-- 5-Sec Auto Refresh Indicator Badge -->
-      <div class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-slate-800/80 rounded-xl border border-slate-700/60 text-xs text-emerald-400 font-semibold">
-        <span id="syncDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-        <span>Auto Sync: <span id="refreshTimer">5s</span></span>
+    <!-- Right Responsive Action Controls -->
+    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <!-- Auto Sync Indicator Badge -->
+      <div class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-slate-800/90 rounded-xl border border-slate-700/80 text-xs text-emerald-400 font-bold shadow-inner">
+        <span id="syncDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+        <span>Auto Sync: <span id="refreshTimer" class="font-mono">5s</span></span>
       </div>
 
       <!-- Hide Header Button -->
-      <button onclick="toggleHeader()" title="Toggle Header (Hotkey: H)" class="p-2 sm:p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all shadow-sm">
+      <button onclick="toggleHeader()" title="Clean View (Hotkey: H)" class="px-2.5 sm:px-3 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-slate-700/80 transition-all shadow-md">
         <i id="headerToggleIcon" class="fa-solid fa-eye-slash text-sky-400"></i>
         <span class="hidden xl:inline">Clean View</span>
       </button>
 
       <!-- Fullscreen Button -->
-      <button onclick="toggleFullScreen()" title="Toggle TV Fullscreen (Hotkey: F)" class="p-2 sm:p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all shadow-sm">
+      <button onclick="toggleFullScreen()" title="TV Fullscreen (Hotkey: F)" class="px-2.5 sm:px-3 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-slate-700/80 transition-all shadow-md">
         <i class="fa-solid fa-expand text-amber-400"></i>
         <span class="hidden sm:inline">TV Screen</span>
       </button>
 
-      <!-- Home Link -->
-      <a href="index.html" class="p-2 sm:p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all shadow-sm">
+      <!-- Main Site Home Button -->
+      <a href="index.html" class="px-2.5 sm:px-3 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 border border-slate-700/80 transition-all shadow-md">
         <i class="fa-solid fa-house text-emerald-400"></i>
         <span class="hidden sm:inline">Main Site</span>
       </a>
     </div>
   </header>
 
-  <!-- FLOATING HEADER RE-SHOW BUTTON (Visible when header is hidden) -->
-  <div id="floatingHeaderRestore" class="fixed top-2 right-3 z-50 hidden transition-all duration-300">
-    <button onclick="toggleHeader()" class="px-3 py-1.5 bg-slate-900/90 hover:bg-slate-800 text-amber-400 border border-slate-700/80 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 backdrop-blur-md">
+  <!-- FLOATING RESTORE BUTTON (Shown when top header is hidden) -->
+  <div id="floatingHeaderRestore" class="fixed top-3 right-4 z-50 hidden transition-all duration-300">
+    <button onclick="toggleHeader()" class="px-4 py-2 bg-slate-900/95 hover:bg-slate-800 active:scale-95 text-amber-400 border border-amber-500/40 rounded-full text-xs font-black shadow-2xl flex items-center gap-2 backdrop-blur-md">
       <i class="fa-solid fa-eye"></i>
-      <span>Show Header</span>
+      <span>Show Header (H)</span>
     </button>
   </div>
 
-  <!-- MAIN HORIZONTAL SCORE ARENA (OPTIMIZED FOR TV & LARGE SCREENS) -->
-  <main class="w-full max-w-[1800px] mx-auto my-auto py-2 sm:py-4 flex-1 flex flex-col justify-center space-y-3 sm:space-y-6 overflow-hidden">
+  <!-- MAIN HORIZONTAL SCORE ARENA -->
+  <main class="w-full max-w-[1920px] mx-auto my-auto py-2 flex-1 flex flex-col justify-center space-y-3 sm:space-y-4 min-h-0">
     
-    <!-- Sub Title Status -->
-    <div class="text-center space-y-1 shrink-0">
-      <h1 class="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black font-outfit tracking-tight text-slate-100 uppercase drop-shadow-sm">
+    <!-- Arena Sub-Title Status -->
+    <div class="text-center shrink-0">
+      <h1 class="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-black font-outfit tracking-wider text-slate-100 uppercase drop-shadow">
         Grand Championship Board
       </h1>
     </div>
 
-    <!-- SIDE BY SIDE HORIZONTAL SCORE CARDS -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8 2xl:gap-12 relative items-stretch pt-1 sm:pt-3">
+    <!-- SIDE BY SIDE TEAMS GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 xl:gap-10 items-stretch flex-1 min-h-0 relative">
       
-      <!-- VS BADGE IN CENTER -->
+      <!-- VS CENTER BADGE -->
       <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-30 hidden md:flex flex-col items-center pointer-events-none">
-        <div class="w-12 h-12 lg:w-16 lg:h-16 2xl:w-20 2xl:h-20 rounded-full bg-slate-950 border-2 border-amber-400 text-amber-400 font-black text-lg lg:text-2xl 2xl:text-3xl flex items-center justify-center shadow-2xl tracking-widest">
+        <div class="w-12 h-12 lg:w-16 lg:h-16 xl:w-20 xl:h-20 rounded-full bg-slate-950 border-2 border-amber-400 text-amber-400 font-black text-base lg:text-xl xl:text-2xl flex items-center justify-center shadow-2xl tracking-widest shrink-0">
           VS
         </div>
-        <div id="leadBadge" class="mt-2 px-3 py-1 lg:px-4 lg:py-1.5 bg-slate-950/95 border border-slate-700 text-xs lg:text-sm font-extrabold text-amber-300 rounded-full shadow-lg whitespace-nowrap">
+        <div id="leadBadge" class="mt-2 px-3 py-1 bg-slate-950/95 border border-slate-700 text-xs sm:text-sm font-extrabold text-amber-300 rounded-full shadow-xl whitespace-nowrap">
           Scores Tied
         </div>
       </div>
 
-      <!-- TEAM A (RED) CARD -->
-      <div id="cardTeamA" class="team-card relative overflow-hidden rounded-2xl lg:rounded-3xl bg-slate-900/90 border-2 border-rose-600/60 p-4 sm:p-6 lg:p-8 2xl:p-10 shadow-2xl glow-red flex flex-col justify-between min-h-[220px] sm:min-h-[280px] lg:min-h-[340px] 2xl:min-h-[420px] h-full">
+      <!-- TEAM A (RED WARRIORS) CARD -->
+      <div id="cardTeamA" class="team-card relative overflow-hidden rounded-2xl lg:rounded-3xl bg-slate-900/90 border-2 border-rose-600/60 p-4 sm:p-6 lg:p-8 xl:p-10 shadow-2xl glow-red flex flex-col justify-between min-h-[240px] sm:min-h-[280px] lg:min-h-[360px]">
         
-        <!-- Glowing Beam for Leader -->
+        <!-- Leader Glow Effect -->
         <div id="beamTeamA" class="absolute inset-0 bg-rose-500/10 pointer-events-none opacity-0 transition-opacity duration-500 animate-beam"></div>
 
-        <!-- Floating Leader Badge -->
+        <!-- Floating Leader Crown Badge -->
         <div id="crownTeamA" class="absolute top-3 right-3 sm:top-5 sm:right-5 hidden animate-crown bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs sm:text-sm font-black shadow-lg flex items-center gap-1.5 border border-amber-200">
           <i class="fa-solid fa-crown text-slate-900"></i> LEADING
         </div>
 
-        <div class="relative z-10 space-y-2 sm:space-y-4">
-          <!-- Header -->
-          <div class="flex items-center gap-3 sm:gap-4 lg:gap-5">
-            <div class="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br from-rose-500 to-red-700 text-white flex items-center justify-center font-black text-2xl sm:text-3xl lg:text-4xl shadow-lg border border-rose-400/30 shrink-0">
+        <div class="relative z-10 space-y-3 min-w-0">
+          <!-- Team Header -->
+          <div class="flex items-center gap-3 sm:gap-4 lg:gap-5 min-w-0">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl bg-gradient-to-br from-rose-500 to-red-700 text-white flex items-center justify-center font-black text-2xl sm:text-3xl lg:text-4xl shadow-lg border border-rose-400/30 shrink-0">
               A
             </div>
-            <div>
-              <h2 class="text-2xl sm:text-3xl lg:text-4xl 2xl:text-5xl font-black font-outfit text-rose-500 tracking-wide">TEAM NAJAH</h2>
-              <p class="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider">Red Warriors</p>
+            <div class="min-w-0 flex-1">
+              <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black font-outfit text-rose-500 tracking-wide truncate">TEAM NAJAH</h2>
+              <p class="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider truncate">Red Warriors</p>
             </div>
           </div>
 
-          <!-- BIG SCORE DISPLAY -->
-          <div class="py-2 sm:py-4 lg:py-6 text-center md:text-left flex items-baseline justify-center md:justify-start gap-2 lg:gap-4">
-            <span id="scoreTextA" class="text-6xl sm:text-7xl lg:text-8xl 2xl:text-9xl font-black font-outfit text-white tracking-tight drop-shadow-md transition-all">0</span>
-            <span class="text-xl sm:text-2xl lg:text-3xl 2xl:text-4xl font-black text-rose-400">PTS</span>
+          <!-- Score Display -->
+          <div class="py-2 sm:py-4 lg:py-6 text-center md:text-left flex items-baseline justify-center md:justify-start gap-2 sm:gap-3">
+            <span id="scoreTextA" class="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black font-outfit text-white tracking-tight drop-shadow-md transition-all">0</span>
+            <span class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-black text-rose-400">PTS</span>
           </div>
         </div>
 
-        <!-- Progress Bar & Teachers Footer -->
-        <div class="relative z-10 space-y-2 sm:space-y-3 pt-2 sm:pt-4 border-t border-slate-800">
+        <!-- Progress Bar & Teacher Info -->
+        <div class="relative z-10 space-y-2 sm:space-y-3 pt-3 border-t border-slate-800/80 shrink-0">
           <div class="w-full bg-slate-950 h-3.5 sm:h-5 lg:h-6 rounded-full overflow-hidden p-0.5 border border-slate-800">
             <div id="barTeamA" class="bg-gradient-to-r from-rose-600 via-rose-500 to-red-400 h-full rounded-full transition-all duration-1000 progress-shimmer" style="width: 0%"></div>
           </div>
-          <div class="flex items-center justify-between text-xs sm:text-sm text-slate-400">
-            <span><i class="fa-solid fa-chalkboard-user text-rose-400 mr-1"></i> Teachers:</span>
-            <span class="font-bold text-slate-200 truncate ml-2">Fahad Usthad, Nadeera Teacher, Sabira Teacher</span>
+          <div class="flex items-center justify-between text-xs sm:text-sm text-slate-400 min-w-0 gap-2">
+            <span class="shrink-0"><i class="fa-solid fa-chalkboard-user text-rose-400 mr-1"></i> Teachers:</span>
+            <span class="font-bold text-slate-200 truncate min-w-0 text-right">Fahad Usthad, Nadeera Teacher, Sabira Teacher</span>
           </div>
         </div>
 
       </div>
 
-      <!-- TEAM B (BLUE) CARD -->
-      <div id="cardTeamB" class="team-card relative overflow-hidden rounded-2xl lg:rounded-3xl bg-slate-900/90 border-2 border-blue-600/60 p-4 sm:p-6 lg:p-8 2xl:p-10 shadow-2xl glow-blue flex flex-col justify-between min-h-[220px] sm:min-h-[280px] lg:min-h-[340px] 2xl:min-h-[420px] h-full">
+      <!-- TEAM B (BLUE TITANS) CARD -->
+      <div id="cardTeamB" class="team-card relative overflow-hidden rounded-2xl lg:rounded-3xl bg-slate-900/90 border-2 border-blue-600/60 p-4 sm:p-6 lg:p-8 xl:p-10 shadow-2xl glow-blue flex flex-col justify-between min-h-[240px] sm:min-h-[280px] lg:min-h-[360px]">
         
-        <!-- Glowing Beam for Leader -->
+        <!-- Leader Glow Effect -->
         <div id="beamTeamB" class="absolute inset-0 bg-blue-500/10 pointer-events-none opacity-0 transition-opacity duration-500 animate-beam"></div>
 
-        <!-- Floating Leader Badge -->
+        <!-- Floating Leader Crown Badge -->
         <div id="crownTeamB" class="absolute top-3 right-3 sm:top-5 sm:right-5 hidden animate-crown bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs sm:text-sm font-black shadow-lg flex items-center gap-1.5 border border-amber-200">
           <i class="fa-solid fa-crown text-slate-900"></i> LEADING
         </div>
 
-        <div class="relative z-10 space-y-2 sm:space-y-4">
-          <!-- Header -->
-          <div class="flex items-center gap-3 sm:gap-4 lg:gap-5">
-            <div class="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-700 text-white flex items-center justify-center font-black text-2xl sm:text-3xl lg:text-4xl shadow-lg border border-blue-400/30 shrink-0">
+        <div class="relative z-10 space-y-3 min-w-0">
+          <!-- Team Header -->
+          <div class="flex items-center gap-3 sm:gap-4 lg:gap-5 min-w-0">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-700 text-white flex items-center justify-center font-black text-2xl sm:text-3xl lg:text-4xl shadow-lg border border-blue-400/30 shrink-0">
               B
             </div>
-            <div>
-              <h2 class="text-2xl sm:text-3xl lg:text-4xl 2xl:text-5xl font-black font-outfit text-blue-400 tracking-wide">TEAM FALAH</h2>
-              <p class="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider">Blue Titans</p>
+            <div class="min-w-0 flex-1">
+              <h2 class="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black font-outfit text-blue-400 tracking-wide truncate">TEAM FALAH</h2>
+              <p class="text-xs sm:text-sm text-slate-400 font-bold uppercase tracking-wider truncate">Blue Titans</p>
             </div>
           </div>
 
-          <!-- BIG SCORE DISPLAY -->
-          <div class="py-2 sm:py-4 lg:py-6 text-center md:text-left flex items-baseline justify-center md:justify-start gap-2 lg:gap-4">
-            <span id="scoreTextB" class="text-6xl sm:text-7xl lg:text-8xl 2xl:text-9xl font-black font-outfit text-white tracking-tight drop-shadow-md transition-all">0</span>
-            <span class="text-xl sm:text-2xl lg:text-3xl 2xl:text-4xl font-black text-blue-400">PTS</span>
+          <!-- Score Display -->
+          <div class="py-2 sm:py-4 lg:py-6 text-center md:text-left flex items-baseline justify-center md:justify-start gap-2 sm:gap-3">
+            <span id="scoreTextB" class="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-black font-outfit text-white tracking-tight drop-shadow-md transition-all">0</span>
+            <span class="text-lg sm:text-2xl lg:text-3xl xl:text-4xl font-black text-blue-400">PTS</span>
           </div>
         </div>
 
-        <!-- Progress Bar & Teachers Footer -->
-        <div class="relative z-10 space-y-2 sm:space-y-3 pt-2 sm:pt-4 border-t border-slate-800">
+        <!-- Progress Bar & Teacher Info -->
+        <div class="relative z-10 space-y-2 sm:space-y-3 pt-3 border-t border-slate-800/80 shrink-0">
           <div class="w-full bg-slate-950 h-3.5 sm:h-5 lg:h-6 rounded-full overflow-hidden p-0.5 border border-slate-800">
             <div id="barTeamB" class="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-400 h-full rounded-full transition-all duration-1000 progress-shimmer" style="width: 0%"></div>
           </div>
-          <div class="flex items-center justify-between text-xs sm:text-sm text-slate-400">
-            <span><i class="fa-solid fa-chalkboard-user text-blue-400 mr-1"></i> Teachers:</span>
-            <span class="font-bold text-slate-200 truncate ml-2">Fasil Usthad, Sancy Teacher, Saniya Teacher</span>
+          <div class="flex items-center justify-between text-xs sm:text-sm text-slate-400 min-w-0 gap-2">
+            <span class="shrink-0"><i class="fa-solid fa-chalkboard-user text-blue-400 mr-1"></i> Teachers:</span>
+            <span class="font-bold text-slate-200 truncate min-w-0 text-right">Fasil Usthad, Sancy Teacher, Saniya Teacher</span>
           </div>
         </div>
 
@@ -376,15 +376,15 @@
   </main>
 
   <!-- FOOTER -->
-  <footer id="bottomFooter" class="w-full max-w-[1800px] mx-auto border-t border-slate-800/80 pt-2 pb-1 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0">
-    <div class="flex items-center gap-3">
-      <img src="madrasa.png" class="h-5 w-auto object-contain" alt="Al Hikma" onerror="this.src='https://via.placeholder.com/40'">
+  <footer id="bottomFooter" class="w-full max-w-[1920px] mx-auto border-t border-slate-800/80 pt-2 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0">
+    <div class="flex items-center gap-2 sm:gap-3">
+      <img src="madrasa.png" class="h-4 sm:h-5 w-auto object-contain" alt="Al Hikma" onerror="this.src='https://via.placeholder.com/40'">
       <span class="text-slate-400 font-semibold text-xs">Al Hikma Holiday Madrasa, Nandi</span>
     </div>
     <p class="text-xs">© Sargavasantham Talent Fest 2026-2027</p>
   </footer>
 
-  <!-- REALTIME SYNC, 5s AUTO REFRESH, HEADER TOGGLE & LEADER ELEVATION LOGIC -->
+  <!-- REALTIME SYNC, 5s AUTO REFRESH & INTERACTION LOGIC -->
   <script>
     let currentScoreA = 0;
     let currentScoreB = 0;
@@ -396,7 +396,7 @@
       setupKeyboardShortcuts();
     });
 
-    // Realtime Listener Logic (Preserved)
+    // Realtime Listener Logic
     function initRealtimeScoreboard() {
       if (!window.db || !window.firestoreModule) {
         setTimeout(initRealtimeScoreboard, 300);
@@ -415,7 +415,7 @@
       });
     }
 
-    // Force Re-fetch Score Data every 5 seconds (Preserved)
+    // Force Re-fetch Score Data every 5 seconds
     async function fetchLatestScores() {
       if (!window.db || !window.firestoreModule) return;
       try {
@@ -487,7 +487,7 @@
       if (barA) barA.style.width = Math.max(pctA, 6) + '%';
       if (barB) barB.style.width = Math.max(pctB, 6) + '%';
 
-      // 3. Dynamic Leader Elevation & Crown Positioning Logic
+      // 3. Dynamic Leader Elevation & Crown Positioning
       const cardA = document.getElementById('cardTeamA');
       const cardB = document.getElementById('cardTeamB');
       const crownA = document.getElementById('crownTeamA');
@@ -544,7 +544,7 @@
       }
     }
 
-    // Toggle Top Header Bar (Hide/Show for Clean TV Mode)
+    // Toggle Header Bar
     function toggleHeader() {
       const header = document.getElementById('topHeader');
       const restoreBtn = document.getElementById('floatingHeaderRestore');
@@ -562,7 +562,7 @@
       }
     }
 
-    // Toggle Full Screen View for Smart TV Displays
+    // Toggle Full Screen View
     function toggleFullScreen() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(err => {
